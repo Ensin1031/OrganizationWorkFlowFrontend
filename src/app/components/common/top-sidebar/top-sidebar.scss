@@ -1,0 +1,129 @@
+:host ::ng-deep .top-sidebar__content {
+  display: flex;
+  width: 100%;
+  height: 2rem;
+  background: var(--main-color-with-gradient);
+  box-shadow: 2px 4px 4px rgba(0, 0, 0, 0.5), -2px -4px 4px rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  position: fixed;
+  & .user-menu-btn {
+    --mat-icon-button-touch-target-size: 2rem;
+    --mat-icon-button-state-layer-size: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    & .avatar {
+      width: 26px !important;
+      height: 26px !important;
+      border-radius: 50%;
+      object-fit: cover;
+      position: static !important;
+    }
+  }
+  &--main-icon {
+    display: flex;
+    align-items: center;
+    margin: 0;
+    padding: 0 .5rem;
+  }
+
+  .project-menu-trigger {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background 0.2s;
+    background: rgba(255, 255, 255, 0.1);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .project-label {
+      font-weight: 500;
+      opacity: 0.8;
+      color: var(--bs-white);
+    }
+
+    .selected-project-name {
+      max-width: 180px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .dropdown-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+      margin: 0;
+      transition: transform 0.3s ease;
+      color: var(--bs-white);
+      &.rotated {
+        transform: rotate(180deg);
+      }
+    }
+  }
+}
+
+.project-menu {
+  &--items-container {
+    max-height: 20rem;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+  &--item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: .1rem .25rem;
+    & mat-icon {
+      margin: 0 !important;
+      color: #4caf50;
+    }
+  }
+  &--item-btn {
+    padding: 0 .25rem !important;
+    min-height: 1.5rem;
+    &--icon {
+      display: flex;
+      width: 18px;
+      margin-right: .25rem;
+    }
+    &:not(:last-child), :not(:first-child) {
+      margin: .25rem 0 !important;
+    }
+    &:first-child {
+      margin: 0 0 .25rem 0 !important;
+    }
+    &:last-child {
+      margin: .25rem 0 0 0 !important;
+    }
+  }
+  .check-icon {
+    margin-left: auto;
+  }
+
+}
+
+::ng-deep .project-menu-search {
+  padding: 0 .25rem !important;
+  margin: .25rem 0 !important;
+  min-width: 240px;
+
+  .search-field {
+    width: 100%;
+    font-size: 14px;
+    --mat-form-field-container-height: 1.5rem;
+    --mat-form-field-container-vertical-padding: .125rem;
+    & .mat-mdc-form-field-subscript-wrapper {
+      display: none !important;
+    }
+    & .mat-mdc-text-field-wrapper {
+      background: white;
+    }
+  }
+}

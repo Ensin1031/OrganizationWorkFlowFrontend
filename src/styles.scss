@@ -43,8 +43,12 @@ body {
   --light-gray-background-color: #f5f5f5;
   --border-color: #dfdfdf;
   --gray-background-color: #ececec;
+  --gray-dark-background-color: #cccccc;
 
   --main-color-with-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+  --prime-back-color: #2c3e50;
+  --prime-back-hover-color: #34495e;
 
   --success-color: rgba(80, 181, 79, 1);
   --warning-color: rgba(229, 166, 44, 1);
@@ -59,6 +63,64 @@ body {
   --link-location-disabled-color: #888888;
 
   overflow: auto;
+
+  --mat-sys-on-surface: var(--prime-back-color);
+  --mat-sys-primary: var(--prime-back-color);
+  --mat-dialog-container-color: var(--gray-background-color);
+  --mat-dialog-with-actions-content-padding: 0 1rem;
+  --mat-dialog-headline-padding: .425rem 1rem 1rem;
+  --mat-dialog-actions-padding: 1rem;
+  --mat-form-field-outlined-label-text-size: 14px;
+  --mat-form-field-container-height: 1.5rem;
+  --mat-form-field-container-vertical-padding: .125rem;
+  --mat-form-field-container-text-size: 14px;
+  --mat-icon-button-touch-target-size: 1.5rem;
+  --mat-icon-button-state-layer-size: 1.5rem;
+
+  --mat-button-text-touch-target-size: 1.5rem;
+
+  --mat-button-text-label-text-color: var(--prime-back-color);
+  --mat-button-text-container-shape: 1rem;
+  --mat-button-text-horizontal-padding: 1rem;
+  --mat-button-text-container-height: 2rem;
+
+  --mat-button-filled-label-text-color: var(--bs-white);
+  --mat-button-filled-container-color: var(--prime-back-color);
+  --mat-button-filled-container-shape: 1rem;
+  --mat-button-filled-container-height: 2rem;
+
+  --mat-button-outlined-container-height: 1.5rem;
+  --mat-button-outlined-horizontal-padding: .25rem;
+
+  --mat-table-header-headline-size: 14px;
+  --mat-table-header-headline-color: var(--font-color);
+  --mat-table-header-container-height: 2rem;
+
+  //--mat-table-row-item-outline-color: var(--font-color);
+  --mat-table-row-item-label-text-size: 14px;
+  //--mat-table-row-item-label-text-font: var(--primary-font-family);
+  --mat-table-row-item-label-text-color: var(--font-color);
+  --mat-table-row-item-label-text-weight: 400;
+  --mat-table-row-item-container-height: 2.2rem;
+  --mat-table-background-color: var(--light-gray-background-color);
+  --mat-table-row-item-outline-color: var(--gray-dark-background-color);
+
+  --mat-paginator-container-size: 2rem;
+  --mat-paginator-container-background-color: var(--light-gray-background-color);
+  --mat-paginator-container-text-color: var(--font-color);
+  --mat-paginator-container-text-size: 12px;
+  --mat-paginator-page-size-select-width: 84px;
+  --mat-paginator-form-field-container-height: 2rem;
+  --mat-paginator-form-field-container-vertical-padding: .385rem;
+
+  --mat-select-panel-background-color: var(--gray-background-color);
+  --mat-option-label-text-size: 14px;
+
+  --mat-datepicker-calendar-container-background-color: var(--gray-background-color);
+  --mat-datepicker-calendar-container-elevation-shadow: 2px 4px 4px rgba(0, 0, 0, 0.5), -2px -4px 4px rgba(255, 255, 255, 0.1);
+
+  --mat-menu-item-leading-spacing: .25rem;
+  --mat-menu-item-trailing-spacing: .25rem;
 }
 
 html,
@@ -68,6 +130,27 @@ body {
   height: 100%;
   width: 100%;
   background: var(--light-gray-background-color)
+}
+
+.mdc-data-table__cell, .mdc-data-table__header-cell {
+  padding: 0 .5rem !important;
+}
+.mat-mdc-header-row, .mat-mdc-table .mat-mdc-header-cell {
+  background: var(--gray-background-color) !important;
+}
+
+.mat-mdc-menu-content {
+  background: var(--gray-background-color);
+}
+.mat-mdc-menu-item {
+  min-height: 1.5rem !important;
+}
+
+.mat-mdc-option {
+  padding: 0 .5rem !important;
+  height: 2rem !important;
+  max-height: 2rem !important;
+  min-height: 2rem !important;
 }
 
 .hide-text-overflow-1 {

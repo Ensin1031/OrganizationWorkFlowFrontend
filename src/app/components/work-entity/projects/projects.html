@@ -1,0 +1,371 @@
+<div class="projects-list__content h-100">
+  <div class="projects-list-header">
+    <h1 class="d-flex">Просмотр проектов</h1>
+    @if (canCreateProject()) {
+      <button
+        mat-icon-button
+        class="projects-list-header--add-project-btn"
+        [matTooltip]="'Добавить проект'"
+        (click)="createProject($event)"
+      >
+        <mat-icon svgIcon="addObjectIcon" class="d-flex projects-list-header--add-project-btn--icon"></mat-icon>
+      </button>
+    }
+  </div>
+  <mat-divider class="projects-list__divider" style="margin: 0.125rem;"></mat-divider>
+  <div class="d-flex flex-row h-100">
+    <div class="d-flex flex-column projects-list__manage-bar">
+      <div class="mb-3 projects-list__manage-bar--types">
+        <div class="projects-list__manage-bar--label">
+          Типы проектов
+          @if (canCreateProjectType()) {
+            <button
+              mat-icon-button
+              class="projects-list__manage-bar--add-icon-btn"
+              [matTooltip]="'Добавить тип проекта'"
+              (click)="createType($event)"
+            >
+              <mat-icon svgIcon="addObjectIcon" class="d-flex projects-list__manage-bar--add-icon-btn"></mat-icon>
+            </button>
+          }
+        </div>
+        <div class="projects-list__manage-bar--search">
+          <mat-form-field appearance="outline" class="search-field">
+            <mat-label style="font-size: 14px;">Поиск типов проектов</mat-label>
+            <input
+              matInput
+              [(ngModel)]="searchProjectTypeText"
+              placeholder="Введите название..."
+            />
+            @if (searchProjectTypeText()) {
+              <button matSuffix mat-icon-button (click)="searchProjectTypeText.set('')">
+                <mat-icon>close</mat-icon>
+              </button>
+            }
+          </mat-form-field>
+        </div>
+        <div class="d-flex flex-row mt-2">
+          <button mat-button class="project-menu--item-btn" (click)="onUnselectProjectTypes()">
+            Показать все
+          </button>
+        </div>
+        <div class="projects-list__manage-bar--items mt-2">
+          @for (projectType of filteredProjectTypes(); track projectType.id) {
+            @if (projectType.has_projects) {
+              <div class="d-flex flex-row align-items-center justify-content-between" style="height: 32px;" [ngClass]="{'projects-list__manage-bar--selected': projectType.selected}">
+                <div class="d-flex flex-row align-items-center gap-2">
+                  @if (projectType.icon) {
+                    <button mat-icon-button (click)="onSelectProjectType(projectType)" class="d-flex">
+                      <app-safe-svg [svgString]="projectType.icon"></app-safe-svg>
+                    </button>
+                  }
+                  <a href="javascript:void(0)" (click)="onSelectProjectType(projectType)" class="hide-text-overflow-1" [matTooltip]="projectType.name">
+                    {{ projectType.name }}
+                  </a>
+                </div>
+                @if (canCreateProjectType()) {
+                  <button
+                    mat-icon-button
+                    class="projects-list__manage-bar--add-icon-btn"
+                    [matTooltip]="'Редактировать'"
+                    (click)="updateType($event, projectType)"
+                  >
+                    <mat-icon svgIcon="editObjectIcon" class="d-flex projects-list__manage-bar--add-icon-btn"></mat-icon>
+                  </button>
+                }
+              </div>
+            } @else {
+              <div class="d-flex align-items-center justify-content-between">
+                <div class="projects-list__manage-bar--item">
+                  @if (projectType.icon) {
+                    <span class="projects-list__manage-bar--item--icon">
+                      <app-safe-svg [svgString]="projectType.icon"></app-safe-svg>
+                    </span>
+                  }
+                  <span class="hide-text-overflow-1" style="cursor: default;" [matTooltip]="projectType.name">{{ projectType.name }}</span>
+                </div>
+                @if (canCreateProjectType()) {
+                  <div class="d-flex flex-row gap-1">
+                    <button
+                      mat-icon-button
+                      class="projects-list__manage-bar--add-icon-btn"
+                      [matTooltip]="'Редактировать'"
+                      (click)="updateType($event, projectType)"
+                    >
+                      <mat-icon svgIcon="editObjectIcon" class="d-flex projects-list__manage-bar--add-icon-btn"></mat-icon>
+                    </button>
+                    <button
+                      mat-icon-button
+                      class="projects-list__manage-bar--add-icon-btn"
+                      [matTooltip]="'Удалить'"
+                      (click)="deleteType($event, projectType)"
+                    >
+                      <mat-icon svgIcon="delObjectIcon" class="d-flex projects-list__manage-bar--add-icon-btn"></mat-icon>
+                    </button>
+                  </div>
+                }
+              </div>
+            }
+          }
+        </div>
+      </div>
+      <div class="mb-3 projects-list__manage-bar--categories">
+        <div class="projects-list__manage-bar--label">
+          Категории
+          @if (canCreateProjectCategory()) {
+            <button
+              mat-icon-button
+              class="projects-list__manage-bar--add-icon-btn"
+              [matTooltip]="'Добавить категорию'"
+              (click)="createCategory($event)"
+            >
+              <mat-icon svgIcon="addObjectIcon" class="d-flex projects-list__manage-bar--add-icon-btn"></mat-icon>
+            </button>
+          }
+        </div>
+        <div class="projects-list__manage-bar--search">
+          <mat-form-field appearance="outline" class="search-field">
+            <mat-label style="font-size: 14px;">Поиск категорий проектов</mat-label>
+            <input
+              matInput
+              [(ngModel)]="searchProjectCategoryText"
+              placeholder="Введите название..."
+            />
+            @if (searchProjectCategoryText()) {
+              <button matSuffix mat-icon-button (click)="searchProjectCategoryText.set('')">
+                <mat-icon>close</mat-icon>
+              </button>
+            }
+          </mat-form-field>
+        </div>
+        <div class="d-flex flex-row mt-2">
+          <button mat-button class="project-menu--item-btn" (click)="onUnselectProjectCategories()">
+            Показать все
+          </button>
+        </div>
+        <div class="projects-list__manage-bar--items mt-2">
+          @for (projectCategory of filteredProjectCategories(); track projectCategory.id) {
+            @if (projectCategory.has_projects) {
+              <div class="d-flex flex-row align-items-center justify-content-between" style="height: 32px;" [ngClass]="{'projects-list__manage-bar--selected': projectCategory.selected}">
+                <div class="d-flex flex-row align-items-center gap-2">
+                  @if (projectCategory.icon) {
+                    <button mat-icon-button (click)="onSelectProjectCategory(projectCategory)" class="d-flex">
+                      <app-safe-svg [svgString]="projectCategory.icon"></app-safe-svg>
+                    </button>
+                  }
+                  <a href="javascript:void(0)" (click)="onSelectProjectCategory(projectCategory)" class="hide-text-overflow-1" [matTooltip]="projectCategory.name">
+                    {{ projectCategory.name }}
+                  </a>
+                </div>
+                @if (canCreateProjectCategory()) {
+                  <button
+                    mat-icon-button
+                    class="projects-list__manage-bar--add-icon-btn"
+                    [matTooltip]="'Редактировать'"
+                    (click)="updateCategory($event, projectCategory)"
+                  >
+                    <mat-icon svgIcon="editObjectIcon" class="d-flex projects-list__manage-bar--add-icon-btn"></mat-icon>
+                  </button>
+                }
+              </div>
+            } @else {
+              <div class="d-flex align-items-center justify-content-between">
+                <div class="projects-list__manage-bar--item">
+                  @if (projectCategory.icon) {
+                    <span class="projects-list__manage-bar--item--icon">
+                      <app-safe-svg [svgString]="projectCategory.icon"></app-safe-svg>
+                    </span>
+                  }
+                  <span class="hide-text-overflow-1">{{ projectCategory.name }}</span>
+                </div>
+                @if (canCreateProjectCategory()) {
+                  <div class="d-flex flex-row gap-1">
+                    <button
+                      mat-icon-button
+                      class="projects-list__manage-bar--add-icon-btn"
+                      [matTooltip]="'Редактировать'"
+                      (click)="updateCategory($event, projectCategory)"
+                    >
+                      <mat-icon svgIcon="editObjectIcon" class="d-flex projects-list__manage-bar--add-icon-btn"></mat-icon>
+                    </button>
+                    <button
+                      mat-icon-button
+                      class="projects-list__manage-bar--add-icon-btn"
+                      [matTooltip]="'Удалить'"
+                      (click)="deleteCategory($event, projectCategory)"
+                    >
+                      <mat-icon svgIcon="delObjectIcon" class="d-flex projects-list__manage-bar--add-icon-btn"></mat-icon>
+                    </button>
+                  </div>
+                }
+              </div>
+            }
+          }
+        </div>
+      </div>
+    </div>
+    <div class="h-100 d-flex flex-column gap-2 projects-list__projects position-relative">
+      <div class="project-list-search d-flex flex-row">
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-label style="font-size: 14px;">Поиск...</mat-label>
+          <input
+            matInput
+            [(ngModel)]="searchText"
+            placeholder="Введите название или код"
+          />
+          @if (searchText()) {
+            <button matSuffix mat-icon-button (click)="searchText.set('')">
+              <mat-icon>close</mat-icon>
+            </button>
+          }
+        </mat-form-field>
+      </div>
+      <div class="d-flex flex-column h-100 projects-list__projects--table-container">
+        <div class="mat-elevation-z8 overflow-auto h-100">
+          <table mat-table [dataSource]="projects().results" matSort (matSortChange)="onSortChange($event)" class="projects-table">
+            <!-- Название -->
+            <ng-container matColumnDef="name">
+              <th mat-header-cell *matHeaderCellDef class="middle-sell"> Название </th>
+              <td mat-cell *matCellDef="let project">
+                <div class="d-flex flex-row align-items-center">
+                  @if (project.icon) {
+                    <span class="projects-list-icon me-2"><app-safe-svg [svgString]="project.icon" class="d-flex"></app-safe-svg></span>
+                  }
+                  <a href="javascript:void(0)" (click)="goToProjectTacks(project)" [matTooltip]="'Перейти к задачам проекта'" class="hide-text-overflow-1">
+                    <span>{{ project.name }}</span>
+                  </a>
+                </div>
+              </td>
+            </ng-container>
+
+            <!-- Префикс -->
+            <ng-container matColumnDef="code_prefix">
+              <th mat-header-cell *matHeaderCellDef> Префикс </th>
+              <td mat-cell *matCellDef="let project"><a href="javascript:void(0)" (click)="goToProjectTacks(project)" [matTooltip]="'Перейти к задачам проекта'" class="text-nowrap">{{ project.code_prefix }}</a></td>
+            </ng-container>
+
+            <!-- Дата начала -->
+            <ng-container matColumnDef="start_date">
+              <th mat-header-cell *matHeaderCellDef> Начало </th>
+              <td mat-cell *matCellDef="let project" class="text-nowrap"> {{ project.start_date | date:'dd.MM.yyyy' }} </td>
+            </ng-container>
+
+            <!-- Дата окончания -->
+            <ng-container matColumnDef="end_date">
+              <th mat-header-cell *matHeaderCellDef> Окончание </th>
+              <td mat-cell *matCellDef="let project" class="text-nowrap"> {{ project.end_date | date:'dd.MM.yyyy' }} </td>
+            </ng-container>
+
+            <!-- Ответственный -->
+            <ng-container matColumnDef="manage_by">
+              <th mat-header-cell *matHeaderCellDef> Ответственный </th>
+              <td mat-cell *matCellDef="let project"> {{ project.manage_by?.full_name || project.manage_by?.username }} </td>
+            </ng-container>
+
+            <!-- Категория -->
+            <ng-container matColumnDef="category">
+              <th mat-header-cell *matHeaderCellDef class="middle-sell"> Категория </th>
+              <td mat-cell *matCellDef="let project" class="middle-sell">
+                @if (project.category?.name) {
+                  <div class="text-nowrap d-flex flex-row align-items-center">
+                    @if (project.category.icon) {
+                      <div class="projects-list-icon me-2">
+                        <app-safe-svg [svgString]="project.category.icon" class="d-flex"></app-safe-svg>
+                      </div>
+                    }
+                    <a href="javascript:void(0)" (click)="onSelectProjectCategory(project.category, true)">
+                      {{ project.category.name | slice:0:17 }}{{ project.category.name.length > 17 ? '...' : '' }}
+                    </a>
+                  </div>
+                } @else {
+                  —
+                }
+              </td>
+            </ng-container>
+
+            <!-- Тип -->
+            <ng-container matColumnDef="type">
+              <th mat-header-cell *matHeaderCellDef class="small-sell"> Тип </th>
+              <td mat-cell *matCellDef="let project">
+                @if (project.type?.icon) {
+                  <button mat-icon-button class="project-menu--item-btn" (click)="onSelectProjectType(project.type, true)">
+                    <div class="projects-list-icon">
+                      <app-safe-svg [svgString]="project.type.icon" class="d-flex"></app-safe-svg>
+                    </div>
+                  </button>
+                } @else if (project.type?.name) {
+                  <a href="javascript:void(0)" (click)="onSelectProjectType(project.type, true)">
+                    {{ project.type.name | slice:0:17 }}{{ project.type.name.length > 17 ? '...' : '' }}
+                  </a>
+                } @else {—}
+              </td>
+            </ng-container>
+
+            <!-- urls -->
+            <ng-container matColumnDef="urls">
+              <th mat-header-cell *matHeaderCellDef> Ссылки </th>
+              <td mat-cell *matCellDef="let project">
+                @if (project.urls?.length) {
+                  <div>
+                    @for (url of project.urls; track $index) {
+                      <div>
+                        <a [href]="url" target="_blank" class="url-link text-nowrap d-flex flex-row align-items-center"><mat-icon>link</mat-icon>{{ url }}</a>
+                      </div>
+                    }
+                  </div>
+                } @else {
+                  <span>—</span>
+                }
+              </td>
+            </ng-container>
+
+            <!-- version -->
+            <ng-container matColumnDef="versions">
+              <th mat-header-cell *matHeaderCellDef> Версия </th>
+              <td mat-cell *matCellDef="let project">
+                <span>{{ project.active_version?.name ?? '—' }}</span>
+              </td>
+            </ng-container>
+
+            <!-- description -->
+            <ng-container matColumnDef="description">
+              <th mat-header-cell *matHeaderCellDef> Описание </th>
+              <td mat-cell *matCellDef="let project"> {{ project.description | slice:0:80 }}{{ project.description.length > 80 ? '...' : '' }} </td>
+            </ng-container>
+
+            <!-- manageCol -->
+            <ng-container matColumnDef="manageCol">
+              <th mat-header-cell *matHeaderCellDef></th>
+              <td mat-cell *matCellDef="let project">
+                @if(canCreateProject()) {
+                  <button
+                    mat-icon-button
+                    class="projects-list__manage-bar--add-icon-btn"
+                    [matTooltip]="'Редактировать'"
+                    (click)="updateProject($event, project)"
+                  >
+                    <mat-icon svgIcon="editObjectIcon" class="d-flex projects-list__manage-bar--add-icon-btn"></mat-icon>
+                  </button>
+                }
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns();"></tr>
+          </table>
+        </div>
+        <mat-divider class="projects-list__divider" style="margin: 0.125rem;"></mat-divider>
+        <div class="projects-list__projects--table-container--paginator">
+          <mat-paginator
+            [length]="projects().count"
+            [pageSize]="pageSize()"
+            [pageSizeOptions]="[5, 10, 20, 50, 100]"
+            (page)="onPageChange($event)"
+            showFirstLastButtons>
+          </mat-paginator>
+        </div>
+      </div>
+    </div>
+  </div>
+  <mat-divider class="projects-list__divider" style="margin: 0.125rem;"></mat-divider>
+</div>

@@ -1,0 +1,78 @@
+<mat-progress-bar mode="indeterminate" [ngStyle]="{'visibility': isLoading() ? 'visible' : 'hidden'}"></mat-progress-bar>
+
+<div class="settings-container">
+  <h1>Настройки профиля</h1>
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="settings-form">
+    <!-- Блок с фото -->
+    <div class="photo-section">
+      <div class="avatar-wrapper">
+        @if (photoPreviewUrl()) {
+          <img [ngSrc]="photoPreviewUrl()!" alt="Profile photo" class="profile-photo" fill>
+        } @else {
+          <div class="profile-photo-placeholder">Нет фото</div>
+        }
+      </div>
+      <div class="photo-actions">
+        <input type="file" #fileInput (change)="onFileSelected($event)" accept="image/*" style="display: none">
+        <button mat-stroked-button type="button" (click)="fileInput.click()">Выбрать фото</button>
+        @if (photoPreviewUrl()) {
+          <button mat-stroked-button type="button" (click)="removePhoto()">Удалить фото</button>
+        }
+      </div>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>Логин</mat-label>
+        <input matInput formControlName="username" required>
+        <mat-error>Обязательное поле</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Email</mat-label>
+        <input matInput formControlName="email" type="email" required>
+        @if (form.get('email')?.hasError('required')) {
+          <mat-error>Обязательное поле</mat-error>
+        } @else if (form.get('email')?.hasError('email')) {
+          <mat-error>Некорректный email</mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>Имя</mat-label>
+        <input matInput formControlName="first_name">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Фамилия</mat-label>
+        <input matInput formControlName="last_name">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Отчество</mat-label>
+        <input matInput formControlName="second_name">
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Полное имя</mat-label>
+      <input matInput [value]="fullName()" disabled>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Дата рождения</mat-label>
+      <input matInput [matDatepicker]="picker" formControlName="birth_date">
+      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+    </mat-form-field>
+
+    <div class="form-actions">
+      <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || isLoading()">
+        Сохранить изменения
+      </button>
+      <button mat-button type="button" (click)="resetForm()" [disabled]="isLoading()">Сбросить</button>
+    </div>
+  </form>
+</div>

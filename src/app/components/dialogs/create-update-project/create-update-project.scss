@@ -1,0 +1,52 @@
+.project-dialog-form {
+  .full-width {
+    width: 100%;
+    margin-bottom: 1rem;
+  }
+  .color-field {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    margin-bottom: 1rem;
+    .color-input { flex: 1; }
+    .color-picker {
+      width: 36px;
+      height: 36px;
+      border: none;
+      cursor: pointer;
+      background: transparent;
+    }
+  }
+  .date-row {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    mat-form-field { flex: 1; }
+  }
+  .urls-section {
+    .urls-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+    .url-item {
+      margin-bottom: 6px;
+      & mat-form-field {
+        margin-bottom: 0 !important;
+      }
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+  .icon-preview {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+    display: none !important;
+  }
+}

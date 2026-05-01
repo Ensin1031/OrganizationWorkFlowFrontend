@@ -1,0 +1,32 @@
+:host ::ng-deep .version-dialog-form {
+  .full-width {
+    width: 100%;
+    margin-bottom: 1.2rem;
+  }
+  .date-row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 1.2rem;
+    mat-form-field { flex: 1; }
+  }
+  .color-field {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    margin-bottom: 1.2rem;
+    .color-input { flex: 1; }
+    .color-picker {
+      width: 36px;
+      height: 36px;
+      border: none;
+      cursor: pointer;
+      background: transparent;
+    }
+  }
+  .mat-mdc-form-field-subscript-wrapper {
+    display: none !important;
+  }
+  .mat-mdc-text-field-wrapper {
+    background: white;
+  }
+}

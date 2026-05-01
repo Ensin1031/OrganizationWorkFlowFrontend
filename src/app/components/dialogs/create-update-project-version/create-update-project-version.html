@@ -1,0 +1,53 @@
+<h2 mat-dialog-title>{{ title() }}</h2>
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="version-dialog-form">
+  <mat-dialog-content>
+    <!-- Версия -->
+    <mat-form-field appearance="outline" class="full-width mt-1">
+      <mat-label>Версия *</mat-label>
+      <input matInput formControlName="name" required />
+    </mat-form-field>
+
+    <!-- Даты -->
+    <div class="date-row">
+      <mat-form-field appearance="outline">
+        <mat-label>Дата начала</mat-label>
+        <input matInput [matDatepicker]="startVersionPicker" formControlName="start_date">
+        <mat-datepicker-toggle matSuffix [for]="startVersionPicker"></mat-datepicker-toggle>
+        <mat-datepicker #startVersionPicker></mat-datepicker>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Дата окончания</mat-label>
+        <input matInput [matDatepicker]="endVersionPicker" formControlName="end_date">
+        <mat-datepicker-toggle matSuffix [for]="endVersionPicker"></mat-datepicker-toggle>
+        <mat-datepicker #endVersionPicker></mat-datepicker>
+      </mat-form-field>
+    </div>
+
+    <!-- Цвет (пикер + текстовое поле) -->
+    <div class="color-field">
+      <mat-form-field appearance="outline" class="color-input">
+        <mat-label>Цвет (HEX)</mat-label>
+        <input matInput formControlName="color" placeholder="#RRGGBB" />
+      </mat-form-field>
+      <input
+        type="color"
+        class="color-picker"
+        [value]="form.get('color')?.value"
+        (change)="form.get('color')?.setValue($any($event.target).value)"
+      />
+    </div>
+
+    <!-- Описание -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Описание</mat-label>
+      <textarea matInput formControlName="description" rows="4"></textarea>
+    </mat-form-field>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end" style="padding-top: 0;">
+    <button mat-button type="button" (click)="onCancel()">Отмена</button>
+    <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || isSaving">
+      {{ isSaving ? 'Сохранение...' : (data.mode === 'create' ? 'Создать' : 'Сохранить') }}
+    </button>
+  </mat-dialog-actions>
+</form>

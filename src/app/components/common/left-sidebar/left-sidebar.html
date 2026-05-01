@@ -1,0 +1,19 @@
+<div class="left-sidebar" [style.width.px]="sidebarService.width()">
+  <div class="left-sidebar-content">
+    <nav>
+      <ul>
+        @for (linkItem of linkItems; track $index) {
+          <li>
+            <a [routerLink]="linkItem.routerLink" [routerLinkActive]="linkItem.routerLinkActive" [matTooltip]="linkItem.tooltip">
+              <div class="nav-item" [class.collapsed]="!isExpanded">
+                <mat-icon class="nav-icon" [svgIcon]="linkItem.svgIcon"></mat-icon>
+                <span class="nav-text" [class.hide-text]="!isExpanded">{{ linkItem.title }}</span>
+              </div>
+            </a>
+          </li>
+        }
+      </ul>
+    </nav>
+  </div>
+  <div class="left-sidebar-resize-handle" (mousedown)="startResize($event)"></div>
+</div>

@@ -1,0 +1,78 @@
+<div class="top-sidebar__content d-flex align-items-center justify-content-between">
+  <div class="d-flex flex-row align-items-center">
+    <div class="top-sidebar__content--main-icon">
+      <a href="/public" [matTooltip]="'Главная'"><mat-icon class="d-flex" svgIcon="mainSmallLightLogo"></mat-icon></a>
+    </div>
+    <div class="project-menu-trigger" [matMenuTriggerFor]="projectMenu" (menuOpened)="onProjectMenuOpened()" (menuClosed)="onProjectMenuClosed()">
+      <span class="project-label">Проекты</span>
+      <mat-icon class="dropdown-icon" [class.rotated]="isProjectMenuOpen">arrow_drop_down</mat-icon>
+    </div>
+    <mat-menu #projectMenu="matMenu" class="project-menu">
+      <!-- Поле поиска -->
+      <div class="project-menu-search">
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-label (click)="$event.stopPropagation()" (mousedown)="$event.stopPropagation()" style="font-size: 14px;">Поиск проектов</mat-label>
+          <input
+            matInput
+            [(ngModel)]="searchText"
+            (click)="$event.stopPropagation()"
+            (mousedown)="$event.stopPropagation()"
+            placeholder="Введите название..."
+          />
+          @if (searchText()) {
+            <button matSuffix mat-icon-button (click)="searchText.set('')">
+              <mat-icon>close</mat-icon>
+            </button>
+          }
+        </mat-form-field>
+      </div>
+      <mat-divider class="project-menu--divider" style="border-color: var(--font-color);margin: 0.125rem;"></mat-divider>
+      <div class="d-flex flex-column project-menu--items-container">
+        @for (project of filteredProjects(); track project.id) {
+          <button mat-menu-item class="project-menu--item-btn" (click)="selectProjectAndClearSearch(project)">
+            <div class="project-menu--item">
+              @if (project.icon) {
+                <div class="project-menu--item-btn--icon">
+                  <app-safe-svg [svgString]="project.icon"></app-safe-svg>
+                </div>
+              }
+              <div class="hide-text-overflow-1">{{ project.name }}</div>
+            </div>
+          </button>
+        }
+      </div>
+      <mat-divider class="project-menu--divider" style="border-color: var(--font-color);margin: 0.125rem;"></mat-divider>
+      <button mat-menu-item routerLink="/home/projects" class="all-projects-button project-menu--item-btn">
+        Перейти на страницу проектов
+      </button>
+    </mat-menu>
+  </div>
+
+  <!-- Данные пользователя -->
+  <div class="d-flex flex-row align-items-center me-2">
+    <button mat-icon-button [matMenuTriggerFor]="userMenu" class="user-menu-btn">
+      @if (userService.user()) {
+        @if (userService.user()?.profile_photo) {
+          <img
+            [ngSrc]="userService.user()!.profile_photo!"
+            (error)="onImgError($event)"
+            alt="avatar"
+            class="avatar"
+            fill />
+        } @else {
+          <img src="assets/default-avatar.png" alt="avatar" class="avatar" />
+        }
+      }
+    </button>
+
+    <mat-menu #userMenu="matMenu">
+      <button mat-menu-item (click)="openSettings()" style="margin: 0 0 .25rem 0;">
+        <span>Профиль пользователя</span>
+      </button>
+      <mat-divider class="project-menu--divider" style="border-color: var(--font-color);margin: 0.125rem;"></mat-divider>
+      <button mat-menu-item (click)="logout()" style="margin: .25rem 0 0 0;">
+        <span>Выйти</span>
+      </button>
+    </mat-menu>
+  </div>
+</div>

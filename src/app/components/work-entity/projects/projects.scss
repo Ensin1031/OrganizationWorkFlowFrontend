@@ -1,0 +1,132 @@
+:host ::ng-deep .projects-list__content {
+  display: flex;
+  flex-direction: column;
+  & .projects-list-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    &--add-project-btn {
+      --mat-icon-button-icon-size: 48px;
+      --mat-icon-button-state-layer-size: 48px;
+      --mat-icon-button-touch-target-size: 48px;
+      &--icon {
+        height: 48px;
+        width: 48px;
+      }
+    }
+  }
+  & .projects-list-icon {
+    min-width: 1.2rem;
+    display: flex;
+  }
+  .search-field {
+    width: 100%;
+    font-size: 14px;
+    & .mat-mdc-form-field-subscript-wrapper {
+      display: none !important;
+    }
+    & .mat-mdc-text-field-wrapper {
+      background: white;
+    }
+    & button {
+      margin-right: .15rem;
+    }
+  }
+  & .projects-list__manage-bar {
+    width: 25rem;
+    border-right: 1px solid var(--mat-sys-outline-variant);
+    padding: .5rem;
+    &--label {
+      font-weight: 600;
+      margin: 1rem 0 .25rem .5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    &--add-icon-btn {
+      cursor: pointer;
+    }
+    &--items {
+      max-height: 16rem;
+      overflow-y: auto;
+    }
+    &--item {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      line-height: 2rem;
+      gap: .25rem;
+      &--icon {
+        width: 2rem;
+        display: flex;
+        margin-bottom: .1rem;
+      }
+    }
+    &--selected {
+      background: var(--border-color);
+      padding-left: .5rem;
+      padding-right: .5rem;
+      border-radius: .6rem;
+    }
+    &--types {
+      max-height: 25rem;
+      overflow-y: auto;
+    }
+    &--categories {
+      max-height: 25rem;
+      overflow-y: auto;
+    }
+  }
+  & .projects-list__projects {
+    min-width: 0;
+    width: calc(100vw - 30rem);
+    flex: 1;
+    overflow: auto;
+    padding: .5rem;
+    &--table-container {
+      max-height: 81.5vh;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      &--paginator {
+        display: flex;
+        flex-direction: column;
+        height: 2.35rem;
+        margin: .5rem 0;
+      }
+      & .small-sell {
+        width: 7rem;
+        max-width: 7rem;
+        min-width: 7rem;
+      }
+      & .middle-sell {
+        width: 12rem;
+        max-width: 12rem;
+        min-width: 12rem;
+      }
+      .projects-table {
+        width: 100%;
+        min-width: 0;
+        border-collapse: collapse;
+        & .mat-column-manageCol {
+          position: sticky !important;
+          right: 0 !important;
+          background-color: var(--gray-background-color);
+          z-index: 2;
+        }
+        & .mat-header-cell.mat-column-manageCol {
+          position: sticky !important;
+          right: 0;
+          background-color: var(--gray-background-color);
+          z-index: 10;
+        }
+      }
+      & thead tr {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+      }
+    }
+  }
+}

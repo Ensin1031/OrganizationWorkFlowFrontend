@@ -1,0 +1,203 @@
+<h2 mat-dialog-title>{{ title() }}</h2>
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="project-dialog-form">
+  <mat-dialog-content>
+    <!-- Наименование -->
+    <mat-form-field appearance="outline" class="full-width mt-1">
+      <mat-label>Наименование *</mat-label>
+      <input matInput formControlName="name" required maxlength="30" />
+      @if (form.get('name')?.hasError('required')) {
+        <mat-error>Обязательное поле</mat-error>
+      } @else if (form.get('name')?.hasError('maxlength')) {
+        <mat-error>Максимум 30 символов</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Префикс кода -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Префикс кода (3–10 символов)</mat-label>
+      <input matInput formControlName="code_prefix" maxlength="10" />
+    </mat-form-field>
+
+    <!-- SVG иконка + предпросмотр -->
+    <div class="position-relative d-flex align-items-center gap-3">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>SVG иконка (код)</mat-label>
+        <textarea matInput formControlName="icon" rows="2" placeholder="<svg>...</svg>"></textarea>
+      </mat-form-field>
+      @if (form.get('icon')?.value) {
+        <div class="icon-preview">
+          <app-safe-svg [svgString]="form.get('icon')?.value" style="width: 48px; height: 48px;"></app-safe-svg>
+        </div>
+      }
+    </div>
+
+    <!-- Цвет -->
+    <div class="color-field">
+      <mat-form-field appearance="outline" class="color-input">
+        <mat-label>Цвет (HEX)</mat-label>
+        <input matInput formControlName="color" placeholder="#RRGGBB" />
+      </mat-form-field>
+      <input type="color" class="color-picker" [value]="form.get('color')?.value"
+             (change)="form.get('color')?.setValue($any($event.target).value)" />
+    </div>
+
+    <!-- Даты -->
+    <div class="date-row">
+      <mat-form-field appearance="outline">
+        <mat-label>Дата начала</mat-label>
+        <input matInput [matDatepicker]="startPicker" formControlName="start_date">
+        <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+        <mat-datepicker #startPicker></mat-datepicker>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Дата окончания</mat-label>
+        <input matInput [matDatepicker]="endPicker" formControlName="end_date">
+        <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+        <mat-datepicker #endPicker></mat-datepicker>
+      </mat-form-field>
+    </div>
+
+    <div class="date-row mb-0">
+      <!-- Тип -->
+      <div class="d-flex flex-row align-items-center gap-1 full-width mb-0">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Тип проекта</mat-label>
+          <mat-select formControlName="type" [compareWith]="compareById">
+            <mat-option [value]="null">— Не выбрано —</mat-option>
+            @for (type of data.availableTypes; track type.id) {
+              <mat-option [value]="type">
+                {{ type.name }}
+              </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <button
+          mat-icon-button
+          [matTooltip]="'Добавить тип проекта'"
+          (click)="createProjectType($event)"
+          style="margin-bottom: 1rem;"
+        >
+          <mat-icon svgIcon="addObjectIcon" class="d-flex"></mat-icon>
+        </button>
+      </div>
+      <!-- Категория -->
+      <div class="d-flex flex-row align-items-center gap-1 full-width mb-0">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Категория</mat-label>
+          <mat-select formControlName="category" [compareWith]="compareById">
+            <mat-option [value]="null">— Не выбрано —</mat-option>
+            @for (cat of data.availableCategories; track cat.id) {
+              <mat-option [value]="cat">
+                {{ cat.name }}
+              </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <button
+          mat-icon-button
+          [matTooltip]="'Добавить категорию проекта'"
+          (click)="createProjectCategory($event)"
+          style="margin-bottom: 1rem;"
+        >
+          <mat-icon svgIcon="addObjectIcon" class="d-flex"></mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- Ответственный -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Ответственный</mat-label>
+      <mat-select formControlName="manage_by" [compareWith]="compareById">
+        <mat-option [value]="null">— Не выбрано —</mat-option>
+        @for (user of data.availableUsers; track user.id) {
+          <mat-option [value]="user">
+            {{ user.full_name || user.username }}
+          </mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    @if (data.project?.id && data.mode === 'edit') {
+      <div class="date-row mb-0">
+        <!-- Статусы (мультивыбор) -->
+        <div class="d-flex flex-row align-items-center gap-1 full-width mb-0">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Статусы проекта</mat-label>
+            <mat-select formControlName="statuses_map" multiple>
+              @for (status of data.availableStatuses; track status.id) {
+                <mat-option [value]="status">
+                  {{ status.name }}
+                </mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <button
+            mat-icon-button
+            [matTooltip]="'Добавить статус'"
+            (click)="createStatus($event)"
+            style="margin-bottom: 1rem;"
+          >
+            <mat-icon svgIcon="addObjectIcon" class="d-flex"></mat-icon>
+          </button>
+        </div>
+        <!-- Версии -->
+        <div class="d-flex flex-row align-items-center gap-1 full-width mb-0">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Активная версия</mat-label>
+            <mat-select formControlName="active_version" [compareWith]="compareById">
+              <mat-option [value]="null">— Не выбрано —</mat-option>
+              @for (version of data.availableVersions; track version.id) {
+                <mat-option [value]="version">
+                  {{ version.name }}
+                </mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <button
+            mat-icon-button
+            [matTooltip]="'Добавить версию'"
+            (click)="createVersion($event)"
+            style="margin-bottom: 1rem;"
+          >
+            <mat-icon svgIcon="addObjectIcon" class="d-flex"></mat-icon>
+          </button>
+        </div>
+      </div>
+    }
+
+    <!-- Описание -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Описание</mat-label>
+      <textarea matInput formControlName="description" rows="3"></textarea>
+    </mat-form-field>
+
+    <!-- URLs (динамический список) -->
+    <div class="urls-section">
+      <div class="urls-header">
+        <span>Ссылки (URL)</span>
+        <button mat-icon-button type="button" (click)="addUrlField()">
+          <mat-icon>add</mat-icon>
+        </button>
+      </div>
+      <div formArrayName="urls">
+        @for (urlCtrl of urlsControls; let i = $index; track $index) {
+          <div class="url-item">
+            <mat-form-field appearance="outline" class="full-width">
+              <input matInput [formControl]="urlCtrl" placeholder="https://example.com" />
+              <button mat-icon-button matSuffix type="button" (click)="removeUrlField(i)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </mat-form-field>
+          </div>
+        }
+      </div>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" (click)="onCancel()">Отмена</button>
+    <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || isSaving">
+      {{ isSaving ? 'Сохранение...' : (data.mode === 'create' ? 'Создать' : 'Сохранить') }}
+    </button>
+  </mat-dialog-actions>
+</form>
