@@ -1,0 +1,50 @@
+<h2 mat-dialog-title>{{ title() }}</h2>
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="status-dialog-form">
+  <mat-dialog-content>
+    <!-- Наименование -->
+    <mat-form-field appearance="outline" class="full-width mt-1">
+      <mat-label>Наименование *</mat-label>
+      <input matInput formControlName="name" required />
+    </mat-form-field>
+
+    <!-- SVG иконка -->
+    <div class="position-relative d-flex align-items-center gap-3">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>SVG иконка (код)</mat-label>
+        <textarea matInput formControlName="icon" rows="3" placeholder="<svg>...</svg>"></textarea>
+      </mat-form-field>
+      @if (form.get('icon')?.value) {
+        <div class="icon-preview">
+          <app-safe-svg [svgString]="form.get('icon')?.value" style="width: 48px; height: 48px;"></app-safe-svg>
+        </div>
+      }
+    </div>
+
+    <!-- Цвет -->
+    <div class="color-field">
+      <mat-form-field appearance="outline" class="color-input">
+        <mat-label>Цвет (HEX)</mat-label>
+        <input matInput formControlName="color" placeholder="#RRGGBB" />
+      </mat-form-field>
+      <input
+        type="color"
+        class="color-picker"
+        [value]="form.get('color')?.value"
+        (change)="form.get('color')?.setValue($any($event.target).value)"
+      />
+    </div>
+
+    <!-- Описание -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Описание</mat-label>
+      <textarea matInput formControlName="description" rows="4"></textarea>
+    </mat-form-field>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end" style="padding-top: 0;">
+    <button mat-button type="button" (click)="onCancel()">Отмена</button>
+    <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || isSaving">
+      {{ isSaving ? 'Сохранение...' : (data.mode === 'create' ? 'Создать' : 'Сохранить') }}
+    </button>
+  </mat-dialog-actions>
+</form>

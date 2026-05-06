@@ -32,6 +32,34 @@ export class AppComponent implements OnInit {
       .addSvgIcon(
         'mainSmallLightLogo',
         this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/icons/small-logo-light.svg'),
+      )
+      .addSvgIcon(
+        'dashboardIcon',
+        this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/icons/dashboard.svg'),
+      )
+      .addSvgIcon(
+        'tasksIcon',
+        this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/icons/tasks.svg'),
+      )
+      .addSvgIcon(
+        'projectsIcon',
+        this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/icons/projects.svg'),
+      )
+      .addSvgIcon(
+        'addObjectIcon',
+        this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/icons/add-object.svg'),
+      )
+      .addSvgIcon(
+        'editObjectIcon',
+        this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/icons/edit-object.svg'),
+      )
+      .addSvgIcon(
+        'delObjectIcon',
+        this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/icons/del-object.svg'),
+      )
+      .addSvgIcon(
+        'settingsIcon',
+        this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/icons/settings.svg'),
       );
   }
 }

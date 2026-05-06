@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { AuthService } from '../../services/auth';
+import { AuthService } from '../../../services/auth';
 import { CommonModule } from '@angular/common';
 import { catchError, finalize, tap, throwError } from 'rxjs';
 

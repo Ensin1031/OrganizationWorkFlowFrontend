@@ -1,4 +1,6 @@
 .user-table__content {
+  display: flex;
+  flex-direction: column;
   button {
     padding: 8px 16px;
     background: #dc3545;

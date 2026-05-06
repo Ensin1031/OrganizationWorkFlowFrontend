@@ -4,11 +4,20 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { Router } from '@angular/router';
 import { TokenService } from './token';
+import { IUserExtended } from '../interfaces/user';
+import { UserService } from './user';
+
+export interface IAuth {
+  access: string;
+  refresh: string;
+  user: IUserExtended;
+}
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private http = inject(HttpClient);
   private tokenService = inject(TokenService);
+  private userService = inject(UserService);
   private router = inject(Router);
   private apiUrl = environment.apiUrl;
 
@@ -20,10 +29,11 @@ export class AuthService {
     return !!this.tokenService.getAccessToken();
   }
 
-  login(email: string, password: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/token/`, { email, password }).pipe(
-      tap((res: any) => {
+  login(email: string, password: string): Observable<IAuth> {
+    return this.http.post<IAuth>(`${this.apiUrl}/token/`, { email, password }).pipe(
+      tap((res: IAuth) => {
         this.tokenService.setTokens(res.access, res.refresh);
+        this.userService.setDefaultUser(res.user);
         this.isAuthenticatedSubject.next(true);
       }),
     );
@@ -53,6 +63,7 @@ export class AuthService {
 
   private cleanup(): void {
     this.tokenService.clearTokens();
+    this.userService.clear()
     this.isAuthenticatedSubject.next(false);
     this.router.navigate(['/login']);
   }
