@@ -1,7 +1,7 @@
 <div class="top-sidebar__content d-flex align-items-center justify-content-between">
   <div class="d-flex flex-row align-items-center">
     <div class="top-sidebar__content--main-icon">
-      <a href="/public" [matTooltip]="'Главная'"><mat-icon class="d-flex" svgIcon="mainSmallLightLogo"></mat-icon></a>
+      <a href="/public" [matTooltip]="'Главная'" [matTooltipShowDelay]="500"><mat-icon class="d-flex" svgIcon="mainSmallLightLogo"></mat-icon></a>
     </div>
     <div class="project-menu-trigger" [matMenuTriggerFor]="projectMenu" (menuOpened)="onProjectMenuOpened()" (menuClosed)="onProjectMenuClosed()">
       <span class="project-label">Проекты</span>

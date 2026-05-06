@@ -1,4 +1,4 @@
-.left-sidebar {
+:host ::ng-deep .left-sidebar {
   position: relative;
   height: 100%;
   background: var(--prime-back-color);
@@ -78,6 +78,10 @@
       color: var(--light-gray-background-color);
     }
   }
+  & .active-nav-item {
+    background: var(--main-color-with-gradient);
+    color: var(--light-gray-background-color);
+  }
 
   .left-sidebar-resize-handle {
     position: absolute;
@@ -93,4 +97,35 @@
       background: var(--main-color-with-gradient);
     }
   }
+}
+::ng-deep .left-sidebar-mat-menu {
+  --mat-menu-item-leading-spacing: 1rem;
+  --mat-menu-item-trailing-spacing: 1rem;
+  & .active-nav-menu-item {
+    background: var(--gray-dark-background-color);
+  }
+  & .mat-mdc-menu-item {
+    min-height: 2rem !important;
+  }
+}
+
+.menu-trigger {
+  cursor: pointer;
+}
+
+.expand-icon {
+  margin-left: auto;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.child-icon {
+  margin-right: 8px;
+  width: 20px;
+  height: 20px;
+}
+
+.nav-item.collapsed .expand-icon {
+  display: none;
 }

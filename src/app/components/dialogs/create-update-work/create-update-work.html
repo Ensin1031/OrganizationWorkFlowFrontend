@@ -1,0 +1,281 @@
+<h2 mat-dialog-title>{{ title() }}</h2>
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="work-dialog-form">
+  <mat-dialog-content>
+    <!-- Наименование -->
+    <mat-form-field appearance="outline" class="full-width mt-1">
+      <mat-label>Наименование</mat-label>
+      <input matInput formControlName="name" required maxlength="250" />
+      @if (form.get('name')?.hasError('required')) {
+        <mat-error>Обязательное поле</mat-error>
+      } @else if (form.get('name')?.hasError('maxlength')) {
+        <mat-error>Максимум 250 символов</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Описание -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Описание</mat-label>
+      <textarea matInput formControlName="description" rows="3"></textarea>
+    </mat-form-field>
+
+    <!-- Цвет. Пока не нужен, оставляю на будущее. -->
+<!--    <div class="color-field">-->
+<!--      <mat-form-field appearance="outline" class="color-input">-->
+<!--        <mat-label>Цвет (HEX)</mat-label>-->
+<!--        <input matInput formControlName="color" placeholder="#RRGGBB" />-->
+<!--      </mat-form-field>-->
+<!--      <input type="color" class="color-picker" [value]="form.get('color')?.value"-->
+<!--             (change)="form.get('color')?.setValue($any($event.target).value)" />-->
+<!--    </div>-->
+
+    <!-- SVG иконка. Пока не нужна, оставляю на будущее. -->
+<!--    <mat-form-field appearance="outline" class="full-width">-->
+<!--      <mat-label>SVG иконка (код)</mat-label>-->
+<!--      <textarea matInput formControlName="icon" rows="2" placeholder="<svg>...</svg>"></textarea>-->
+<!--    </mat-form-field>-->
+
+    <!-- Временные оценки -->
+    <div class="time-row">
+      <mat-form-field appearance="outline">
+        <mat-label>Первоначальная оценка</mat-label>
+        <input matInput formControlName="lead_time" appDurationMinutes placeholder="Минуты">
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Оценка остатка</mat-label>
+        <input matInput formControlName="wasted_time" appDurationMinutes placeholder="Минуты">
+      </mat-form-field>
+    </div>
+
+    <!-- Тип работы, Приоритет -->
+    <div class="date-row mb-0">
+      <div class="d-flex full-width">
+        <app-entity-select
+          #typeSelect
+          formControlName="type"
+          label="Тип работы"
+          [required]="true"
+          [loadFn]="loadWorkTypesPage"
+          [filters]="data.filters?.types"
+        ></app-entity-select>
+        @if (canCreateWorkType()) {
+          <button
+            mat-icon-button
+            [matTooltip]="'Добавить тип работы'"
+            [matTooltipShowDelay]="500"
+            (click)="createWorkType($event)"
+            style="margin-left: .25rem;"
+          >
+            <mat-icon svgIcon="addObjectIcon" class="d-flex"></mat-icon>
+          </button>
+        }
+      </div>
+      <div class="d-flex full-width">
+        <app-entity-select
+          #prioritySelect
+          formControlName="priority"
+          label="Приоритет"
+          [required]="true"
+          [loadFn]="loadPrioritiesPage"
+        ></app-entity-select>
+        @if (canCreateWorkType()) {
+          <button
+            mat-icon-button
+            [matTooltip]="'Добавить приоритет работы'"
+            [matTooltipShowDelay]="500"
+            (click)="createPriority($event)"
+            style="margin-left: .25rem;"
+          >
+            <mat-icon svgIcon="addObjectIcon" class="d-flex"></mat-icon>
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Статус Исполнитель -->
+    <div class="date-row mb-0">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Статус</mat-label>
+        <mat-select formControlName="status" [compareWith]="compareById" required>
+          @for (status of getSelectProjectStatuses(); track status.id) {
+            <mat-option [value]="status">{{ status.name }}</mat-option>
+          }
+        </mat-select>
+        @if (form.get('status')?.hasError('required')) {
+          <mat-error>Обязательное поле</mat-error>
+        }
+      </mat-form-field>
+      <div class="full-width">
+        <app-entity-select
+          formControlName="execute_by"
+          label="Исполнитель"
+          [clearable]="true"
+          [loadFn]="loadExecuteByPage"
+          [nameKey]="'full_name'"
+        ></app-entity-select>
+      </div>
+    </div>
+
+    <!-- Эпик -->
+    <div class="d-flex full-width">
+      <app-entity-select
+        #epicSelect
+        formControlName="epic"
+        label="Эпик"
+        [clearable]="true"
+        [loadFn]="loadEpicPage"
+        [filters]="workEpicTypeFilter()"
+        [nameKey]="'full_name'"
+      ></app-entity-select>
+    </div>
+
+    <!-- Спринт -->
+    <div class="full-width">
+      <app-entity-select
+        formControlName="sprint"
+        label="Спринт"
+        [clearable]="true"
+        [loadFn]="loadSprintsPage"
+      ></app-entity-select>
+    </div>
+
+    <!-- Проект -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Проект</mat-label>
+      <mat-select formControlName="project" [compareWith]="compareById" required>
+        @for (proj of projectService.projects(); track proj.id) {
+          <mat-option [value]="proj">{{ proj.full_name }}</mat-option>
+        }
+      </mat-select>
+      @if (form.get('project')?.hasError('required')) {
+        <mat-error>Обязательное поле</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Тэги -->
+    <div class="d-flex full-width">
+      <app-entity-select
+        #tagsSelect
+        formControlName="tags"
+        label="Тэги"
+        [clearable]="true"
+        [loadFn]="loadTagsPage"
+        [multiple]="true"
+      ></app-entity-select>
+      @if (canCreateTag()) {
+        <button
+          mat-icon-button
+          [matTooltip]="'Добавить тэг'"
+          [matTooltipShowDelay]="500"
+          (click)="createTag($event)"
+          style="margin-left: .25rem;"
+        >
+          <mat-icon svgIcon="addObjectIcon" class="d-flex"></mat-icon>
+        </button>
+      }
+    </div>
+
+    <!-- Версии -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Версии</mat-label>
+      <mat-select formControlName="versions" multiple [compareWith]="compareById">
+        @if (projectsVersionsSignal() && projectsVersionsSignal().length > 0) {
+          @for (version of projectsVersionsSignal(); track version.id) {
+            <mat-option [value]="version">{{ version.name }}</mat-option>
+          }
+        } @else {
+          <mat-option disabled class="empty-items-option">
+            <span class="hide-text-overflow-1 empty-items-option--label">Значения отсутствуют</span>
+          </mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <!-- Фактические даты -->
+    <div class="date-row">
+      <mat-form-field appearance="outline">
+        <mat-label>Дата начала (факт)</mat-label>
+        <input matInput [matDatepicker]="startPicker" formControlName="start_date">
+        <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+        <mat-datepicker #startPicker></mat-datepicker>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Дата окончания (факт)</mat-label>
+        <input matInput [matDatepicker]="endPicker" formControlName="end_date">
+        <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+        <mat-datepicker #endPicker></mat-datepicker>
+      </mat-form-field>
+    </div>
+
+    <!-- Плановые даты -->
+    <div class="date-row">
+      <mat-form-field appearance="outline">
+        <mat-label>Необходимо начать с</mat-label>
+        <input matInput [matDatepicker]="targetStartPicker" formControlName="target_start_date">
+        <mat-datepicker-toggle matSuffix [for]="targetStartPicker"></mat-datepicker-toggle>
+        <mat-datepicker #targetStartPicker></mat-datepicker>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Необходимо закончить до</mat-label>
+        <input matInput [matDatepicker]="targetEndPicker" formControlName="target_end_date">
+        <mat-datepicker-toggle matSuffix [for]="targetEndPicker"></mat-datepicker-toggle>
+        <mat-datepicker #targetEndPicker></mat-datepicker>
+      </mat-form-field>
+    </div>
+
+    <!-- сложность, технология -->
+    <div class="row-2cols mb-0">
+      <div class="col">
+        <div class="d-flex full-width">
+          <app-entity-select
+            #difficultySelect
+            formControlName="difficulty"
+            label="Сложность"
+            [clearable]="true"
+            [loadFn]="loadDifficultiesPage"
+          ></app-entity-select>
+          @if (canCreateWorkDifficulty()) {
+            <button
+              mat-icon-button
+              [matTooltip]="'Добавить тип сложности работы'"
+              [matTooltipShowDelay]="500"
+              (click)="createDifficulty($event)"
+              style="margin-left: .25rem;"
+            >
+              <mat-icon svgIcon="addObjectIcon" class="d-flex"></mat-icon>
+            </button>
+          }
+        </div>
+      </div>
+      <div class="col">
+        <div class="d-flex full-width">
+          <app-entity-select
+            #technologySelect
+            formControlName="technology"
+            label="Технология"
+            [clearable]="true"
+            [loadFn]="loadTechnologiesPage"
+          ></app-entity-select>
+          @if (canCreateWorkTechnology()) {
+            <button
+              mat-icon-button
+              [matTooltip]="'Добавить технологию работы'"
+              [matTooltipShowDelay]="500"
+              (click)="createTechnology($event)"
+              style="margin-left: .25rem;"
+            >
+              <mat-icon svgIcon="addObjectIcon" class="d-flex"></mat-icon>
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" (click)="onCancel()">Отмена</button>
+    <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || isSaving">
+      {{ isSaving ? 'Сохранение...' : (data.mode === 'create' ? 'Создать' : 'Сохранить') }}
+    </button>
+  </mat-dialog-actions>
+</form>

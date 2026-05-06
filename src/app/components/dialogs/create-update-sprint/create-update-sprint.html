@@ -1,0 +1,62 @@
+<h2 mat-dialog-title>{{ title() }}</h2>
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="sprint-dialog-form">
+  <mat-dialog-content>
+    <!-- Наименование -->
+    <mat-form-field appearance="outline" class="full-width mt-1">
+      <mat-label>Наименование *</mat-label>
+      <input matInput formControlName="name" required maxlength="250" />
+      @if (form.get('name')?.hasError('required')) {
+        <mat-error>Обязательное поле</mat-error>
+      } @else if (form.get('name')?.hasError('maxlength')) {
+        <mat-error>Максимум 250 символов</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Цвет -->
+    <div class="color-field">
+      <mat-form-field appearance="outline" class="color-input">
+        <mat-label>Цвет (HEX)</mat-label>
+        <input matInput formControlName="color" placeholder="#RRGGBB" />
+      </mat-form-field>
+      <input type="color" class="color-picker" [value]="form.get('color')?.value"
+             (change)="form.get('color')?.setValue($any($event.target).value)" />
+    </div>
+
+    <!-- Даты (обязательные) -->
+    <div class="date-row">
+      <mat-form-field appearance="outline">
+        <mat-label>Дата начала *</mat-label>
+        <input matInput [matDatepicker]="startPicker" formControlName="start_date" required />
+        <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+        <mat-datepicker #startPicker></mat-datepicker>
+        @if (form.get('start_date')?.hasError('required')) {
+          <mat-error>Обязательное поле</mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Дата окончания *</mat-label>
+        <input matInput [matDatepicker]="endPicker" formControlName="end_date" required />
+        <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+        <mat-datepicker #endPicker></mat-datepicker>
+        @if (form.get('end_date')?.hasError('required')) {
+          <mat-error>Обязательное поле</mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    <!-- Описание -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Описание</mat-label>
+      <textarea matInput formControlName="description" rows="3"></textarea>
+    </mat-form-field>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" (click)="onCancel()">Отмена</button>
+    @if (data.mode !== 'view') {
+      <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || isSaving">
+        {{ isSaving ? 'Сохранение...' : (data.mode === 'create' ? 'Создать' : 'Сохранить') }}
+      </button>
+    }
+  </mat-dialog-actions>
+</form>

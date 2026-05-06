@@ -2,14 +2,48 @@
   <div class="left-sidebar-content">
     <nav>
       <ul>
-        @for (linkItem of linkItems; track $index) {
+        @for (linkItem of linkItems; track trackByIndex($index)) {
           <li>
-            <a [routerLink]="linkItem.routerLink" [routerLinkActive]="linkItem.routerLinkActive" [matTooltip]="linkItem.tooltip">
-              <div class="nav-item" [class.collapsed]="!isExpanded">
-                <mat-icon class="nav-icon" [svgIcon]="linkItem.svgIcon"></mat-icon>
-                <span class="nav-text" [class.hide-text]="!isExpanded">{{ linkItem.title }}</span>
+            @if (linkItem.children.length > 0) {
+              <div
+                class="menu-trigger"
+                [ngClass]="{'active': true}"
+                [matMenuTriggerFor]="subMenu"
+                [matTooltip]="linkItem.tooltip"
+                [matTooltipShowDelay]="500"
+              >
+                <div class="nav-item" [class.collapsed]="!isExpanded" [class.active-nav-item]="activeLink(linkItem)">
+                  <mat-icon class="nav-icon" [svgIcon]="linkItem.svgIcon"></mat-icon>
+                  <span class="nav-text" [class.hide-text]="!isExpanded">{{ linkItem.title }}</span>
+                  @if (isExpanded) {
+                    <mat-icon class="expand-icon">arrow_drop_down</mat-icon>
+                  }
+                </div>
               </div>
-            </a>
+              <mat-menu #subMenu="matMenu" class="left-sidebar-mat-menu">
+                @for (child of linkItem.children; track trackByIndex($index)) {
+                  <button mat-menu-item [routerLink]="child.routerLink" [queryParams]="child.queryParams" [class.active-nav-menu-item]="activeLink(child)">
+                    @if (child.svgIcon) {
+                      <mat-icon [svgIcon]="child.svgIcon" class="child-icon"></mat-icon>
+                    }
+                    <span>{{ child.title }}</span>
+                  </button>
+                }
+              </mat-menu>
+            } @else {
+              <a
+                [routerLink]="linkItem.routerLink"
+                [queryParams]="linkItem.queryParams"
+                [routerLinkActive]="linkItem.routerLinkActive"
+                [matTooltip]="linkItem.tooltip"
+                [matTooltipShowDelay]="500"
+              >
+                <div class="nav-item" [class.collapsed]="!isExpanded">
+                  <mat-icon class="nav-icon" [svgIcon]="linkItem.svgIcon"></mat-icon>
+                  <span class="nav-text" [class.hide-text]="!isExpanded">{{ linkItem.title }}</span>
+                </div>
+              </a>
+            }
           </li>
         }
       </ul>

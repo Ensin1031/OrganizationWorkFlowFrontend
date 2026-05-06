@@ -1,0 +1,62 @@
+<div class="tasks-list__content">
+  @if (tasks().length === 0 && !loading()) {
+    <div class="empty-state">Нет задач в спринте</div>
+  } @else {
+    <div class="tasks-list">
+      @for (task of tasks(); track task.id) {
+        <div class="task-item">
+          <div class="task-item--content">
+            <div class="task-name-block p-2">
+              <div>
+                <span class="pr-3">[<a [routerLink]="['/home/tasks', task.slug]" [matTooltip]="'Перейти к задаче'" [matTooltipShowDelay]="500">{{ task.slug }}</a>]</span>
+                <span>{{ task.name }}</span>
+              </div>
+              <div class="d-flex flex-row align-items-center gap-4">
+                <app-status-view style="font-size: 14px;" [statusChoices]="statusesService.statusesChoices()" [statusValue]="task.status.status"></app-status-view>
+                <div class="task-name-block--lead-time">{{ task.lead_time | durationHumanize }}</div>
+              </div>
+            </div>
+            <div class="task-manage-block p-2 position-relative">
+              @if (task.execute_by?.profile_photo) {
+                <app-user-photo-view [tooltip]="task.execute_by?.full_name ?? ''" [photoUrl]="task.execute_by!.profile_photo!"></app-user-photo-view>
+              }
+              <button mat-icon-button class="task-item--manage-btn" [matMenuTriggerFor]="taskUpMenu">
+                <mat-icon class="d-flex">more_vert</mat-icon>
+              </button>
+              <mat-menu #taskUpMenu="matMenu" class="task-manage-block--menu">
+                <button mat-menu-item (click)="viewTask(task)" [matTooltip]="'Открыть в новой вкладке'" [matTooltipShowDelay]="500">
+                  Перейти
+                </button>
+                @if (canCreate()) {
+                  <button mat-menu-item (click)="editTask(task)" [matTooltip]="'Редактировать задачу'" [matTooltipShowDelay]="500">
+                    Редактировать
+                  </button>
+                  @if (canChangeBySprintStatus()) {
+                    <button mat-menu-item (click)="removeTaskFromSprint(task)" [matTooltip]="'Удалить из спринта'" [matTooltipShowDelay]="500">
+                      Удалить из спринта
+                    </button>
+                    <button mat-menu-item (click)="changeTaskSprint(task, 'change')" [matTooltip]="'Переместить в другой спринт'" [matTooltipShowDelay]="500">
+                      Переместить в другой спринт
+                    </button>
+                  } @else if (canMoveToSprint()) {
+                    <button mat-menu-item (click)="changeTaskSprint(task, 'add')" [matTooltip]="'Переместить в спринт'" [matTooltipShowDelay]="500">
+                      Переместить в спринт
+                    </button>
+                  }
+                }
+              </mat-menu>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="loading-indicator">Загрузка...</div>
+  }
+
+  @if (hasMore() && !loading() && tasks().length > 0) {
+    <button class="show-more-btn" (click)="loadMore()">Показать еще</button>
+  }
+</div>

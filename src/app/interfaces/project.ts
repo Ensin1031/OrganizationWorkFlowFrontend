@@ -1,33 +1,39 @@
 import { IUserExtended } from './user';
 import { IStatus } from './references';
 
-export interface IProjectVersion {
+export interface IProjectVersionShort {
   id: number;
+  project: number;
   name: string;
-  description: string;
   start_date: string;
   end_date: string;
   color: string;
   slug: string;
   in_work: string;
+}
+export interface IProjectVersion extends IProjectVersionShort {
+  description: string;
   created: string;
   updated: string;
   selected?: boolean;
 }
 export type IProjectVersionCreateOrUpdate = Omit<
   IProjectVersion,
-  'id' | 'created' | 'updated' | 'selected' | 'slug' | 'in_work'
+  'id' | 'created' | 'updated' | 'selected' | 'slug' | 'project' | 'in_work'
 > & {
   project_id: number;
 };
-export interface IProjectStatus {
+export interface IProjectStatusShort {
   id: number;
   status: number;
   name: string;
-  description: string;
   color: string;
   slug: string;
   icon: string;
+  priority: number;
+}
+export interface IProjectStatus extends IProjectStatusShort {
+  description: string;
   created: string;
   updated: string;
   selected?: boolean;
@@ -72,27 +78,33 @@ export type IProjectTypeCreateOrUpdate = Omit<
   'id' | 'created' | 'updated' | 'has_projects' | 'selected' | 'slug'
 >;
 
-export interface IProject {
+export interface IProjectShort {
   id: number;
   name: string;
-  description: string;
   slug: string;
   color: string;
   icon: string;
   code_prefix: string;
+  full_name: string;
   start_date: string | null;
   end_date: string | null;
-  created: string;
-  updated: string;
+  active_version?: IProjectVersion;
   statuses: IProjectStatus[];
   versions: IProjectVersion[];
-  active_version?: IProjectVersion;
+}
+export interface IProject extends IProjectShort {
+  description: string;
+  created: string;
+  updated: string;
   manage_by?: IUserExtended;
   category?: IProjectCategory;
   type?: IProjectType;
   urls: string[];
 }
-export type IProjectCreateOrUpdate = Omit<IProject, 'id' | 'created' | 'updated' | 'slug'> & {
+export type IProjectCreateOrUpdate = Omit<
+  IProject,
+  'id' | 'created' | 'updated' | 'slug' | 'full_name'
+> & {
   category_id?: number;
   type_id?: number;
   manage_by_id?: number;

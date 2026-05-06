@@ -50,7 +50,7 @@ import {
   CreateUpdateProjectDialogComponent,
   IProjectCreateUpdateDialogData,
 } from '../../dialogs/create-update-project/create-update-project';
-import { WorkReferencesService } from '../../../services/work-references';
+import { StatusesService } from '../../../services/work-references';
 import { UserService } from '../../../services/user';
 
 type ProjectComponentQueryParams = {
@@ -101,15 +101,11 @@ export class ProjectsComponent {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   protected projectService = inject(ProjectContextService);
-  protected referencesService = inject(WorkReferencesService);
-  protected userService = inject(UserService);
   private dialog = inject(MatDialog);
 
   private reloadProjectsTrigger = signal(0);
   private reloadProjectTypesTrigger = signal(0);
   private reloadProjectCategoriesTrigger = signal(0);
-  private reloadWorkStatusesTrigger = signal(0);
-  private reloadUsersTrigger = signal(0);
 
   selectedProjectCategoryId = signal<number | null>(null);
   selectedProjectTypeId = signal<number | null>(null);
@@ -220,20 +216,6 @@ export class ProjectsComponent {
   );
   projectCategories = computed(() => this.projectCategories$);
 
-  statuses$ = toSignal(
-    toObservable(this.reloadWorkStatusesTrigger).pipe(
-      switchMap(() => this.referencesService.getStatuses({})),
-    ),
-    { initialValue: [] },
-  );
-  statuses = computed(() => this.statuses$);
-
-  users$ = toSignal(
-    toObservable(this.reloadUsersTrigger).pipe(switchMap(() => this.userService.getUsers({}))),
-    { initialValue: [] },
-  );
-  users = computed(() => this.users$);
-
   private baseColumns: string[] = [
     'name',
     'code_prefix',
@@ -311,11 +293,9 @@ export class ProjectsComponent {
     }
     const dialogData: IProjectCreateUpdateDialogData = {
       mode: 'create',
-      availableStatuses: [],
       availableVersions: [],
       availableCategories: this.projectCategories()(),
       availableTypes: this.projectTypes()(),
-      availableUsers: this.users()(),
     };
     this.dialog
       .open(CreateUpdateProjectDialogComponent, {
@@ -351,11 +331,10 @@ export class ProjectsComponent {
     const dialogData: IProjectCreateUpdateDialogData = {
       mode: 'edit',
       project: project,
-      availableStatuses: this.statuses()(),
+      // availableStatuses: [],
       availableVersions: project.versions,
       availableCategories: this.projectCategories()(),
       availableTypes: this.projectTypes()(),
-      availableUsers: this.users()(),
     };
     this.dialog
       .open(CreateUpdateProjectDialogComponent, {
@@ -389,7 +368,7 @@ export class ProjectsComponent {
     this.reloadProjectsTrigger.update((v) => v + 1);
     this.reloadProjectTypesTrigger.update((v) => v + 1);
     this.reloadProjectCategoriesTrigger.update((v) => v + 1);
-    this.reloadWorkStatusesTrigger.update((v) => v + 1);
+    // this.reloadWorkStatusesTrigger.update((v) => v + 1);
   }
 
   searchProjectTypeText = signal('');

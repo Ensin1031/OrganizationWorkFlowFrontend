@@ -94,18 +94,16 @@ export class ProjectContextService {
       tap((projects) => this.projectsSignal.set(projects)),
     );
   }
-
-  async loadAllProjects(): Promise<void> {
-    try {
-      const projects = await this.getAllProjects().toPromise();
-      if (projects) this.projectsSignal.set(projects);
-    } catch (err) {
-      console.error('Failed to load projects', err);
-      throw err;
+  storageSelectProjectKey = (): string => 'selectedProjectId';
+  get storageSelectedProjectId(): number | undefined {
+    const numStorageProjectId = Number(localStorage.getItem(this.storageSelectProjectKey()));
+    if (numStorageProjectId) {
+      return numStorageProjectId;
     }
+    return undefined
   }
-
   selectProject(project: IProject): void {
+    localStorage.setItem(this.storageSelectProjectKey(), String(project.id));
     const current = this.projectsSignal();
     if (current[0]?.id !== project.id) {
       const others = current.filter((p) => p.id !== project.id);
@@ -113,13 +111,32 @@ export class ProjectContextService {
     }
   }
   createProject(data: IProjectCreateOrUpdate): Observable<IProject> {
-    return this.http.post<IProject>(`${this.apiUrl}/projects/`, data);
+    return this.http.post<IProject>(`${this.apiUrl}/projects/`, data).pipe(
+      tap(project => {
+        this.projectsSignal.update((projects) => [project, ...projects]);
+      }),
+    );
   }
   updateProject(projectId: number, data: IProjectCreateOrUpdate): Observable<IProject> {
-    return this.http.patch<IProject>(`${this.apiUrl}/projects/${projectId}/`, data);
+    return this.http.patch<IProject>(`${this.apiUrl}/projects/${projectId}/`, data).pipe(
+      tap((project: IProject) => {
+        this.projectsSignal.update((projects) => {
+          const existingProject = projects.find((p) => p.id === project.id);
+          if (existingProject) {
+            const updatedProject = { ...existingProject, ...project, };
+            return [updatedProject, ...projects.filter((p) => p.id !== project.id)];
+          }
+          return [project, ...projects];
+        });
+      }),
+    );
   }
   deleteProject(projectId: number): Observable<never> {
-    return this.http.delete<never>(`${this.apiUrl}/projects/${projectId}/`);
+    return this.http.delete<never>(`${this.apiUrl}/projects/${projectId}/`).pipe(
+      tap(() => {
+        this.projectsSignal.update((projects) => projects.filter((p) => p.id !== projectId));
+      }),
+    );
   }
 
   // Категории проектов

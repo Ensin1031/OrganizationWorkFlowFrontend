@@ -1,0 +1,32 @@
+:host ::ng-deep .tasks-by-sprints-content {
+  font-size: 14px;
+  --mat-select-trigger-text-size: 14px;
+  --mat-checkbox-state-layer-size: 1.5rem;
+  --mat-checkbox-touch-target-size: 1.5rem;
+  & .sprints-filter-select {
+    .mat-mdc-text-field-wrapper {
+      background-color: var(--bs-white);
+    }
+    .mat-mdc-form-field-subscript-wrapper {
+      display: none;
+    }
+  }
+}
+.tasks-vertical-divider {
+  padding-right: 1rem;
+  border-right: 1px solid var(--gray-dark-background-color);
+}
+::ng-deep .tasks-entity-selector {
+  min-width: 17rem;
+  & .mat-mdc-text-field-wrapper {
+    background: var(--bs-white);
+  }
+  & .mat-mdc-form-field-subscript-wrapper, .mat-mdc-form-field-bottom-align::before {
+    display: none;
+  }
+  & .select-clear-button {
+    & mat-icon {
+      display: flex;
+    }
+  }
+}

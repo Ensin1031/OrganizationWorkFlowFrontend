@@ -1,11 +1,15 @@
 import { Component, HostListener, inject } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { LeftSidebarWidthService } from '../../../services/left-sidebar-width';
 import { MatIcon } from '@angular/material/icon';
 import { MatTooltip } from '@angular/material/tooltip';
+import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
+import { NgClass } from '@angular/common';
 
 export interface ILinkItems {
   routerLink: string;
+  queryParams: Record<string, string | number | boolean>;
+  children: ILinkItems[];
   svgIcon: string;
   routerLinkActive: string;
   title: string;
@@ -14,11 +18,21 @@ export interface ILinkItems {
 
 @Component({
   selector: 'app-left-sidebar',
-  imports: [RouterLink, RouterLinkActive, MatIcon, MatTooltip],
+  imports: [
+    RouterLink,
+    RouterLinkActive,
+    MatIcon,
+    MatTooltip,
+    MatMenuTrigger,
+    MatMenu,
+    MatMenuItem,
+    NgClass,
+  ],
   templateUrl: './left-sidebar.html',
   styleUrls: ['./left-sidebar.scss'],
 })
 export class LeftSidebarComponent {
+  private router = inject(Router);
   public sidebarService = inject(LeftSidebarWidthService);
   private isResizing = false;
   private startX = 0;
@@ -29,6 +43,8 @@ export class LeftSidebarComponent {
   linkItems: ILinkItems[] = [
     {
       routerLink: '/home/user-table',
+      queryParams: {},
+      children: [],
       routerLinkActive: 'active',
       svgIcon: 'mainSmallLightLogo',
       title: 'Главная',
@@ -36,6 +52,8 @@ export class LeftSidebarComponent {
     },
     {
       routerLink: '/home/dashboard',
+      queryParams: {},
+      children: [],
       routerLinkActive: 'active',
       svgIcon: 'dashboardIcon',
       title: 'Дашборд',
@@ -43,6 +61,27 @@ export class LeftSidebarComponent {
     },
     {
       routerLink: '/home/tasks',
+      queryParams: {},
+      children: [
+        {
+          routerLink: '/home/tasks',
+          queryParams: { byEpics: true },
+          children: [],
+          routerLinkActive: 'active',
+          svgIcon: '',
+          title: 'Задачи по эпикам',
+          tooltip: 'Задачи по эпикам',
+        },
+        {
+          routerLink: '/home/tasks',
+          queryParams: { bySprints: true },
+          children: [],
+          routerLinkActive: 'active',
+          svgIcon: '',
+          title: 'Задачи по спринтам',
+          tooltip: 'Задачи по спринтам',
+        },
+      ],
       routerLinkActive: 'active',
       svgIcon: 'tasksIcon',
       title: 'Задачи',
@@ -50,6 +89,8 @@ export class LeftSidebarComponent {
     },
     {
       routerLink: '/home/projects',
+      queryParams: {},
+      children: [],
       routerLinkActive: 'active',
       svgIcon: 'projectsIcon',
       title: 'Проекты',
@@ -57,6 +98,8 @@ export class LeftSidebarComponent {
     },
     {
       routerLink: '/home/settings',
+      queryParams: {},
+      children: [],
       routerLinkActive: 'active',
       svgIcon: 'settingsIcon',
       title: 'Настройки',
@@ -66,6 +109,17 @@ export class LeftSidebarComponent {
 
   get isExpanded(): boolean {
     return this.sidebarService.currentWidth > this.EXPAND_THRESHOLD;
+  }
+
+  activeLink(item: ILinkItems): boolean {
+    if (!Object.keys(item.queryParams).length) {
+      const currentPath = this.router.url.split('?')[0];
+      const itemPath = item.routerLink;
+      return currentPath === itemPath;
+    }
+    const urlTree = this.router.createUrlTree([item.routerLink], { queryParams: item.queryParams });
+    const currentUrl = this.router.url;
+    return currentUrl === urlTree.toString();
   }
 
   startResize(event: MouseEvent): void {
@@ -86,5 +140,9 @@ export class LeftSidebarComponent {
   @HostListener('document:mouseup')
   onMouseUp(): void {
     this.isResizing = false;
+  }
+
+  trackByIndex(index: number): number {
+    return index;
   }
 }

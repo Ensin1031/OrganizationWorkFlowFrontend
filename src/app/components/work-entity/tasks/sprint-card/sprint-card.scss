@@ -1,0 +1,60 @@
+:host ::ng-deep .sprint-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: .425rem;
+  border: 1px solid var(--gray-dark-background-color);
+  border-radius: .425rem;
+  background: var(--bs-white);
+  &--header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    font-size: 12px;
+    font-weight: 600;
+    &--title-block {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+    }
+    &--btn-view-users-load {
+      display: flex;
+      width: 2rem !important;
+      --mat-icon-button-state-layer-size: 1.2rem;
+      --mat-icon-button-touch-target-size: 1.2rem;
+      .mat-mdc-button-touch-target {
+        width: 2rem !important;
+      }
+      & mat-icon {
+        font-size: 19px;
+        height: 16px;
+        width: 32px;
+        justify-content: center;
+      }
+    }
+    &--end-block {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 1rem;
+      & .change-sprint-status-btn {
+        --mat-button-filled-label-text-size: 12px;
+        --mat-button-filled-touch-target-size: 1.5rem;
+        --mat-button-filled-container-height: 1.5rem;
+        --mat-button-filled-horizontal-padding: 1rem;
+      }
+    }
+  }
+  & .dates {
+    font-size: 11px;
+    opacity: 0.7;
+    margin-left: .25rem;
+    white-space: nowrap;
+  }
+
+}
+
+.tasks-view-opened {
+  transform: rotate(180deg);
+}
