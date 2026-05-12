@@ -5,8 +5,8 @@ import { BehaviorSubject, catchError, map, Observable, of, tap } from 'rxjs';
 import {
   IUserExtended,
   IUserExtendedCreateOrUpdate,
-  IUserExtendedQueryParams,
 } from '../interfaces/user';
+import { buildHTTPParams, defaultEmptyPage, ISelectStrictPageQuery, PaginatedResponse } from '../interfaces/common';
 
 @Injectable({
   providedIn: 'root',
@@ -54,12 +54,11 @@ export class UserService {
   private http = inject(HttpClient);
   private readonly apiUrl = `${environment.apiUrl}`;
 
-  getUsers(data: IUserExtendedQueryParams): Observable<IUserExtended[]> {
+  getUsers(data: ISelectStrictPageQuery): Observable<PaginatedResponse<IUserExtended>> {
     const url = `${this.apiUrl}/users/`;
-    let params = new HttpParams();
-    if (data.search) params = params.set('search', data.search);
-    if (data.ordering) params = params.set('ordering', data.ordering);
-    return this.http.get<IUserExtended[]>(url, { params }).pipe(catchError(() => of([])));
+    return this.http
+      .get<PaginatedResponse<IUserExtended>>(url, { params: buildHTTPParams(data) })
+      .pipe(catchError(() => of(defaultEmptyPage)));
   }
   getUser(userId: number): Observable<IUserExtended[]> {
     const url = `${this.apiUrl}/users/${userId}`;
@@ -74,9 +73,9 @@ export class UserService {
     data: IUserExtendedCreateOrUpdate | FormData,
   ): Observable<IUserExtended> {
     return this.http.patch<IUserExtended>(`${this.apiUrl}/users/${userId}/`, data).pipe(
-      tap(updateUserData => {
+      tap((updateUserData) => {
         this.setDefaultUser(updateUserData);
-      })
+      }),
     );
   }
   deleteUser(userId: number): Observable<never> {

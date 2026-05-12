@@ -74,6 +74,7 @@
         <button
           mat-icon-button
           [matTooltip]="'Добавить тип проекта'"
+          [matTooltipShowDelay]="500"
           (click)="createProjectType($event)"
           style="margin-bottom: 1rem;"
         >
@@ -96,6 +97,7 @@
         <button
           mat-icon-button
           [matTooltip]="'Добавить категорию проекта'"
+          [matTooltipShowDelay]="500"
           (click)="createProjectCategory($event)"
           style="margin-bottom: 1rem;"
         >
@@ -105,41 +107,43 @@
     </div>
 
     <!-- Ответственный -->
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Ответственный</mat-label>
-      <mat-select formControlName="manage_by" [compareWith]="compareById">
-        <mat-option [value]="null">— Не выбрано —</mat-option>
-        @for (user of data.availableUsers; track user.id) {
-          <mat-option [value]="user">
-            {{ user.full_name || user.username }}
-          </mat-option>
-        }
-      </mat-select>
-    </mat-form-field>
+    <div class="full-width">
+      <app-entity-select
+        formControlName="manage_by"
+        label="Ответственный"
+        [clearable]="true"
+        [loadFn]="loadExecuteByPage"
+        [nameKey]="'full_name'"
+      ></app-entity-select>
+    </div>
 
     @if (data.project?.id && data.mode === 'edit') {
       <div class="date-row mb-0">
-        <!-- Статусы (мультивыбор) -->
-        <div class="d-flex flex-row align-items-center gap-1 full-width mb-0">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Статусы проекта</mat-label>
-            <mat-select formControlName="statuses_map" multiple>
-              @for (status of data.availableStatuses; track status.id) {
-                <mat-option [value]="status">
-                  {{ status.name }}
-                </mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
-          <button
-            mat-icon-button
-            [matTooltip]="'Добавить статус'"
-            (click)="createStatus($event)"
-            style="margin-bottom: 1rem;"
-          >
-            <mat-icon svgIcon="addObjectIcon" class="d-flex"></mat-icon>
-          </button>
+        <!-- Статусы -->
+        <div class="d-flex full-width">
+          <app-entity-select
+            #statusesMapSelect
+            formControlName="statuses_map"
+            label="Статусы проекта"
+            [clearable]="true"
+            [loadFn]="loadStatusesPage"
+            [multiple]="true"
+            [needSearch]="false"
+            (onLoadChange)="statusesOnLoad($event)"
+          ></app-entity-select>
+          @if (canCreateStatus()) {
+            <button
+              mat-icon-button
+              [matTooltip]="'Добавить статус'"
+              [matTooltipShowDelay]="500"
+              (click)="createStatus($event)"
+              style="margin-left: .25rem;"
+            >
+              <mat-icon svgIcon="addObjectIcon" class="d-flex"></mat-icon>
+            </button>
+          }
         </div>
+
         <!-- Версии -->
         <div class="d-flex flex-row align-items-center gap-1 full-width mb-0">
           <mat-form-field appearance="outline" class="full-width">
@@ -156,6 +160,7 @@
           <button
             mat-icon-button
             [matTooltip]="'Добавить версию'"
+            [matTooltipShowDelay]="500"
             (click)="createVersion($event)"
             style="margin-bottom: 1rem;"
           >

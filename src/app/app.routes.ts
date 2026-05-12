@@ -9,6 +9,7 @@ import { UserTableComponent } from './components/work-entity/user-table/user-tab
 import { ProjectsComponent } from './components/work-entity/projects/projects';
 import { TasksComponent } from './components/work-entity/tasks/tasks';
 import { UserSettingsComponent } from './components/common/user-settings/user-settings';
+import { TaskViewComponent } from './components/work-entity/tasks/task-view/task-view';
 
 
 export const routes: Routes = [
@@ -22,7 +23,19 @@ export const routes: Routes = [
       { path: 'user-profile', component: UserSettingsComponent },
       { path: 'user-table', component: UserTableComponent },
       { path: 'projects', component: ProjectsComponent },
-      { path: 'tasks', component: TasksComponent },
+      {
+        path: 'tasks',
+        children: [
+          {
+            path: '',
+            component: TasksComponent,
+          },
+          {
+            path: ':slug',
+            component: TaskViewComponent,
+          },
+        ],
+      },
       { path: '', redirectTo: '/home/user-table', pathMatch: 'full' },
       { path: '**', component: NotFoundComponent },
     ],

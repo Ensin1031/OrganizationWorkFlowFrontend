@@ -6,6 +6,7 @@
         mat-icon-button
         class="projects-list-header--add-project-btn"
         [matTooltip]="'Добавить проект'"
+        [matTooltipShowDelay]="500"
         (click)="createProject($event)"
       >
         <mat-icon svgIcon="addObjectIcon" class="d-flex projects-list-header--add-project-btn--icon"></mat-icon>
@@ -23,6 +24,7 @@
               mat-icon-button
               class="projects-list__manage-bar--add-icon-btn"
               [matTooltip]="'Добавить тип проекта'"
+              [matTooltipShowDelay]="500"
               (click)="createType($event)"
             >
               <mat-icon svgIcon="addObjectIcon" class="d-flex projects-list__manage-bar--add-icon-btn"></mat-icon>
@@ -59,7 +61,7 @@
                       <app-safe-svg [svgString]="projectType.icon"></app-safe-svg>
                     </button>
                   }
-                  <a href="javascript:void(0)" (click)="onSelectProjectType(projectType)" class="hide-text-overflow-1" [matTooltip]="projectType.name">
+                  <a href="javascript:void(0)" (click)="onSelectProjectType(projectType)" class="hide-text-overflow-1" [matTooltip]="projectType.name" [matTooltipShowDelay]="500">
                     {{ projectType.name }}
                   </a>
                 </div>
@@ -68,6 +70,7 @@
                     mat-icon-button
                     class="projects-list__manage-bar--add-icon-btn"
                     [matTooltip]="'Редактировать'"
+                    [matTooltipShowDelay]="500"
                     (click)="updateType($event, projectType)"
                   >
                     <mat-icon svgIcon="editObjectIcon" class="d-flex projects-list__manage-bar--add-icon-btn"></mat-icon>
@@ -78,11 +81,11 @@
               <div class="d-flex align-items-center justify-content-between">
                 <div class="projects-list__manage-bar--item">
                   @if (projectType.icon) {
-                    <span class="projects-list__manage-bar--item--icon">
+                    <button mat-icon-button class="d-flex" style="cursor: default; pointer-events: none;">
                       <app-safe-svg [svgString]="projectType.icon"></app-safe-svg>
-                    </span>
+                    </button>
                   }
-                  <span class="hide-text-overflow-1" style="cursor: default;" [matTooltip]="projectType.name">{{ projectType.name }}</span>
+                  <span class="hide-text-overflow-1" style="cursor: default;" [matTooltip]="projectType.name" [matTooltipShowDelay]="500">{{ projectType.name }}</span>
                 </div>
                 @if (canCreateProjectType()) {
                   <div class="d-flex flex-row gap-1">
@@ -90,6 +93,7 @@
                       mat-icon-button
                       class="projects-list__manage-bar--add-icon-btn"
                       [matTooltip]="'Редактировать'"
+                      [matTooltipShowDelay]="500"
                       (click)="updateType($event, projectType)"
                     >
                       <mat-icon svgIcon="editObjectIcon" class="d-flex projects-list__manage-bar--add-icon-btn"></mat-icon>
@@ -98,6 +102,7 @@
                       mat-icon-button
                       class="projects-list__manage-bar--add-icon-btn"
                       [matTooltip]="'Удалить'"
+                      [matTooltipShowDelay]="500"
                       (click)="deleteType($event, projectType)"
                     >
                       <mat-icon svgIcon="delObjectIcon" class="d-flex projects-list__manage-bar--add-icon-btn"></mat-icon>
@@ -117,6 +122,7 @@
               mat-icon-button
               class="projects-list__manage-bar--add-icon-btn"
               [matTooltip]="'Добавить категорию'"
+              [matTooltipShowDelay]="500"
               (click)="createCategory($event)"
             >
               <mat-icon svgIcon="addObjectIcon" class="d-flex projects-list__manage-bar--add-icon-btn"></mat-icon>
@@ -153,7 +159,7 @@
                       <app-safe-svg [svgString]="projectCategory.icon"></app-safe-svg>
                     </button>
                   }
-                  <a href="javascript:void(0)" (click)="onSelectProjectCategory(projectCategory)" class="hide-text-overflow-1" [matTooltip]="projectCategory.name">
+                  <a href="javascript:void(0)" (click)="onSelectProjectCategory(projectCategory)" class="hide-text-overflow-1" [matTooltip]="projectCategory.name" [matTooltipShowDelay]="500">
                     {{ projectCategory.name }}
                   </a>
                 </div>
@@ -162,6 +168,7 @@
                     mat-icon-button
                     class="projects-list__manage-bar--add-icon-btn"
                     [matTooltip]="'Редактировать'"
+                    [matTooltipShowDelay]="500"
                     (click)="updateCategory($event, projectCategory)"
                   >
                     <mat-icon svgIcon="editObjectIcon" class="d-flex projects-list__manage-bar--add-icon-btn"></mat-icon>
@@ -172,9 +179,9 @@
               <div class="d-flex align-items-center justify-content-between">
                 <div class="projects-list__manage-bar--item">
                   @if (projectCategory.icon) {
-                    <span class="projects-list__manage-bar--item--icon">
+                    <button mat-icon-button class="d-flex" style="cursor: default; pointer-events: none;">
                       <app-safe-svg [svgString]="projectCategory.icon"></app-safe-svg>
-                    </span>
+                    </button>
                   }
                   <span class="hide-text-overflow-1">{{ projectCategory.name }}</span>
                 </div>
@@ -184,6 +191,7 @@
                       mat-icon-button
                       class="projects-list__manage-bar--add-icon-btn"
                       [matTooltip]="'Редактировать'"
+                      [matTooltipShowDelay]="500"
                       (click)="updateCategory($event, projectCategory)"
                     >
                       <mat-icon svgIcon="editObjectIcon" class="d-flex projects-list__manage-bar--add-icon-btn"></mat-icon>
@@ -192,6 +200,7 @@
                       mat-icon-button
                       class="projects-list__manage-bar--add-icon-btn"
                       [matTooltip]="'Удалить'"
+                      [matTooltipShowDelay]="500"
                       (click)="deleteCategory($event, projectCategory)"
                     >
                       <mat-icon svgIcon="delObjectIcon" class="d-flex projects-list__manage-bar--add-icon-btn"></mat-icon>
@@ -231,7 +240,7 @@
                   @if (project.icon) {
                     <span class="projects-list-icon me-2"><app-safe-svg [svgString]="project.icon" class="d-flex"></app-safe-svg></span>
                   }
-                  <a href="javascript:void(0)" (click)="goToProjectTacks(project)" [matTooltip]="'Перейти к задачам проекта'" class="hide-text-overflow-1">
+                  <a href="javascript:void(0)" (click)="goToProjectTacks(project)" [matTooltip]="'Перейти к задачам проекта'" [matTooltipShowDelay]="500" class="hide-text-overflow-1">
                     <span>{{ project.name }}</span>
                   </a>
                 </div>
@@ -241,7 +250,7 @@
             <!-- Префикс -->
             <ng-container matColumnDef="code_prefix">
               <th mat-header-cell *matHeaderCellDef> Префикс </th>
-              <td mat-cell *matCellDef="let project"><a href="javascript:void(0)" (click)="goToProjectTacks(project)" [matTooltip]="'Перейти к задачам проекта'" class="text-nowrap">{{ project.code_prefix }}</a></td>
+              <td mat-cell *matCellDef="let project"><a href="javascript:void(0)" (click)="goToProjectTacks(project)" [matTooltip]="'Перейти к задачам проекта'" [matTooltipShowDelay]="500" class="text-nowrap">{{ project.code_prefix }}</a></td>
             </ng-container>
 
             <!-- Дата начала -->
@@ -342,6 +351,7 @@
                     mat-icon-button
                     class="projects-list__manage-bar--add-icon-btn"
                     [matTooltip]="'Редактировать'"
+                    [matTooltipShowDelay]="500"
                     (click)="updateProject($event, project)"
                   >
                     <mat-icon svgIcon="editObjectIcon" class="d-flex projects-list__manage-bar--add-icon-btn"></mat-icon>

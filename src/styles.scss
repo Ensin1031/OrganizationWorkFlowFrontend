@@ -114,13 +114,17 @@ body {
   --mat-paginator-form-field-container-vertical-padding: .385rem;
 
   --mat-select-panel-background-color: var(--gray-background-color);
+  --mat-option-selected-state-layer-color: var(--gray-dark-background-color);
   --mat-option-label-text-size: 14px;
+  --mat-select-trigger-text-size: 14px;
 
   --mat-datepicker-calendar-container-background-color: var(--gray-background-color);
   --mat-datepicker-calendar-container-elevation-shadow: 2px 4px 4px rgba(0, 0, 0, 0.5), -2px -4px 4px rgba(255, 255, 255, 0.1);
 
   --mat-menu-item-leading-spacing: .25rem;
   --mat-menu-item-trailing-spacing: .25rem;
+
+  --mat-radio-state-layer-size: 2rem;
 }
 
 html,
@@ -152,7 +156,16 @@ body {
   max-height: 2rem !important;
   min-height: 2rem !important;
 }
-
+.menu-header {
+  padding: 0 1.125rem;
+  font-weight: 500;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+}
+.menu-radio {
+  display: block;
+  padding: 0 .5rem;
+}
 .hide-text-overflow-1 {
   display: -webkit-box;
   -webkit-line-clamp: 1;

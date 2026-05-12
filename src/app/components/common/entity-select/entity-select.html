@@ -1,0 +1,72 @@
+<mat-form-field
+  appearance="outline"
+  class="full-width"
+  [ngClass]="{
+    'with-clear-button': clearable() && hasValue() && !isDisabled()
+  }"
+>
+  <mat-label>{{ label() }}</mat-label>
+
+  <mat-select
+    [multiple]="multiple()"
+    [ngModel]="currentValue()"
+    (ngModelChange)="select($event)"
+    [compareWith]="compareById"
+    [disabled]="isDisabled()"
+    [required]="required()"
+  >
+    @if (needSearch()) {
+      <div class="search-container">
+        <mat-form-field appearance="outline" class="search-field w-100">
+          <input
+            #entitySearchInput
+            matInput
+            placeholder="Поиск..."
+            [disabled]="isDisabled()"
+            (input)="onSearch($any($event.target).value)"
+          />
+          @if (search()) {
+            <button matSuffix type="button" mat-icon-button (click)="onSearch(''); entitySearchInput.value = ''" [disabled]="isDisabled()">
+              <mat-icon>close</mat-icon>
+            </button>
+          }
+        </mat-form-field>
+      </div>
+    }
+
+    <div class="options-container" (scroll)="onScroll($event)">
+      @if (loading()) {
+        <mat-option disabled class="empty-items-option">
+          <span class="hide-text-overflow-1 empty-items-option--label">Загрузка...</span>
+        </mat-option>
+      } @else {
+        @for (item of displayItems(); track getItemId(item)) {
+          <mat-option [value]="item">
+            <span class="hide-text-overflow-1">{{ getItemName(item) }}</span>
+          </mat-option>
+        }
+        @if (displayItems().length === 0) {
+          <mat-option disabled class="empty-items-option">
+            <span class="hide-text-overflow-1 empty-items-option--label">Значения отсутствуют</span>
+          </mat-option>
+        }
+      }
+    </div>
+  </mat-select>
+
+  @if (required() && !hasValue() && !isDisabled()) {
+    <mat-error>Поле обязательно для заполнения</mat-error>
+  }
+</mat-form-field>
+
+@if (clearable() && hasValue() && !isDisabled()) {
+  <button
+    mat-icon-button
+    matSuffix
+    type="button"
+    class="select-clear-button"
+    (click)="clear($event)"
+  >
+    <mat-icon>close</mat-icon>
+  </button>
+}

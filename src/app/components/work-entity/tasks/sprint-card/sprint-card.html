@@ -1,0 +1,70 @@
+<div class="sprint-card">
+  <div class="sprint-card--header">
+    <div class="sprint-card--header--title-block">
+      <button mat-icon-button class="sprint-card--header--btn" (click)="viewSprintTasks()">
+        <mat-icon class="d-flex" [class.tasks-view-opened]="isTaskListOpen">arrow_drop_down</mat-icon>
+      </button>
+
+      <div class="">
+        <div><span>{{ sprint().name }}</span><span class="dates ml-1">{{ sprintDates }}</span></div>
+        <div class="d-flex flex-wrap align-items-center gap-2">
+          <app-status-view [statusChoices]="sprintStatusChoices()" [statusValue]="sprintStatus()"></app-status-view>
+          <div class="dates">{{ sprint().works_ids.length }} проблем(ы)</div>
+          <button mat-icon-button class="sprint-card--header--btn-view-users-load" [matTooltip]="'Нагрузка на пользователей'" (click)="viewUsersLoad($event)">
+            <mat-icon class="d-flex">more_horiz</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="sprint-card--header--end-block">
+      @if (canCreateSprint()) {
+        @if (!(sprintStatus() === SprintStatus.CLOSED)) {
+          <button
+            mat-flat-button
+            (click)="changeSprintStatus($event)"
+            class="change-sprint-status-btn"
+            [ngStyle]="{
+            '--mat-button-filled-container-color': changeSprintStatusBTNBackground()
+          }"
+          >
+            <span class="text-nowrap">{{ changeSprintStatusBTNName() }}</span>
+          </button>
+        }
+      }
+
+      <button mat-icon-button class="sprint-card--header--btn" [matMenuTriggerFor]="changeSprintMenu">
+        <mat-icon class="d-flex">more_horiz</mat-icon>
+      </button>
+      <mat-menu #changeSprintMenu="matMenu" class="left-sidebar-mat-menu">
+        <button mat-menu-item (click)="viewSprint()">
+          Детали
+        </button>
+        @if (canCreateSprint()) {
+          <button mat-menu-item (click)="updateSprint()">
+            Редактировать
+          </button>
+          @if (sprintStatus() === SprintStatus.NOT_ACTIVE) {
+            <button mat-menu-item (click)="deleteSprint()">
+              Удалить
+            </button>
+          }
+        }
+        @if (canCreateTask() && sprintStatus() !== SprintStatus.CLOSED) {
+          <mat-divider class="projects-list__divider" style="margin: 0.125rem;"></mat-divider>
+          <button mat-menu-item (click)="createSprintTask()">
+            Создать задачу в спринте
+          </button>
+        }
+      </mat-menu>
+    </div>
+  </div>
+  <div [ngStyle]="{'display': isTaskListOpen ? 'flex' : 'none'}">
+    <app-tasks-list
+      [sprint]="sprint()"
+      [canCreate]="canCreateTask()"
+      [filters]="getTasksFilters()"
+      [pageSize]="tasksPageSize()"
+      (updateTaskSignal)="updateSprintsSignal.emit()"
+    ></app-tasks-list>
+  </div>
+</div>

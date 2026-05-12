@@ -1,1 +1,80 @@
-<p>tasks works! projectId === {{ projectId }}</p>
+<div class="d-flex flex-column h-100 position-relative tasks-content">
+  <p>tasks works! projectId === {{ projectId() }}</p>
+  <p>tasks works! byEpics === {{ byEpics() }}</p>
+  <p>tasks works! bySprints === {{ bySprints() }}</p>
+  <p>tasks works! canCreateTask === {{ canCreateTask() }}</p>
+  <p>tasks works! canCreateSprint === {{ canCreateSprint() }}</p>
+  @if (bySprints()) {
+    <mat-divider class="projects-list__divider" style="margin: 0.125rem;"></mat-divider>
+    <div class="d-flex flex-row align-items-center justify-content-between gap-2 mt-2 mb-2 tasks-by-sprints-content">
+      <div class="d-flex flex-row align-items-center gap-3">
+        <div class="d-flex flex-row align-items-center gap-2 tasks-vertical-divider">
+          <div>Спринты: </div>
+          <mat-form-field appearance="outline" class="sprints-filter-select">
+            <mat-select [(ngModel)]="selectedFilter" (selectionChange)="onFilterChange()">
+              @for (filter of sprintFilters; track filter.id) {
+                <mat-option [value]="filter.id">{{ filter.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div class="d-flex flex-row align-items-center gap-3">
+          <div class="d-flex flex-row align-items-center mr-2 tasks-vertical-divider">
+            <mat-checkbox [checked]="onlyMyTasks()" (change)="toggleOnlyMyTasks($event.checked)">
+              Мои задачи
+            </mat-checkbox>
+          </div>
+          <div class="d-flex flex-row align-items-center mr-2 tasks-vertical-divider">
+            <mat-checkbox [checked]="tasksWithoutExecutor()" (change)="toggleTasksWithoutExecutor($event.checked)">
+              Без исполнителя
+            </mat-checkbox>
+          </div>
+          <div class="d-flex flex-row align-items-center tasks-entity-selector tasks-vertical-divider">
+            <app-entity-select
+              [value]="selectedUsers()"
+              (selectedChange)="selectedChangeUsers($event)"
+              label="Исполнители"
+              [clearable]="true"
+              [loadFn]="loadUsersPage"
+              [multiple]="true"
+              [nameKey]="'full_name'"
+            ></app-entity-select>
+          </div>
+          <div class="d-flex flex-row align-items-center tasks-entity-selector">
+            <app-entity-select
+              [value]="selectedTasksStatuses()"
+              (selectedChange)="selectedChangeTasksStatuses($event)"
+              label="Статусы задач"
+              [clearable]="true"
+              [loadFn]="loadTasksStatusesPage"
+              [multiple]="true"
+            ></app-entity-select>
+          </div>
+        </div>
+      </div>
+      <div class="d-flex flex-row align-items-center gap-2 me-2">
+        <button mat-icon-button class="sprint-card--header--btn" [matMenuTriggerFor]="sprintsTasksMenu">
+          <mat-icon class="d-flex">more_horiz</mat-icon>
+        </button>
+        <mat-menu #sprintsTasksMenu="matMenu">
+          <div class="menu-header">Показать</div>
+          <mat-radio-group [value]="sprintTasksPageSize()" (change)="setTasksPageSize($event.value)">
+            @for (size of tasksPageSizeOptions; track size) {
+              <mat-radio-button [value]="size" class="menu-radio">
+                {{ size }}
+              </mat-radio-button>
+            }
+          </mat-radio-group>
+        </mat-menu>
+      </div>
+    </div>
+    <mat-divider class="projects-list__divider" style="margin: 0.125rem;"></mat-divider>
+    <app-tasks-by-sprints
+      [canCreateSprint]="canCreateSprint()"
+      [filters]="sprintsSelectedFilters()"
+      [canCreateTask]="canCreateTask()"
+      [tasksFilters]="getTasksFilters()"
+      [sprintTasksPageSize]="sprintTasksPageSize()"
+    ></app-tasks-by-sprints>
+  }
+</div>

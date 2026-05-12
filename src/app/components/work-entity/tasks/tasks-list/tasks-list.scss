@@ -1,0 +1,62 @@
+:host ::ng-deep .tasks-list__content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: .225rem;
+  border: 1px solid var(--gray-dark-background-color);
+  border-radius: .125rem;
+  background: var(--light-gray-background-color);
+  & .tasks-list {
+    display: flex;
+    flex-direction: column;
+    gap: .125rem;
+  }
+  & .task-item {
+    border-radius: .15rem;
+    background: var(--bs-white);
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.02);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    will-change: transform;
+    cursor: pointer;
+    position: relative;
+    &:hover {
+      transform: scale(1.001);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
+      z-index: 1;
+    }
+    &--manage-btn {
+      display: flex;
+    }
+    &--content {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+  }
+  & .task-name-block {
+    &--lead-time {
+      padding: 0 .5rem;
+      font-size: 14px;
+      border-radius: .4rem;
+      background: var(--gray-dark-background-color);
+      min-width: 2rem;
+    }
+  }
+  & .task-manage-block {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: .5rem;
+    & .user-avatar {
+      width: 26px !important;
+      height: 26px !important;
+    }
+  }
+}
+::ng-deep .task-manage-block--menu {
+  & .mat-mdc-menu-item {
+    min-height: 2rem !important;
+    padding: 0 1rem;
+  }
+}

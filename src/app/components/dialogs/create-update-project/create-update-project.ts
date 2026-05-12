@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, viewChild } from '@angular/core';
 import {
   MAT_DIALOG_DATA,
   MatDialog,
@@ -35,28 +35,28 @@ import {
   CreateUpdateProjectVersionDialogComponent,
   IProjectVersionCreateUpdateDialogData,
 } from '../create-update-project-version/create-update-project-version';
-import { filter, finalize, switchMap, take, tap } from 'rxjs';
+import { filter, finalize, merge, switchMap, take, tap } from 'rxjs';
 import { ProjectContextService } from '../../../services/project-context';
-import { IStatus, IStatusCreateOrUpdate } from '../../../interfaces/references';
+import { IReferenceCreateOrUpdate, IStatus } from '../../../interfaces/references';
 import {
   CreateUpdateWorkStatusDialogComponent,
   IStatusCreateUpdateDialogData,
 } from '../create-update-work-status/create-update-work-status';
-import { WorkReferencesService } from '../../../services/work-references';
+import { StatusesService } from '../../../services/work-references';
 import {
   CreateUpdateProjectMatObjectDialogComponent,
   IProjectMatObjectDialogData
 } from '../create-update-category/create-update-category';
 import moment from 'moment';
+import { UserService } from '../../../services/user';
+import { EntitySelectComponent } from '../../common/entity-select/entity-select';
 
 export interface IProjectCreateUpdateDialogData {
   mode: 'create' | 'edit';
   project?: IProject; // для редактирования
-  availableStatuses: IStatus[];
   availableVersions: IProjectVersion[];
   availableCategories?: IProjectCategory[];
   availableTypes?: IProjectType[];
-  availableUsers?: IUserExtended[];
 }
 
 
@@ -83,6 +83,7 @@ export interface IProjectCreateUpdateDialogData {
     MatSelect,
     MatOption,
     MatTooltip,
+    EntitySelectComponent,
   ],
   templateUrl: './create-update-project.html',
   styleUrl: './create-update-project.scss',
@@ -93,7 +94,10 @@ export class CreateUpdateProjectDialogComponent implements OnInit {
   public data = inject<IProjectCreateUpdateDialogData>(MAT_DIALOG_DATA);
   private dialog = inject(MatDialog);
   protected projectService = inject(ProjectContextService);
-  protected referencesService = inject(WorkReferencesService);
+  protected statusesService = inject(StatusesService);
+  readonly loadStatusesPage = this.statusesService.getList.bind(this.statusesService);
+  protected userService = inject(UserService);
+  readonly loadExecuteByPage = this.userService.getUsers.bind(this.userService);
 
   form!: FormGroup;
   isSaving = false;
@@ -112,12 +116,13 @@ export class CreateUpdateProjectDialogComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    merge(
+      this.statusesService.getCanCreate().pipe(
+        take(1),
+        tap((canCreate) => this.canCreateStatus.set(canCreate)),
+      ),
+    ).subscribe();
     const project = this.data.project;
-    const selectedStatuses = project?.statuses
-      ? project.statuses
-          .map((ps) => this.data.availableStatuses.find((s) => s.id === ps.status))
-          .filter(Boolean)
-      : [];
     this.form = this.fb.group({
       name: [project?.name || '', [Validators.required, Validators.maxLength(40)]],
       code_prefix: [project?.code_prefix || '', Validators.maxLength(10)],
@@ -129,7 +134,7 @@ export class CreateUpdateProjectDialogComponent implements OnInit {
       type: [project?.type || null],
       manage_by: [project?.manage_by || null],
       statuses: [project?.statuses || []],
-      statuses_map: [selectedStatuses || []],
+      statuses_map: [[]],
       active_version: [project?.active_version || null],
       versions: [project?.versions || []],
       description: [project?.description || ''],
@@ -140,7 +145,6 @@ export class CreateUpdateProjectDialogComponent implements OnInit {
   addUrlField() {
     this.urls.push(this.fb.control(''));
   }
-
   removeUrlField(index: number) {
     this.urls.removeAt(index);
   }
@@ -205,7 +209,7 @@ export class CreateUpdateProjectDialogComponent implements OnInit {
         }),
       )
       .subscribe();
-  };
+  }
   createProjectCategory(event: PointerEvent): void {
     const button = (event.target as HTMLButtonElement).closest('button');
     if (button) {
@@ -286,6 +290,9 @@ export class CreateUpdateProjectDialogComponent implements OnInit {
       )
       .subscribe();
   }
+
+  canCreateStatus = signal<boolean>(false);
+  statusesMapSelect = viewChild<EntitySelectComponent<IStatus>>('statusesMapSelect');
   createStatus(event: PointerEvent): void {
     const button = (event.target as HTMLButtonElement).closest('button');
     if (button) {
@@ -308,21 +315,11 @@ export class CreateUpdateProjectDialogComponent implements OnInit {
           if (button) button.disabled = false;
         }),
         filter((result) => !!result),
-        tap((res) => {
-          console.log(res);
-        }),
         switchMap((result: IStatus) =>
-          this.referencesService.createStatus(result as IStatusCreateOrUpdate),
+          this.statusesService.create(result as IReferenceCreateOrUpdate),
         ),
         tap((result: IStatus) => {
-          setTimeout(() => {
-            this.data.availableStatuses = [...this.data.availableStatuses, result];
-            this.form
-              .get('statuses_map')
-              ?.setValue([...(this.form.get('statuses_map')?.value as []), result], {
-                emitEvent: false,
-              });
-          }, 100);
+          this.statusesMapSelect()?.reload(result);
         }),
         finalize(() => {
           if (button) button.disabled = false;
@@ -330,4 +327,35 @@ export class CreateUpdateProjectDialogComponent implements OnInit {
       )
       .subscribe();
   }
+  statusesOnLoad(data: {value: IStatus | IStatus[] | null, items: IStatus[]}): void {
+    const value = data.value;
+    const selectedStatuses = () => {
+      const result: IStatus[] = [];
+      if (value && Array.isArray(value) && value.length > 0) {
+        value.forEach((item) => {
+          const findStatus = data.items.find((s) => s.id === item.id);
+          if (findStatus) {
+            result.push(findStatus);
+          }
+        });
+      } else if (value && !Array.isArray(value)) {
+        const findStatus = data.items.find((s) => s.id === value.id);
+        if (findStatus) {
+          result.push(findStatus);
+        }
+      } else {
+        const projectStatuses = this.data.project?.statuses;
+        if (projectStatuses && projectStatuses.length > 0) {
+          projectStatuses.forEach((item) => {
+            const findStatus = data.items.find((s) => s.id === item.status);
+            if (findStatus) {
+              result.push(findStatus);
+            }
+          });
+        }
+      }
+      return result;
+    }
+    this.statusesMapSelect()?.select(selectedStatuses());
+  };
 }

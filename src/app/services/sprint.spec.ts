@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { WorkReferencesService } from './work-references';
+import { SprintService } from './sprint';
 
-describe('WorkReferencesService', () => {
-  let service: WorkReferencesService;
+describe('SprintService', () => {
+  let service: SprintService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(WorkReferencesService);
+    service = TestBed.inject(SprintService);
   });
 
   it('should be created', () => {
