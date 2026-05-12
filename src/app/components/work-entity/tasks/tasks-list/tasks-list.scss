@@ -42,6 +42,21 @@
       background: var(--gray-dark-background-color);
       min-width: 2rem;
     }
+    &--with-icon-label {
+      display: inline-flex;
+      height: 1.15rem;
+      vertical-align: middle;
+      text-align: center;
+    }
+    &--without-icon-label {
+      font-size: 12px;
+      border: 1px solid var(--gray-dark-background-color);
+      border-radius: 1rem;
+      display: inline-block;
+      width: 1.15rem;
+      height: 1.15rem;
+      text-align: center;
+    }
   }
   & .task-manage-block {
     display: flex;

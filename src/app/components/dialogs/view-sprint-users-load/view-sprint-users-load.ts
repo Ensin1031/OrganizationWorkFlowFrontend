@@ -58,7 +58,7 @@ export interface IViewSprintUsersLoadDialogData {
             }
           </div>
         }
-        @if (withoutUsersData()) {
+        @if (hasWithoutUsersDataContent()) {
           <div
             class="d-flex flex-row align-items-center justify-content-between without-users-content"
           >
@@ -112,7 +112,11 @@ export class ViewSprintUsersLoadDialogComponent implements OnInit {
   withoutUsersData = computed((): ISprintLoadWithoutUsers | null => this.withoutUsersDataSignal());
 
   hasUsersContent = computed((): boolean => {
-    return this.usersData() && this.usersData().length > 0;
+    return !!this.usersData() && this.usersData().length > 0;
+  });
+  hasWithoutUsersDataContent = computed((): boolean => {
+    const withoutUsersData = this.withoutUsersData();
+    return !!withoutUsersData?.total_lead_time && withoutUsersData.total_lead_time !== '00:00:00';
   });
 
   ngOnInit(): void {
