@@ -6,6 +6,9 @@ import { MatFormField, MatInput, MatLabel, MatSuffix } from '@angular/material/i
 import { MatDatepicker, MatDatepickerInput, MatDatepickerToggle } from '@angular/material/datepicker';
 import { MatButton } from '@angular/material/button';
 import moment from 'moment';
+import { ClassicEditor } from 'ckeditor5';
+import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
+import { ckeditorConfig } from '../../../tokens/ckeditor-5-default-config';
 
 export interface IProjectVersionCreateUpdateDialogData {
   mode: 'create' | 'edit';
@@ -30,6 +33,7 @@ export interface IProjectVersionCreateUpdateDialogData {
     MatDatepickerInput,
     MatDatepickerToggle,
     MatDatepicker,
+    CKEditorModule,
   ],
   templateUrl: './create-update-project-version.html',
   styleUrl: './create-update-project-version.scss',
@@ -42,6 +46,8 @@ export class CreateUpdateProjectVersionDialogComponent implements OnInit {
   form!: FormGroup;
   isSaving = false;
   title = signal(this.data.title);
+
+  public Editor = ClassicEditor;
 
   ngOnInit(): void {
     const version = this.data.version;
@@ -71,4 +77,6 @@ export class CreateUpdateProjectVersionDialogComponent implements OnInit {
   onCancel(): void {
     this.dialogRef.close();
   }
+
+  protected readonly ckeditorConfig = ckeditorConfig;
 }

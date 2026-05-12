@@ -13,10 +13,15 @@
     </mat-form-field>
 
     <!-- Описание -->
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Описание</mat-label>
-      <textarea matInput formControlName="description" rows="3"></textarea>
-    </mat-form-field>
+    <div class="ckeditor-field full-width">
+      <label class="ckeditor-label">Описание</label>
+      <ckeditor
+        [editor]="Editor"
+        [config]="ckeditorConfig"
+        formControlName="description"
+        class="w-100 ckeditor-form"
+      ></ckeditor>
+    </div>
 
     <!-- Цвет. Пока не нужен, оставляю на будущее. -->
 <!--    <div class="color-field">-->
@@ -111,6 +116,7 @@
           [clearable]="true"
           [loadFn]="loadExecuteByPage"
           [nameKey]="'full_name'"
+          [imgKey]="'profile_photo'"
         ></app-entity-select>
       </div>
     </div>

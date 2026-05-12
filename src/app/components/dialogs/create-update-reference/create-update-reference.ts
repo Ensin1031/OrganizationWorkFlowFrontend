@@ -5,6 +5,9 @@ import { MAT_DIALOG_DATA, MatDialogActions, MatDialogContent, MatDialogRef, MatD
 import { MatButton } from '@angular/material/button';
 import { MatError, MatFormField, MatInput, MatLabel } from '@angular/material/input';
 import { SafeSvgComponent } from '../../common/safe-svg/safe-svg';
+import { ClassicEditor } from 'ckeditor5';
+import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
+import { ckeditorConfig } from '../../../tokens/ckeditor-5-default-config';
 
 export interface IReferenceCreateUpdateDialogConfig {
   mode: 'create' | 'edit' | 'view';
@@ -27,6 +30,7 @@ export interface IReferenceCreateUpdateDialogConfig {
     MatLabel,
     MatError,
     SafeSvgComponent,
+    CKEditorModule,
   ],
   templateUrl: './create-update-reference.html',
   styleUrl: './create-update-reference.scss',
@@ -39,6 +43,8 @@ export class CreateUpdateReferenceDialogComponent implements OnInit {
   form!: FormGroup;
   isSaving = false;
   title = signal(this.data.title);
+
+  public Editor = ClassicEditor;
 
   ngOnInit(): void {
     const ref = this.data.reference;
@@ -73,4 +79,6 @@ export class CreateUpdateReferenceDialogComponent implements OnInit {
   onCancel(): void {
     this.dialogRef.close();
   }
+
+  protected readonly ckeditorConfig = ckeditorConfig;
 }

@@ -17,6 +17,18 @@
 }
 :host ::ng-deep .empty-items-option {
   cursor: default;
+  &--icon {
+    width: 1.1rem;
+    min-width: 1.1rem;
+    height: 1.1rem;
+    margin-bottom: .1rem;
+  }
+  &--icon-img {
+    width: 1.2rem !important;
+    min-width: 1.2rem !important;
+    height: 1.2rem !important;
+    margin-bottom: .1rem;
+  }
   & mat-pseudo-checkbox {
     display: none;
   }

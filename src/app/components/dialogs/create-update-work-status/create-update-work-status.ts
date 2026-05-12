@@ -17,6 +17,9 @@ import {
 } from '@angular/forms';
 import { SafeSvgComponent } from '../../common/safe-svg/safe-svg';
 import { IStatus } from '../../../interfaces/references';
+import { ClassicEditor } from 'ckeditor5';
+import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
+import { ckeditorConfig } from '../../../tokens/ckeditor-5-default-config';
 
 export interface IStatusCreateUpdateDialogData {
   mode: 'create' | 'edit';
@@ -38,6 +41,7 @@ export interface IStatusCreateUpdateDialogData {
     MatDialogContent,
     MatLabel,
     SafeSvgComponent,
+    CKEditorModule,
   ],
   templateUrl: './create-update-work-status.html',
   styleUrl: './create-update-work-status.scss',
@@ -50,6 +54,8 @@ export class CreateUpdateWorkStatusDialogComponent implements OnInit {
   form!: FormGroup;
   isSaving = false;
   title = signal(this.data.title);
+
+  public Editor = ClassicEditor;
 
   ngOnInit(): void {
     const status = this.data.status;
@@ -75,4 +81,6 @@ export class CreateUpdateWorkStatusDialogComponent implements OnInit {
   onCancel(): void {
     this.dialogRef.close();
   }
+
+  protected readonly ckeditorConfig = ckeditorConfig;
 }

@@ -23,6 +23,8 @@ import { MatIcon } from '@angular/material/icon';
 import { ISelectStrictPageQuery, PaginatedResponse } from '../../../interfaces/common';
 import { MatOptionModule } from '@angular/material/core';
 import { MatIconButton } from '@angular/material/button';
+import { SafeSvgComponent } from '../safe-svg/safe-svg';
+import { UserPhotoViewComponent } from '../user-photo-view/user-photo-view';
 
 
 @Component({
@@ -36,6 +38,8 @@ import { MatIconButton } from '@angular/material/button';
     MatOptionModule,
     MatIcon,
     MatIconButton,
+    SafeSvgComponent,
+    UserPhotoViewComponent,
   ],
   templateUrl: './entity-select.html',
   styleUrl: './entity-select.scss',
@@ -52,6 +56,8 @@ export class EntitySelectComponent<T extends Record<string, any>> implements Con
   label = input<string>('Выберите значение');
   idKey = input<string>('id');
   nameKey = input<string>('name');
+  imgKey = input<string>('');
+  svgIconKey = input<string>('');
   needSearch = input<boolean>(true);
   required = input<boolean>(false);
   disabled = input<boolean>(false);
@@ -159,6 +165,14 @@ export class EntitySelectComponent<T extends Record<string, any>> implements Con
   };
   getItemId(item: T): any {
     return item[this.idKey()];
+  }
+  getItemImgUrl(item: T): string {
+    if (this.imgKey()) return item[this.imgKey()] ?? '';
+    return '';
+  }
+  getItemSVGIcon(item: T): string {
+    if (this.svgIconKey()) return item[this.svgIconKey()] ?? '';
+    return '';
   }
   getItemName(item: T): string {
     return item[this.nameKey()] ?? String(this.getItemId(item));

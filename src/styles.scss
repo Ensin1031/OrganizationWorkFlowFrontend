@@ -53,6 +53,7 @@ body {
   --success-color: rgba(80, 181, 79, 1);
   --warning-color: rgba(229, 166, 44, 1);
   --negate-color: rgba(197, 84, 84, 1);
+  --negate-opacity-color: rgba(197, 84, 84, 0.5);
   --draft-color: rgba(102, 102, 102, 1);
 
   --found-word-color: #fff838 !important;
@@ -125,6 +126,10 @@ body {
   --mat-menu-item-trailing-spacing: .25rem;
 
   --mat-radio-state-layer-size: 2rem;
+
+  --ck-border-radius: .2rem !important;
+  --ck-content-font-size: 14px !important;
+  --ck-spacing-large: .5rem !important;
 }
 
 html,
@@ -166,6 +171,9 @@ body {
   display: block;
   padding: 0 .5rem;
 }
+.mat-mdc-text-field-wrapper {
+  background: var(--bs-white);
+}
 .hide-text-overflow-1 {
   display: -webkit-box;
   -webkit-line-clamp: 1;
@@ -201,4 +209,74 @@ router-outlet.router-flex + *,
   flex-direction: column;
   min-height: 0;
   max-height: 100%;
+}
+
+.toast-error {
+  position: fixed;
+  top: 2.725rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10000;
+  min-width: 50%;
+  max-width: 90%;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: var(--negate-opacity-color);
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.22), 0 2px 8px rgba(0, 0, 0, 0.16);
+  backdrop-filter: blur(8px);
+  animation: toastIn 0.18s ease-out;
+  white-space: pre-line;
+  &--content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 14px;
+    line-height: 1.35;
+    text-align: center;
+  }
+  &--close {
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+    & .mat-icon {
+      color: white;
+      display: flex;
+    }
+  }
+}
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateY(-12px) translateX(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) translateX(0);
+  }
+}
+
+.ckeditor-field {
+  display: flex;
+  flex-direction: column;
+  gap: .125rem;
+  & .ckeditor-label {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--font-disable-color);
+  }
+  & .ck-rounded-corners .ck.ck-editor__main>.ck-editor__editable,
+  .ck.ck-editor__main>.ck-editor__editable.ck-rounded-corners {
+    max-height: 25rem;
+  }
+}
+.ck.ck-toolbar {
+  flex-wrap: wrap !important;
+}
+.ck.ck-toolbar__items {
+  flex-wrap: wrap !important;
 }

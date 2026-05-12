@@ -1,2 +1,802 @@
-<p>task-view works!</p>
-<p>task SLUG = {{ taskSlug }}</p>
+@if (task(); as work) {
+  <div class="task-view h-100 take-full-page-height">
+    <div class="task-view--name-block card-block">
+      @if (work.project.icon) {
+        <div class="task-view--name-block--icon-project d-flex text-nowrap">
+          <button
+            mat-icon-button
+            [routerLink]="'/home/tasks'"
+            [queryParams]="{ projectId: work.project.id }"
+            [matTooltip]="'[' + work.project.code_prefix + '] ' + work.project.name "
+            [matTooltipShowDelay]="500"
+          >
+            <app-safe-svg [svgString]="work.project.icon"></app-safe-svg>
+          </button>
+        </div>
+      }
+      <div class="task-view--name-block--name w-100">
+        <div class="text-nowrap">[<a [routerLink]="['/home/tasks', work.slug]">{{ work.slug }}</a>]</div>
+        <div class="d-flex flex-row align-items-center w-100">
+          @if (nameChange()) {
+            <div class="w-100 fs-6">
+              <input #nameChangeInput type="text" [value]="work.name" class="w-100">
+            </div>
+            @if (canEdit()) {
+              <div class="p-2 d-flex flex-row align-items-center gap-2">
+                <button
+                  mat-icon-button
+                  [matTooltip]="'Сохранить'"
+                  [matTooltipShowDelay]="500"
+                  (click)="update({name: nameChangeInput.value}, nameChange)"
+                ><mat-icon svgIcon="shapeOnIcon" class="d-flex"></mat-icon></button>
+                <button
+                  mat-icon-button
+                  [matTooltip]="'Отменить редактирование'"
+                  [matTooltipShowDelay]="500"
+                  (click)="nameChange.set(false)"
+                ><mat-icon class="d-flex">close</mat-icon></button>
+              </div>
+            }
+          } @else {
+            <div>{{ work.name }}</div>
+            @if (canEdit()) {
+              <div class="p-2 d-flex flex-row align-items-center gap-2">
+                <button
+                  mat-icon-button
+                  [matTooltip]="'Редактировать наименование'"
+                  [matTooltipShowDelay]="500"
+                  (click)="nameChange.set(true)"
+                ><mat-icon svgIcon="editObjectIcon" class="d-flex"></mat-icon></button>
+              </div>
+            }
+          }
+        </div>
+      </div>
+    </div>
+    <div class="task-view--content-block h-100 take-full-page-height">
+      <div class="task-view--content-block--deck">
+
+        <!-- Хэдер -->
+        <div class="card-block d-flex flex-row gap-2 align-items-center">
+
+          <!-- Кнопка модалки редактирования -->
+          <button mat-button color="primary" class="task-view--edit-btn" [disabled]="!canEdit()" (click)="editTask($event)">
+            <div class="d-flex flex-row align-items-center gap-2 text-nowrap">
+              <span>Редактировать</span>
+              <mat-icon svgIcon="editObjectIcon" class="d-flex"></mat-icon>
+            </div>
+          </button>
+
+          <!-- Кнопка Добавить комментарий -->
+          @if (canCreateComment()) {
+            <button
+              mat-button
+              class="task-view--edit-btn"
+              (click)="newCommentContent.set(''); createNewCommentMode.set(true)"
+              [disabled]="createNewCommentMode()"
+            ><span class="text-nowrap">Добавить комментарий</span></button>
+          }
+
+          <!-- Статус -->
+          <mat-form-field appearance="outline" class="task-view--change-status-selector">
+            <mat-label>Статус</mat-label>
+            <mat-select [(ngModel)]="selectedWorkStatus" (ngModelChange)="update({status_id: selectedWorkStatus()?.id})" [compareWith]="compareById" required>
+              @for (status of workProjectStatuses(); track status.id) {
+                <mat-option [value]="status">{{ status.name }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <!-- Детали задачи -->
+        <div class="card-block">
+          <div class="task-view--manage-view-row">
+            <button mat-icon-button class="task-view--manage-view-row--btn" (click)="viewDetailsBlock()">
+              <mat-icon class="d-flex" [class.view-opened]="detailsBlockIsView">arrow_drop_down</mat-icon>
+            </button>
+            <div>Детали</div>
+          </div>
+          <div class="w-100 card-block--grid-table" [ngClass]="{ 'd-none': !detailsBlockIsView }">
+            <div class="card-block--grid-table--grid-cell fw-semibold">Тип</div>
+            <div class="card-block--grid-table--grid-cell">
+              @if (typeChange()) {
+                <app-entity-select
+                  [value]="selectedChangeType()"
+                  (selectedChange)="selectedChangeType.set($event)"
+                  [loadFn]="loadTypesPage"
+                  [filters]="{ without: [DefaultWorkTypesEnum.EPIC, DefaultWorkTypesEnum.STORY] }"
+                  [svgIconKey]="'icon'"
+                ></app-entity-select>
+                @if (canEdit()) {
+                  <div class="d-flex flex-row align-items-center gap-2">
+                    <button
+                      mat-icon-button
+                      [matTooltip]="'Сохранить'"
+                      [matTooltipShowDelay]="500"
+                      (click)="update({type_id: selectedChangeType()?.id}, typeChange)"
+                    ><mat-icon svgIcon="shapeOnIcon" class="d-flex"></mat-icon></button>
+                    <button
+                      mat-icon-button
+                      [matTooltip]="'Отменить редактирование'"
+                      [matTooltipShowDelay]="500"
+                      (click)="typeChange.set(false)"
+                    ><mat-icon class="d-flex">close</mat-icon></button>
+                  </div>
+                }
+              } @else {
+                <div class="d-flex flex-row gap-1 align-items-center">
+                  <div class="d-flex flex-row align-items-center gap-1">
+                    @if (work.type?.icon) {
+                      <app-safe-svg [svgString]="work.type!.icon" class="card-block--small-icon"></app-safe-svg>
+                    }
+                    <div
+                      class="card-block--field-label"
+                      [ngStyle]="{
+                        background: work.type?.color ?? 'unset',
+                        color: !!work.type?.color ? 'var(--bs-white)' : 'var(--font-color)'
+                      }"
+                    >{{ work.type?.name ?? 'Не назначено' }}</div>
+                  </div>
+                  @if (canEdit()) {
+                    <div class="d-flex flex-row align-items-center gap-1">
+                      <button
+                        mat-icon-button
+                        [matTooltip]="'Редактировать'"
+                        [matTooltipShowDelay]="500"
+                        (click)="typeChange.set(true)"
+                      ><mat-icon svgIcon="editObjectIcon" class="d-flex"></mat-icon></button>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+            <div class="card-block--grid-table--grid-cell fw-semibold">Приоритет</div>
+            <div class="card-block--grid-table--grid-cell">
+              @if (priorityChange()) {
+                <app-entity-select
+                  [value]="selectedChangePriority()"
+                  (selectedChange)="selectedChangePriority.set($event)"
+                  [loadFn]="loadPrioritiesPage"
+                  [svgIconKey]="'icon'"
+                ></app-entity-select>
+                @if (canEdit()) {
+                  <div class="d-flex flex-row align-items-center gap-2">
+                    <button
+                      mat-icon-button
+                      [matTooltip]="'Сохранить'"
+                      [matTooltipShowDelay]="500"
+                      (click)="update({priority_id: selectedChangePriority()?.id}, priorityChange)"
+                    ><mat-icon svgIcon="shapeOnIcon" class="d-flex"></mat-icon></button>
+                    <button
+                      mat-icon-button
+                      [matTooltip]="'Отменить редактирование'"
+                      [matTooltipShowDelay]="500"
+                      (click)="priorityChange.set(false)"
+                    ><mat-icon class="d-flex">close</mat-icon></button>
+                  </div>
+                }
+              } @else {
+                <div class="d-flex flex-row gap-1 align-items-center">
+                  <div class="d-flex flex-row align-items-center gap-1">
+                    @if (work.priority?.icon) {
+                      <app-safe-svg [svgString]="work.priority!.icon" class="card-block--small-icon"></app-safe-svg>
+                    }
+                    <div
+                      class="card-block--field-label"
+                      [ngStyle]="{
+                        background: work.priority?.color ?? 'unset',
+                        color: !!work.priority?.color ? 'var(--bs-white)' : 'var(--font-color)'
+                      }"
+                    >{{ work.priority?.name ?? 'Не назначено' }}</div>
+                  </div>
+                  @if (canEdit()) {
+                    <div class="d-flex flex-row align-items-center gap-1">
+                      <button
+                        mat-icon-button
+                        [matTooltip]="'Редактировать'"
+                        [matTooltipShowDelay]="500"
+                        (click)="priorityChange.set(true)"
+                      ><mat-icon svgIcon="editObjectIcon" class="d-flex"></mat-icon></button>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+            <div class="card-block--grid-table--grid-cell fw-semibold">Эпик</div>
+            <div class="card-block--grid-table--grid-cell">
+              @if (epicChange()) {
+                <app-entity-select
+                  [value]="selectedChangeEpic()"
+                  (selectedChange)="selectedChangeEpic.set($event)"
+                  [loadFn]="loadEpicPage"
+                  [clearable]="true"
+                  [filters]="workEpicTypeFilter()"
+                  [nameKey]="'full_name'"
+                ></app-entity-select>
+                @if (canEdit()) {
+                  <div class="d-flex flex-row align-items-center gap-2">
+                    <button
+                      mat-icon-button
+                      [matTooltip]="'Сохранить'"
+                      [matTooltipShowDelay]="500"
+                      (click)="update({epic_id: selectedChangeEpic()?.id}, epicChange)"
+                    ><mat-icon svgIcon="shapeOnIcon" class="d-flex"></mat-icon></button>
+                    <button
+                      mat-icon-button
+                      [matTooltip]="'Отменить редактирование'"
+                      [matTooltipShowDelay]="500"
+                      (click)="epicChange.set(false)"
+                    ><mat-icon class="d-flex">close</mat-icon></button>
+                  </div>
+                }
+              } @else {
+                <div class="d-flex flex-row gap-1 align-items-center">
+                  <div class="hide-text-overflow-1" style="border-bottom: 1px solid gray;padding: 0 .3rem;">
+                    @if (work.epic?.id) {
+                      <a [routerLink]="['/home/tasks', work.epic!.slug]">{{ '[' + work.epic?.slug + '] ' + work.epic?.name }}</a>
+                    } @else {
+                      Не назначено
+                    }
+                  </div>
+                  @if (canEdit()) {
+                    <div class="d-flex flex-row align-items-center gap-1">
+                      <button
+                        mat-icon-button
+                        [matTooltip]="'Редактировать'"
+                        [matTooltipShowDelay]="500"
+                        (click)="epicChange.set(true)"
+                      ><mat-icon svgIcon="editObjectIcon" class="d-flex"></mat-icon></button>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+            <div class="card-block--grid-table--grid-cell fw-semibold">Спринт</div>
+            <div class="card-block--grid-table--grid-cell">
+              @if (sprintChange()) {
+                <app-entity-select
+                  [value]="selectedChangeSprint()"
+                  (selectedChange)="selectedChangeSprint.set($event)"
+                  [loadFn]="loadSprintsPage"
+                  [clearable]="true"
+                ></app-entity-select>
+                @if (canEdit()) {
+                  <div class="d-flex flex-row align-items-center gap-2">
+                    <button
+                      mat-icon-button
+                      [matTooltip]="'Сохранить'"
+                      [matTooltipShowDelay]="500"
+                      (click)="update({sprint_id: selectedChangeSprint()?.id}, sprintChange)"
+                    ><mat-icon svgIcon="shapeOnIcon" class="d-flex"></mat-icon></button>
+                    <button
+                      mat-icon-button
+                      [matTooltip]="'Отменить редактирование'"
+                      [matTooltipShowDelay]="500"
+                      (click)="sprintChange.set(false)"
+                    ><mat-icon class="d-flex">close</mat-icon></button>
+                  </div>
+                }
+              } @else {
+                <div class="d-flex flex-row gap-1 align-items-center">
+                  <div class="hide-text-overflow-1" style="border-bottom: 1px solid gray;padding: 0 .3rem;">
+                    {{ work.sprint?.name ?? 'Не назначено' }}
+                  </div>
+                  @if (canEdit()) {
+                    <div class="d-flex flex-row align-items-center gap-1">
+                      <button
+                        mat-icon-button
+                        [matTooltip]="'Редактировать'"
+                        [matTooltipShowDelay]="500"
+                        (click)="sprintChange.set(true)"
+                      ><mat-icon svgIcon="editObjectIcon" class="d-flex"></mat-icon></button>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+            <div class="card-block--grid-table--grid-cell fw-semibold">Метки</div>
+            <div class="card-block--grid-table--grid-cell">
+              @if (tagsChange()) {
+                <app-entity-select
+                  [value]="selectedChangeTags()"
+                  (selectedChange)="selectedChangeTags.set($event)"
+                  [loadFn]="loadTagsPage"
+                  [clearable]="true"
+                  [multiple]="true"
+                ></app-entity-select>
+                @if (canEdit()) {
+                  <div class="d-flex flex-row align-items-center gap-2">
+                    <button
+                      mat-icon-button
+                      [matTooltip]="'Сохранить'"
+                      [matTooltipShowDelay]="500"
+                      (click)="update({tags_ids: !!(selectedChangeTags() && selectedChangeTags().length) ? selectedChangeTags().map(t => t.id) : []}, tagsChange)"
+                    ><mat-icon svgIcon="shapeOnIcon" class="d-flex"></mat-icon></button>
+                    <button
+                      mat-icon-button
+                      [matTooltip]="'Отменить редактирование'"
+                      [matTooltipShowDelay]="500"
+                      (click)="tagsChange.set(false)"
+                    ><mat-icon class="d-flex">close</mat-icon></button>
+                  </div>
+                }
+              } @else {
+                <div class="d-flex flex-row gap-1 align-items-center">
+                  <div class="d-flex flex-wrap" style="border-bottom: 1px solid gray;padding: 0 .3rem;">
+                    @if (work.tags && work.tags.length > 0) {
+                      @for (tag of work.tags; track tag.id; let last = $last) {
+                        <span class="text-nowrap">
+                          <a [routerLink]="'/home/tasks'" [queryParams]="{ byTag: tag.slug }">
+                            <span>{{ tag.name }}</span>
+                            @if (!last) {
+                              <span class="me-1">, </span>
+                            }
+                          </a>
+                        </span>
+                      }
+                    } @else {
+                      <span class="text-nowrap">Отсутствуют</span>
+                    }
+                  </div>
+                  @if (canEdit()) {
+                    <div class="d-flex flex-row align-items-center gap-1">
+                      <button
+                        mat-icon-button
+                        [matTooltip]="'Редактировать'"
+                        [matTooltipShowDelay]="500"
+                        (click)="tagsChange.set(true)"
+                      ><mat-icon svgIcon="editObjectIcon" class="d-flex"></mat-icon></button>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+            <div class="card-block--grid-table--grid-cell fw-semibold">Затронуты версии</div>
+            <div class="card-block--grid-table--grid-cell">
+              @if (versionsChange()) {
+                <mat-form-field appearance="outline" class="w-100">
+                  <mat-select [(ngModel)]="selectedChangeVersions" multiple [compareWith]="compareById">
+                    @if (projectsVersionsSignal() && projectsVersionsSignal().length > 0) {
+                      @for (version of projectsVersionsSignal(); track version.id) {
+                        <mat-option [value]="version">{{ version.name }}</mat-option>
+                      }
+                    } @else {
+                      <mat-option disabled class="empty-items-option">
+                        <span class="hide-text-overflow-1 empty-items-option--label">Значения отсутствуют</span>
+                      </mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+                @if (canEdit()) {
+                  <div class="d-flex flex-row align-items-center gap-2">
+                    <button
+                      mat-icon-button
+                      [matTooltip]="'Сохранить'"
+                      [matTooltipShowDelay]="500"
+                      (click)="update({versions_ids: !!(selectedChangeVersions() && selectedChangeVersions().length) ? selectedChangeVersions().map(t => t.id) : []}, versionsChange)"
+                    ><mat-icon svgIcon="shapeOnIcon" class="d-flex"></mat-icon></button>
+                    <button
+                      mat-icon-button
+                      [matTooltip]="'Отменить редактирование'"
+                      [matTooltipShowDelay]="500"
+                      (click)="versionsChange.set(false)"
+                    ><mat-icon class="d-flex">close</mat-icon></button>
+                  </div>
+                }
+              } @else {
+                <div class="d-flex flex-row gap-1 align-items-center">
+                  <div class="d-flex flex-wrap" style="border-bottom: 1px solid gray;padding: 0 .3rem;">
+                    @if (work.versions && work.versions.length > 0) {
+                      <span>{{ work.versions.map(v => v.name).join(', ') }}</span>
+                    } @else {
+                      <span class="text-nowrap">Отсутствуют</span>
+                    }
+                  </div>
+                  @if (canEdit()) {
+                    <div class="d-flex flex-row align-items-center gap-1">
+                      <button
+                        mat-icon-button
+                        [matTooltip]="'Редактировать'"
+                        [matTooltipShowDelay]="500"
+                        (click)="versionsChange.set(true)"
+                      ><mat-icon svgIcon="editObjectIcon" class="d-flex"></mat-icon></button>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+            <div class="card-block--grid-table--grid-cell fw-semibold">Сложность</div>
+            <div class="card-block--grid-table--grid-cell">
+              @if (difficultyChange()) {
+                <app-entity-select
+                  [value]="selectedChangeDifficulty()"
+                  (selectedChange)="selectedChangeDifficulty.set($event)"
+                  [clearable]="true"
+                  [loadFn]="loadDifficultiesPage"
+                ></app-entity-select>
+                @if (canEdit()) {
+                  <div class="d-flex flex-row align-items-center gap-2">
+                    <button
+                      mat-icon-button
+                      [matTooltip]="'Сохранить'"
+                      [matTooltipShowDelay]="500"
+                      (click)="update({difficulty_id: selectedChangeDifficulty()?.id}, difficultyChange)"
+                    ><mat-icon svgIcon="shapeOnIcon" class="d-flex"></mat-icon></button>
+                    <button
+                      mat-icon-button
+                      [matTooltip]="'Отменить редактирование'"
+                      [matTooltipShowDelay]="500"
+                      (click)="difficultyChange.set(false)"
+                    ><mat-icon class="d-flex">close</mat-icon></button>
+                  </div>
+                }
+              } @else {
+                <div class="d-flex flex-row gap-1 align-items-center">
+                  <div class="hide-text-overflow-1" style="border-bottom: 1px solid gray;padding: 0 .3rem;">
+                    {{ work.difficulty?.name ?? 'Не назначена' }}
+                  </div>
+                  @if (canEdit()) {
+                    <div class="d-flex flex-row align-items-center gap-1">
+                      <button
+                        mat-icon-button
+                        [matTooltip]="'Редактировать'"
+                        [matTooltipShowDelay]="500"
+                        (click)="difficultyChange.set(true)"
+                      ><mat-icon svgIcon="editObjectIcon" class="d-flex"></mat-icon></button>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+            <div class="card-block--grid-table--grid-cell fw-semibold">Технология</div>
+            <div class="card-block--grid-table--grid-cell">
+              @if (technologyChange()) {
+                <app-entity-select
+                  [value]="selectedChangeTechnology()"
+                  (selectedChange)="selectedChangeTechnology.set($event)"
+                  [clearable]="true"
+                  [loadFn]="loadTechnologiesPage"
+                ></app-entity-select>
+                @if (canEdit()) {
+                  <div class="d-flex flex-row align-items-center gap-2">
+                    <button
+                      mat-icon-button
+                      [matTooltip]="'Сохранить'"
+                      [matTooltipShowDelay]="500"
+                      (click)="update({technology_id: selectedChangeTechnology()?.id}, technologyChange)"
+                    ><mat-icon svgIcon="shapeOnIcon" class="d-flex"></mat-icon></button>
+                    <button
+                      mat-icon-button
+                      [matTooltip]="'Отменить редактирование'"
+                      [matTooltipShowDelay]="500"
+                      (click)="technologyChange.set(false)"
+                    ><mat-icon class="d-flex">close</mat-icon></button>
+                  </div>
+                }
+              } @else {
+                <div class="d-flex flex-row gap-1 align-items-center">
+                  <div class="hide-text-overflow-1" style="border-bottom: 1px solid gray;padding: 0 .3rem;">
+                    {{ work.technology?.name ?? 'Не назначена' }}
+                  </div>
+                  @if (canEdit()) {
+                    <div class="d-flex flex-row align-items-center gap-1">
+                      <button
+                        mat-icon-button
+                        [matTooltip]="'Редактировать'"
+                        [matTooltipShowDelay]="500"
+                        (click)="technologyChange.set(true)"
+                      ><mat-icon svgIcon="editObjectIcon" class="d-flex"></mat-icon></button>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Описание -->
+        <div class="card-block">
+          <div class="task-view--manage-view-row">
+            <button mat-icon-button class="task-view--manage-view-row--btn" (click)="viewDescriptionBlock()">
+              <mat-icon class="d-flex" [class.view-opened]="descriptionBlockIsView">arrow_drop_down</mat-icon>
+            </button>
+            <div>Описание</div>
+          </div>
+          <div class="task-view--content-block--deck--description-field" [ngClass]="{ 'd-none': !descriptionBlockIsView }">
+            <div class="d-flex flex-column w-100">
+              <ckeditor
+                [editor]="Editor"
+                [config]="ckeditorConfig"
+                [data]="work.description"
+                [disabled]="!descriptionChange()"
+                (ready)="descriptionEditor = $event"
+                class="w-100 ckeditor-form"
+                [ngClass]="{ 'disabled-ckeditor-form': !descriptionChange() }"
+              ></ckeditor>
+            </div>
+            @if (canEdit()) {
+              <div class="d-flex flex-column gap-2">
+                @if (!descriptionChange()) {
+                  <button
+                    mat-icon-button
+                    [matTooltip]="'Редактировать описание'"
+                    [matTooltipShowDelay]="500"
+                    (click)="descriptionChange.set(true)"
+                  ><mat-icon svgIcon="editObjectIcon" class="d-flex"></mat-icon></button>
+                } @else {
+                  <button
+                    mat-icon-button
+                    [matTooltip]="'Сохранить'"
+                    [matTooltipShowDelay]="500"
+                    (click)="update({'description': descriptionEditor.getData()}, descriptionChange)"
+                  ><mat-icon svgIcon="shapeOnIcon" class="d-flex"></mat-icon></button>
+                  <button
+                    mat-icon-button
+                    [matTooltip]="'Отменить редактирование'"
+                    [matTooltipShowDelay]="500"
+                    (click)="descriptionChange.set(false)"
+                  ><mat-icon class="d-flex">close</mat-icon></button>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Комментарии -->
+        <div class="card-block">
+          <div class="task-view--manage-view-row">
+            <button mat-icon-button class="task-view--manage-view-row--btn" (click)="viewCommentsBlock()">
+              <mat-icon class="d-flex" [class.view-opened]="commentsBlockIsView">arrow_drop_down</mat-icon>
+            </button>
+            <div>Комментарии</div>
+          </div>
+          <div class="task-view--content-block--deck--description-field flex-column" [ngClass]="{ 'd-none': !commentsBlockIsView }">
+            <div class="d-flex gap-2 align-items-center justify-content-end">
+              @if (hasNextCommentsPage()) {
+                <button mat-button (click)="loadNextCommentsPage()">
+                  <span class="text-nowrap">Показать еще</span>
+                </button>
+              }
+              @if (canCreateComment()) {
+                <button mat-button (click)="newCommentContent.set(''); createNewCommentMode.set(true)" [disabled]="createNewCommentMode()">
+                  <span class="text-nowrap">Добавить комментарий</span>
+                </button>
+              }
+            </div>
+
+            @if (canCreateComment() && createNewCommentMode()) {
+              <div class="d-flex flex-row gap-2 w-100">
+                <div class="d-flex flex-column w-100">
+                  <ckeditor
+                    [editor]="Editor"
+                    [config]="ckeditorCommentConfig"
+                    [data]="''"
+                    (change)="newCommentContent.set($event.editor.getData())"
+                    class="w-100 ckeditor-form"
+                  ></ckeditor>
+                </div>
+                <div class="d-flex flex-column gap-2">
+                  <button
+                    mat-icon-button
+                    [matTooltip]="'Сохранить'"
+                    [matTooltipShowDelay]="500"
+                    (click)="createComment($event)"
+                  ><mat-icon svgIcon="shapeOnIcon" class="d-flex"></mat-icon></button>
+                  <button
+                    mat-icon-button
+                    [matTooltip]="'Отменить создание'"
+                    [matTooltipShowDelay]="500"
+                    (click)="newCommentContent.set(''); createNewCommentMode.set(false)"
+                  ><mat-icon class="d-flex">close</mat-icon></button>
+                </div>
+              </div>
+            }
+
+            <div class="d-flex flex-column w-100 gap-2 task-view--comment-items-list">
+              @for (comment of comments(); track comment.id) {
+                <div class="d-flex flex-column w-100 gap-1 task-view--comment-items-list--comment-item">
+                  <div class="ckeditor-form-header">
+                    <div class="d-flex flex-row align-items-center gap-1 text-nowrap">
+                      @if (comment.created_by.profile_photo) {
+                        <app-user-photo-view [photoUrl]="comment.created_by.profile_photo" class="card-block--profile_photo position-relative"></app-user-photo-view>
+                      }
+                      <div style="font-size: 12px;">{{ comment.created_by.full_name }}</div>
+                    </div>
+                    @if (canEditComment(comment)) {
+                      <div class="d-flex flex-row align-items-center gap-2">
+                        @if (!!comment.changeMode) {
+                          <button
+                            mat-icon-button
+                            [matTooltip]="'Сохранить'"
+                            [matTooltipShowDelay]="500"
+                            (click)="editComment(comment)"
+                          ><mat-icon svgIcon="shapeOnIcon" class="d-flex"></mat-icon></button>
+                          <button
+                            mat-icon-button
+                            [matTooltip]="'Удалить'"
+                            [matTooltipShowDelay]="500"
+                            (click)="deleteComment(comment)"
+                          ><mat-icon svgIcon="delObjectIcon" class="d-flex"></mat-icon></button>
+                          <button
+                            mat-icon-button
+                            [matTooltip]="'Отменить'"
+                            [matTooltipShowDelay]="500"
+                            (click)="comment.changeChangeContent = comment.description; comment.changeMode = false"
+                          ><mat-icon class="d-flex">close</mat-icon></button>
+                        } @else {
+                          <button
+                            mat-icon-button
+                            [matTooltip]="'Редактировать'"
+                            [matTooltipShowDelay]="500"
+                            (click)="comment.changeMode = true; comment.changeChangeContent = comment.description"
+                          ><mat-icon svgIcon="editObjectIcon" class="d-flex"></mat-icon></button>
+                        }
+                      </div>
+                    }
+                  </div>
+                  <ckeditor
+                    [editor]="Editor"
+                    [config]="ckeditorCommentConfig"
+                    [(ngModel)]="comment.changeChangeContent"
+                    [disabled]="!(comment.changeMode && canEditComment(comment))"
+                    [ngClass]="{ 'disabled-ckeditor-form': !(comment.changeMode && canEditComment(comment)) }"
+                    (change)="comment.changeChangeContent = $event.editor.getData()"
+                    class="w-100 ckeditor-form"
+                  ></ckeditor>
+                  <div class="d-flex flex-row align-items-center justify-content-between" style="font-size: 12px;line-height: .5rem;">
+                    <div class="d-flex flex-row align-items-center gap-1">
+                      @if (canViewChangedComment(comment)) {
+                        Изменен: {{ comment.updated | date: 'MM.dd.yyyy hh:mm a' }}
+                      }
+                    </div>
+                    <div class="d-flex flex-row align-items-center gap-1">Создан: {{ comment.created | date: 'MM.dd.yyyy hh:mm a' }}</div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="card-block task-view--content-block--manage">
+
+        <div class="w-100 card-block--grid-table card-block--grid-table--vertical">
+          <div class="card-block--grid-table--grid-cell fw-semibold">Исполнитель</div>
+          <div class="card-block--grid-table--grid-cell">
+            @if (executeByChange()) {
+              <app-entity-select
+                [value]="selectedChangeExecuteBy()"
+                (selectedChange)="selectedChangeExecuteBy.set($event)"
+                [clearable]="true"
+                [loadFn]="loadExecuteByPage"
+                [nameKey]="'full_name'"
+                [imgKey]="'profile_photo'"
+              ></app-entity-select>
+              @if (canEdit()) {
+                <div class="d-flex flex-row align-items-center gap-2">
+                  <button
+                    mat-icon-button
+                    [matTooltip]="'Сохранить'"
+                    [matTooltipShowDelay]="500"
+                    (click)="update({execute_by_id: selectedChangeExecuteBy()?.id}, executeByChange)"
+                  ><mat-icon svgIcon="shapeOnIcon" class="d-flex"></mat-icon></button>
+                  <button
+                    mat-icon-button
+                    [matTooltip]="'Отменить редактирование'"
+                    [matTooltipShowDelay]="500"
+                    (click)="executeByChange.set(false)"
+                  ><mat-icon class="d-flex">close</mat-icon></button>
+                </div>
+              }
+            } @else {
+              <div class="d-flex flex-row align-items-center gap-1 card-block--grid-table--grid-cell--border-right-cell">
+                @if (work.execute_by?.profile_photo) {
+                  <app-user-photo-view [photoUrl]="work.execute_by!.profile_photo!" class="card-block--profile_photo position-relative"></app-user-photo-view>
+                }
+                <div class="hide-text-overflow-1">{{ work.execute_by?.full_name ?? 'Отсутствует' }}</div>
+              </div>
+              @if (canEdit()) {
+                <div class="d-flex flex-row align-items-center gap-1">
+                  <button
+                    mat-icon-button
+                    [matTooltip]="'Редактировать'"
+                    [matTooltipShowDelay]="500"
+                    (click)="executeByChange.set(true)"
+                  ><mat-icon svgIcon="editObjectIcon" class="d-flex"></mat-icon></button>
+                </div>
+              }
+            }
+          </div>
+          <div class="card-block--grid-table--grid-cell fw-semibold">Автор</div>
+          <div class="card-block--grid-table--grid-cell">
+            <div class="d-flex flex-row align-items-center gap-1 card-block--grid-table--grid-cell--border-right-cell">
+              @if (work.created_by.profile_photo) {
+                <app-user-photo-view [photoUrl]="work.created_by.profile_photo!" class="card-block--profile_photo position-relative"></app-user-photo-view>
+              }
+              <div class="hide-text-overflow-1">{{ work.created_by.full_name }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="w-100 card-block--grid-table card-block--grid-table--vertical">
+          <div class="card-block--grid-table--grid-cell fw-semibold">Оценка</div>
+          <div class="card-block--grid-table--grid-cell">
+            <div class="d-flex flex-row align-items-center gap-1 card-block--grid-table--grid-cell--border-right-cell">
+              {{ work.lead_time | durationHumanize }}
+            </div>
+          </div>
+          <div class="card-block--grid-table--grid-cell fw-semibold">Осталось</div>
+          <div class="card-block--grid-table--grid-cell">
+            <div class="d-flex flex-row align-items-center gap-1 card-block--grid-table--grid-cell--border-right-cell">
+              {{ work.wasted_time | durationHumanize }}
+            </div>
+          </div>
+          @if (work.start_date) {
+            <div class="card-block--grid-table--grid-cell fw-semibold">Дата начала</div>
+            <div class="card-block--grid-table--grid-cell">
+              <div class="d-flex flex-row align-items-center gap-1 card-block--grid-table--grid-cell--border-right-cell">
+                {{ work.start_date | date: 'MM.dd.yyyy' }}
+              </div>
+            </div>
+          }
+          @if (work.end_date) {
+            <div class="card-block--grid-table--grid-cell fw-semibold">Дата окончания</div>
+            <div class="card-block--grid-table--grid-cell">
+              <div class="d-flex flex-row align-items-center gap-1 card-block--grid-table--grid-cell--border-right-cell">
+                {{ work.end_date | date: 'MM.dd.yyyy' }}
+              </div>
+            </div>
+          }
+          @if (work.target_start_date) {
+            <div class="card-block--grid-table--grid-cell fw-semibold">Начать с</div>
+            <div class="card-block--grid-table--grid-cell">
+              <div class="d-flex flex-row align-items-center gap-1 card-block--grid-table--grid-cell--border-right-cell">
+                {{ work.target_start_date | date: 'MM.dd.yyyy' }}
+              </div>
+            </div>
+          }
+          @if (work.target_end_date) {
+            <div class="card-block--grid-table--grid-cell fw-semibold">Закончить до</div>
+            <div class="card-block--grid-table--grid-cell">
+              <div class="d-flex flex-row align-items-center gap-1 card-block--grid-table--grid-cell--border-right-cell">
+                {{ work.target_end_date | date: 'MM.dd.yyyy' }}
+              </div>
+            </div>
+          }
+          <div class="card-block--grid-table--grid-cell fw-semibold">Создана</div>
+          <div class="card-block--grid-table--grid-cell">
+            <div class="d-flex flex-row align-items-center gap-1 card-block--grid-table--grid-cell--border-right-cell">
+              {{ work.created | date: 'MM.dd.yyyy hh:mm a' }}
+            </div>
+          </div>
+          <div class="card-block--grid-table--grid-cell fw-semibold">Обновлена</div>
+          <div class="card-block--grid-table--grid-cell">
+            <div class="d-flex flex-row align-items-center gap-1 card-block--grid-table--grid-cell--border-right-cell">
+              {{ work.updated | date: 'MM.dd.yyyy hh:mm a' }}
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+}
+@if (error()) {
+  <div class="toast-error">
+    <div class="toast-error--content">
+      @for (line of error().split('\n'); track line) {
+        <div class="d-flex flex-row align-items-center justify-content-center">{{ line }}</div>
+      }
+    </div>
+
+    <button
+      mat-icon-button
+      type="button"
+      class="toast-error--close"
+      (click)="errorSignal.set('')"
+    >
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+}

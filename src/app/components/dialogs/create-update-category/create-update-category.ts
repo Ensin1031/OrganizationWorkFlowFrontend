@@ -5,6 +5,9 @@ import { IProjectCategory, IProjectType } from '../../../interfaces/project';
 import { MatFormField, MatInput, MatLabel } from '@angular/material/input';
 import { SafeSvgComponent } from '../../common/safe-svg/safe-svg';
 import { MatButton } from '@angular/material/button';
+import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
+import { ckeditorConfig } from '../../../tokens/ckeditor-5-default-config';
+import { ClassicEditor } from 'ckeditor5';
 
 export interface IProjectMatObjectDialogData {
   mode: 'create' | 'edit';
@@ -25,6 +28,7 @@ export interface IProjectMatObjectDialogData {
     SafeSvgComponent,
     MatDialogActions,
     MatButton,
+    CKEditorModule,
   ],
   templateUrl: './create-update-category.html',
   styleUrl: './create-update-category.scss',
@@ -37,16 +41,18 @@ export class CreateUpdateProjectMatObjectDialogComponent implements OnInit {
   form!: FormGroup;
   isSaving = false;
 
+  public Editor = ClassicEditor;
+
   title = signal('');
 
   ngOnInit(): void {
     this.form = this.fb.group({
-      name: [this.data.object?.name || '', [Validators.required, Validators.maxLength(30)]],
+      name: [this.data.object?.name || '', [Validators.required, Validators.maxLength(100)]],
       icon: [this.data.object?.icon || ''],
       color: [this.data.object?.color || '#4ECDC4'],
       description: [this.data.object?.description || ''],
     });
-    this.title.set(this.data.title)
+    this.title.set(this.data.title);
   }
 
   onSubmit(): void {
@@ -59,4 +65,6 @@ export class CreateUpdateProjectMatObjectDialogComponent implements OnInit {
   onCancel(): void {
     this.dialogRef.close();
   }
+
+  protected readonly ckeditorConfig = ckeditorConfig;
 }

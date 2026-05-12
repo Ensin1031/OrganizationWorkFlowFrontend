@@ -53,6 +53,9 @@ import { CreateUpdateReferenceDialogComponent, IReferenceCreateUpdateDialogConfi
 import { WorkService } from '../../../services/work';
 import { durationToMinutes, minutesToDuration } from '../../../utils/minutes-to-duration';
 import { DurationMinutesDirective } from '../../../directives/duration-minutes';
+import { ClassicEditor } from 'ckeditor5';
+import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
+import { ckeditorConfig } from '../../../tokens/ckeditor-5-default-config';
 
 export interface ICreateUpdateWorkDialogData {
   mode: 'create' | 'edit';
@@ -95,6 +98,7 @@ export interface ICreateUpdateWorkDialogData {
     MatIconButton,
     MatTooltip,
     DurationMinutesDirective,
+    CKEditorModule,
   ],
   templateUrl: './create-update-work.html',
   styleUrl: './create-update-work.scss',
@@ -146,6 +150,8 @@ export class CreateUpdateWorkDialogComponent implements OnInit {
   form!: FormGroup;
   isSaving = false;
   title = signal(this.data.title);
+
+  public Editor = ClassicEditor;
 
   compareById(obj1: any, obj2: any): boolean {
     return obj1 && obj2 ? obj1.id === obj2.id : obj1 === obj2;
@@ -210,7 +216,7 @@ export class CreateUpdateWorkDialogComponent implements OnInit {
     });
 
     if (this.data.mode === 'edit') {
-      ['project', 'epic', 'created_by'].forEach((field) => {
+      ['project', 'created_by'].forEach((field) => {
         this.form.get(field)?.disable();
       });
     }
@@ -511,4 +517,6 @@ export class CreateUpdateWorkDialogComponent implements OnInit {
       )
       .subscribe();
   }
+
+  protected readonly ckeditorConfig = ckeditorConfig;
 }
