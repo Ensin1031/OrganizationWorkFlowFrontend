@@ -32,6 +32,7 @@ import { StatusViewComponent } from '../../../common/status-view/status-view';
 import { StatusesService } from '../../../../services/work-references';
 import { DurationHumanizePipe } from '../../../../pipes/duration-humanize-pipe';
 import { UserPhotoViewComponent } from '../../../common/user-photo-view/user-photo-view';
+import { SafeSvgComponent } from '../../../common/safe-svg/safe-svg';
 
 
 @Component({
@@ -48,6 +49,7 @@ import { UserPhotoViewComponent } from '../../../common/user-photo-view/user-pho
     StatusViewComponent,
     DurationHumanizePipe,
     UserPhotoViewComponent,
+    SafeSvgComponent,
   ],
   templateUrl: './tasks-list.html',
   styleUrl: './tasks-list.scss',
