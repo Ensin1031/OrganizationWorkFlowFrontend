@@ -72,9 +72,14 @@
             <button
               mat-button
               class="task-view--edit-btn"
-              (click)="newCommentContent.set(''); createNewCommentMode.set(true)"
+              (click)="newCommentContent.set(''); createNewCommentMode.set(true); setViewCommentsBlock()"
               [disabled]="createNewCommentMode()"
-            ><span class="text-nowrap">Добавить комментарий</span></button>
+            >
+              <div class="d-flex flex-row align-items-center gap-1">
+                <div>Добавить комментарий</div>
+                <mat-icon svgIcon="addObjectIcon" class="d-flex projects-list__manage-bar--add-icon-btn"></mat-icon>
+              </div>
+            </button>
           }
 
           <!-- Статус -->
@@ -99,7 +104,7 @@
           <div class="w-100 card-block--grid-table" [ngClass]="{ 'd-none': !detailsBlockIsView }">
             <div class="card-block--grid-table--grid-cell fw-semibold">Тип</div>
             <div class="card-block--grid-table--grid-cell">
-              @if (typeChange()) {
+              @if (typeChange() && !isGroupStatus()) {
                 <app-entity-select
                   [value]="selectedChangeType()"
                   (selectedChange)="selectedChangeType.set($event)"
@@ -137,7 +142,7 @@
                       }"
                     >{{ work.type?.name ?? 'Не назначено' }}</div>
                   </div>
-                  @if (canEdit()) {
+                  @if (canEdit() && !isGroupStatus()) {
                     <div class="d-flex flex-row align-items-center gap-1">
                       <button
                         mat-icon-button
@@ -202,98 +207,102 @@
                 </div>
               }
             </div>
-            <div class="card-block--grid-table--grid-cell fw-semibold">Эпик</div>
-            <div class="card-block--grid-table--grid-cell">
-              @if (epicChange()) {
-                <app-entity-select
-                  [value]="selectedChangeEpic()"
-                  (selectedChange)="selectedChangeEpic.set($event)"
-                  [loadFn]="loadEpicPage"
-                  [clearable]="true"
-                  [filters]="workEpicTypeFilter()"
-                  [nameKey]="'full_name'"
-                ></app-entity-select>
-                @if (canEdit()) {
-                  <div class="d-flex flex-row align-items-center gap-2">
-                    <button
-                      mat-icon-button
-                      [matTooltip]="'Сохранить'"
-                      [matTooltipShowDelay]="500"
-                      (click)="update({epic_id: selectedChangeEpic()?.id}, epicChange)"
-                    ><mat-icon svgIcon="shapeOnIcon" class="d-flex"></mat-icon></button>
-                    <button
-                      mat-icon-button
-                      [matTooltip]="'Отменить редактирование'"
-                      [matTooltipShowDelay]="500"
-                      (click)="epicChange.set(false)"
-                    ><mat-icon class="d-flex">close</mat-icon></button>
-                  </div>
-                }
-              } @else {
-                <div class="d-flex flex-row gap-1 align-items-center">
-                  <div class="hide-text-overflow-1" style="border-bottom: 1px solid gray;padding: 0 .3rem;">
-                    @if (work.epic?.id) {
-                      <a [routerLink]="['/home/tasks', work.epic!.slug]">{{ '[' + work.epic?.slug + '] ' + work.epic?.name }}</a>
-                    } @else {
-                      Не назначено
+            @if (!isGroupStatus()) {
+              <div class="card-block--grid-table--grid-cell fw-semibold">Эпик</div>
+              <div class="card-block--grid-table--grid-cell">
+                @if (epicChange()) {
+                  <app-entity-select
+                    [value]="selectedChangeEpic()"
+                    (selectedChange)="selectedChangeEpic.set($event)"
+                    [loadFn]="loadEpicPage"
+                    [clearable]="true"
+                    [filters]="workEpicTypeFilter()"
+                    [nameKey]="'full_name'"
+                  ></app-entity-select>
+                  @if (canEdit()) {
+                    <div class="d-flex flex-row align-items-center gap-2">
+                      <button
+                        mat-icon-button
+                        [matTooltip]="'Сохранить'"
+                        [matTooltipShowDelay]="500"
+                        (click)="update({epic_id: selectedChangeEpic()?.id}, epicChange)"
+                      ><mat-icon svgIcon="shapeOnIcon" class="d-flex"></mat-icon></button>
+                      <button
+                        mat-icon-button
+                        [matTooltip]="'Отменить редактирование'"
+                        [matTooltipShowDelay]="500"
+                        (click)="epicChange.set(false)"
+                      ><mat-icon class="d-flex">close</mat-icon></button>
+                    </div>
+                  }
+                } @else {
+                  <div class="d-flex flex-row gap-1 align-items-center">
+                    <div class="hide-text-overflow-1" style="border-bottom: 1px solid gray;padding: 0 .3rem;">
+                      @if (work.epic?.id) {
+                        <a [href]="'/home/tasks/' + work.epic!.slug" target="_blank" rel="noopener noreferrer">{{ work.epic?.full_name }}</a>
+                      } @else {
+                        Не назначено
+                      }
+                    </div>
+                    @if (canEdit()) {
+                      <div class="d-flex flex-row align-items-center gap-1">
+                        <button
+                          mat-icon-button
+                          [matTooltip]="'Редактировать'"
+                          [matTooltipShowDelay]="500"
+                          (click)="epicChange.set(true)"
+                        ><mat-icon svgIcon="editObjectIcon" class="d-flex"></mat-icon></button>
+                      </div>
                     }
                   </div>
+                }
+              </div>
+            }
+            @if (!isGroupStatus()) {
+              <div class="card-block--grid-table--grid-cell fw-semibold">Спринт</div>
+              <div class="card-block--grid-table--grid-cell">
+                @if (sprintChange()) {
+                  <app-entity-select
+                    [value]="selectedChangeSprint()"
+                    (selectedChange)="selectedChangeSprint.set($event)"
+                    [loadFn]="loadSprintsPage"
+                    [clearable]="true"
+                  ></app-entity-select>
                   @if (canEdit()) {
-                    <div class="d-flex flex-row align-items-center gap-1">
+                    <div class="d-flex flex-row align-items-center gap-2">
                       <button
                         mat-icon-button
-                        [matTooltip]="'Редактировать'"
+                        [matTooltip]="'Сохранить'"
                         [matTooltipShowDelay]="500"
-                        (click)="epicChange.set(true)"
-                      ><mat-icon svgIcon="editObjectIcon" class="d-flex"></mat-icon></button>
+                        (click)="update({sprint_id: selectedChangeSprint()?.id}, sprintChange)"
+                      ><mat-icon svgIcon="shapeOnIcon" class="d-flex"></mat-icon></button>
+                      <button
+                        mat-icon-button
+                        [matTooltip]="'Отменить редактирование'"
+                        [matTooltipShowDelay]="500"
+                        (click)="sprintChange.set(false)"
+                      ><mat-icon class="d-flex">close</mat-icon></button>
                     </div>
                   }
-                </div>
-              }
-            </div>
-            <div class="card-block--grid-table--grid-cell fw-semibold">Спринт</div>
-            <div class="card-block--grid-table--grid-cell">
-              @if (sprintChange()) {
-                <app-entity-select
-                  [value]="selectedChangeSprint()"
-                  (selectedChange)="selectedChangeSprint.set($event)"
-                  [loadFn]="loadSprintsPage"
-                  [clearable]="true"
-                ></app-entity-select>
-                @if (canEdit()) {
-                  <div class="d-flex flex-row align-items-center gap-2">
-                    <button
-                      mat-icon-button
-                      [matTooltip]="'Сохранить'"
-                      [matTooltipShowDelay]="500"
-                      (click)="update({sprint_id: selectedChangeSprint()?.id}, sprintChange)"
-                    ><mat-icon svgIcon="shapeOnIcon" class="d-flex"></mat-icon></button>
-                    <button
-                      mat-icon-button
-                      [matTooltip]="'Отменить редактирование'"
-                      [matTooltipShowDelay]="500"
-                      (click)="sprintChange.set(false)"
-                    ><mat-icon class="d-flex">close</mat-icon></button>
+                } @else {
+                  <div class="d-flex flex-row gap-1 align-items-center">
+                    <div class="hide-text-overflow-1" style="border-bottom: 1px solid gray;padding: 0 .3rem;">
+                      {{ work.sprint?.name ?? 'Не назначено' }}
+                    </div>
+                    @if (canEdit()) {
+                      <div class="d-flex flex-row align-items-center gap-1">
+                        <button
+                          mat-icon-button
+                          [matTooltip]="'Редактировать'"
+                          [matTooltipShowDelay]="500"
+                          (click)="sprintChange.set(true)"
+                        ><mat-icon svgIcon="editObjectIcon" class="d-flex"></mat-icon></button>
+                      </div>
+                    }
                   </div>
                 }
-              } @else {
-                <div class="d-flex flex-row gap-1 align-items-center">
-                  <div class="hide-text-overflow-1" style="border-bottom: 1px solid gray;padding: 0 .3rem;">
-                    {{ work.sprint?.name ?? 'Не назначено' }}
-                  </div>
-                  @if (canEdit()) {
-                    <div class="d-flex flex-row align-items-center gap-1">
-                      <button
-                        mat-icon-button
-                        [matTooltip]="'Редактировать'"
-                        [matTooltipShowDelay]="500"
-                        (click)="sprintChange.set(true)"
-                      ><mat-icon svgIcon="editObjectIcon" class="d-flex"></mat-icon></button>
-                    </div>
-                  }
-                </div>
-              }
-            </div>
+              </div>
+            }
             <div class="card-block--grid-table--grid-cell fw-semibold">Метки</div>
             <div class="card-block--grid-table--grid-cell">
               @if (tagsChange()) {
@@ -542,6 +551,140 @@
           </div>
         </div>
 
+        @if (isGroupStatus()) {
+          <!-- Для эпиков и историй - список связанных задач -->
+          <div class="card-block">
+            <div class="task-view--manage-view-row">
+              <button mat-icon-button class="task-view--manage-view-row--btn" (click)="viewGroupTasksBlock()">
+                <mat-icon class="d-flex" [class.view-opened]="groupTasksBlockIsView">arrow_drop_down</mat-icon>
+              </button>
+              <div>Задачи</div>
+            </div>
+            <div class="task-view--content-block--deck--description-field flex-column" [ngClass]="{ 'd-none': !groupTasksBlockIsView }">
+              <div class="d-flex flex-column gap-2 align-items-center">
+                <div class="w-100 d-flex gap-2 align-items-center justify-content-end">
+                  @if (canEdit()) {
+                    <button mat-button (click)="createGroupTask($event)">
+                      <div class="d-flex flex-row align-items-center gap-1">
+                        <div>Добавить задачу</div>
+                        <mat-icon svgIcon="addObjectIcon" class="d-flex projects-list__manage-bar--add-icon-btn"></mat-icon>
+                      </div>
+                    </button>
+                  }
+                </div>
+                @if (groupTasks(); as groupTasksRows) {
+                  @if (groupTasksRows.length) {
+                    <div class="w-100 d-flex flex-column align-items-center gap-1 task-view--connections--list-item-by-type">
+                      @for (groupTask of groupTasksRows; track groupTask.id) {
+                        <div class="w-100 d-flex flex-row align-items-center gap-2">
+                          <span class="hide-text-overflow-1">
+                            <a [href]="'/home/tasks/' + groupTask.slug" target="_blank" rel="noopener noreferrer">{{ groupTask.full_name }}</a>
+                          </span>
+                        </div>
+                      }
+                    </div>
+                  }
+                }
+                @if (hasNextGroupTasksPage()) {
+                  <div class="w-100 d-flex gap-2 align-items-center justify-content-end">
+                    <button mat-button (click)="loadNextGroupTasksPage()">
+                      <div class="d-flex flex-row align-items-center gap-1">
+                        <div>Показать еще</div>
+                      </div>
+                    </button>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        } @else {
+          <!-- Для обычных задач - список связей -->
+          <div class="card-block">
+            <div class="task-view--manage-view-row">
+              <button mat-icon-button class="task-view--manage-view-row--btn" (click)="viewConnectionsBlock()">
+                <mat-icon class="d-flex" [class.view-opened]="connectionsBlockIsView">arrow_drop_down</mat-icon>
+              </button>
+              <div>Связи</div>
+            </div>
+            <div class="task-view--content-block--deck--description-field flex-column" [ngClass]="{ 'd-none': !connectionsBlockIsView }">
+              <div class="d-flex gap-2 align-items-center justify-content-end">
+                @if (canEdit()) {
+                  <button mat-button (click)="viewCreateConnectionFields.set(true)" [disabled]="viewCreateConnectionFields()">
+                    <div class="d-flex flex-row align-items-center gap-1">
+                      <div>Добавить связь</div>
+                      <mat-icon svgIcon="addObjectIcon" class="d-flex projects-list__manage-bar--add-icon-btn"></mat-icon>
+                    </div>
+                  </button>
+                }
+              </div>
+              <div class="d-flex flex-column gap-2 align-items-center task-view--connections">
+                @if (viewCreateConnectionFields() && canEdit()) {
+                  <div class="w-100 d-flex flex-column align-items-center gap-1 task-view--connections--create-row">
+                    <div class="w-100 d-flex flex-row" style="font-size: 14px;line-height: .925rem">Создание связи</div>
+                    <div class="w-100 d-flex flex-row align-items-center gap-2">
+                      <mat-form-field appearance="outline" class="task-view--change-status-selector" style="min-width: 20rem;">
+                        <mat-label>Тип связи</mat-label>
+                        <mat-select [(ngModel)]="selectedConnectionTaskType" [compareWith]="compareById">
+                          @for (status of WorkConnectionTypes; track status.id) {
+                            <mat-option [value]="status">{{ status.label }}</mat-option>
+                          }
+                        </mat-select>
+                      </mat-form-field>
+                      <app-entity-select
+                        [label]="'Задача'"
+                        [value]="selectedConnectionTask()"
+                        (selectedChange)="selectedConnectionTask.set($event)"
+                        [loadFn]="loadConnectionTaskPage"
+                        [filters]="connectionWorkTypeFilter()"
+                        [nameKey]="'full_name'"
+                      ></app-entity-select>
+                      <button
+                        mat-icon-button
+                        [matTooltip]="'Сохранить'"
+                        [matTooltipShowDelay]="500"
+                        (click)="createTaskConnection($event)"
+                      ><mat-icon svgIcon="shapeOnIcon" class="d-flex"></mat-icon></button>
+                      <button
+                        mat-icon-button
+                        [matTooltip]="'Отменить'"
+                        [matTooltipShowDelay]="500"
+                        (click)="this.selectedConnectionTaskType.set(null); this.selectedConnectionTask.set(null); viewCreateConnectionFields.set(false)"
+                      ><mat-icon class="d-flex">close</mat-icon></button>
+                    </div>
+                  </div>
+                }
+                @for (connectionType of WorkConnectionTypes; track connectionType.id) {
+                  @if (getConnectionsByType(connectionType); as connectionsByType) {
+                    @if (connectionsByType.length > 0) {
+                      <div class="w-100 d-flex flex-column align-items-center gap-1 task-view--connections--list-item-by-type">
+                        <div class="w-100 d-flex flex-row align-items-center">
+                          {{ (connectionsByType.length === 1) ? connectionType.label : connectionType.labelMany }}
+                        </div>
+                        <div class="w-100 d-flex flex-column align-items-center gap-1  task-view--connections--list-item-by-type--connection-items">
+                          @for (connection of connectionsByType; track connection.id) {
+                            <div class="w-100 d-flex flex-row align-items-center gap-2">
+                              <span class="hide-text-overflow-1">
+                                <a [routerLink]="['/home/tasks/', connection.slug]">{{ connection.name }}</a>
+<!--                                <a [href]="'/home/tasks/' + connection.slug" target="_blank" rel="noopener noreferrer">{{ connection.name }}</a>-->
+                              </span>
+                              <button
+                                mat-icon-button
+                                [matTooltip]="'Удалить'"
+                                [matTooltipShowDelay]="500"
+                                (click)="deleteTaskConnection($event, connection)"
+                              ><mat-icon svgIcon="delObjectIcon" class="d-flex"></mat-icon></button>
+                            </div>
+                          }
+                        </div>
+                      </div>
+                    }
+                  }
+                }
+              </div>
+            </div>
+          </div>
+        }
+
         <!-- Комментарии -->
         <div class="card-block">
           <div class="task-view--manage-view-row">
@@ -559,7 +702,10 @@
               }
               @if (canCreateComment()) {
                 <button mat-button (click)="newCommentContent.set(''); createNewCommentMode.set(true)" [disabled]="createNewCommentMode()">
-                  <span class="text-nowrap">Добавить комментарий</span>
+                  <div class="d-flex flex-row align-items-center gap-1">
+                    <div>Добавить комментарий</div>
+                    <mat-icon svgIcon="addObjectIcon" class="d-flex projects-list__manage-bar--add-icon-btn"></mat-icon>
+                  </div>
                 </button>
               }
             </div>
@@ -621,14 +767,14 @@
                             mat-icon-button
                             [matTooltip]="'Отменить'"
                             [matTooltipShowDelay]="500"
-                            (click)="comment.changeChangeContent = comment.description; comment.changeMode = false"
+                            (click)="comment.changeInputContent = comment.description; comment.changeMode = false"
                           ><mat-icon class="d-flex">close</mat-icon></button>
                         } @else {
                           <button
                             mat-icon-button
                             [matTooltip]="'Редактировать'"
                             [matTooltipShowDelay]="500"
-                            (click)="comment.changeMode = true; comment.changeChangeContent = comment.description"
+                            (click)="comment.changeMode = true; comment.changeInputContent = comment.description"
                           ><mat-icon svgIcon="editObjectIcon" class="d-flex"></mat-icon></button>
                         }
                       </div>
@@ -637,10 +783,10 @@
                   <ckeditor
                     [editor]="Editor"
                     [config]="ckeditorCommentConfig"
-                    [(ngModel)]="comment.changeChangeContent"
+                    [(ngModel)]="comment.changeInputContent"
                     [disabled]="!(comment.changeMode && canEditComment(comment))"
                     [ngClass]="{ 'disabled-ckeditor-form': !(comment.changeMode && canEditComment(comment)) }"
-                    (change)="comment.changeChangeContent = $event.editor.getData()"
+                    (change)="comment.changeInputContent = $event.editor.getData()"
                     class="w-100 ckeditor-form"
                   ></ckeditor>
                   <div class="d-flex flex-row align-items-center justify-content-between" style="font-size: 12px;line-height: .5rem;">

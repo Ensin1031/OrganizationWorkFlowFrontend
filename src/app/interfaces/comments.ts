@@ -12,7 +12,7 @@ export interface IWorkComment {
   updated: string;
 
   changeMode?: boolean;
-  changeChangeContent?: string;
+  changeInputContent?: string;
 }
 export type IWorkCommentCreateOrUpdate = Omit<
   IWorkComment,
@@ -23,7 +23,7 @@ export type IWorkCommentCreateOrUpdate = Omit<
   | 'work'
   | 'parent'
   | 'changeMode'
-  | 'changeChangeContent'
+  | 'changeInputContent'
   | 'slug'
 > & {
   created_by_id?: number;

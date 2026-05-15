@@ -45,6 +45,29 @@
       }
     }
   }
+  &--connections {
+    &--create-row {
+      display: flex;
+      padding: .3rem;
+      border: 1px solid var(--gray-dark-background-color);
+      border-radius: .25rem;
+      background: #eeeeee;
+    }
+    &--list-item-by-type {
+      display: flex;
+      padding: .3rem;
+      border: 1px solid var(--gray-dark-background-color);
+      border-radius: .25rem;
+      background: #eeeeee;
+      &--connection-items {
+        display: flex;
+        padding: .3rem;
+        border: 1px solid var(--gray-dark-background-color);
+        border-radius: .25rem;
+        background: var(--bs-white);
+      }
+    }
+  }
   &--edit-btn {
     --mat-button-text-container-shape: .5rem !important;
     background: var(--gray-dark-background-color);

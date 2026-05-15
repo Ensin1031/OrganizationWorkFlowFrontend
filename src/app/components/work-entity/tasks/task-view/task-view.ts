@@ -2,7 +2,6 @@ import {
   Component,
   computed,
   CUSTOM_ELEMENTS_SCHEMA,
-  effect,
   HostBinding,
   inject,
   signal,
@@ -67,6 +66,8 @@ import { WorkCommentService } from '../../../../services/work-comment';
 import { defaultEmptyPage, ISelectStrictPageQuery } from '../../../../interfaces/common';
 import { IWorkComment } from '../../../../interfaces/comments';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { WorkConnectionService } from '../../../../services/work-connection';
+import { IWorkConnection, IWorkConnectionTypeItem, WorkConnectionTypes } from '../../../../interfaces/work-connections';
 
 
 @Component({
@@ -104,6 +105,7 @@ export class TaskViewComponent {
   private route = inject(ActivatedRoute);
   private dialog = inject(MatDialog);
   protected workService = inject(WorkService);
+  protected workConnectionService = inject(WorkConnectionService);
   protected workCommentService = inject(WorkCommentService);
   protected userService = inject(UserService);
   protected workTypesService = inject(WorkTypesService);
@@ -113,13 +115,16 @@ export class TaskViewComponent {
   protected difficultiesService = inject(WorkDifficultiesService);
   protected technologiesService = inject(WorkTechnologiesService);
 
-  private reloadTaskTrigger = signal(0);
-
   taskSlug!: string;
+  canCreateTaskSignal = signal<boolean>(false);
+  canCreateTask = computed(() => this.canCreateTaskSignal());
   canEditSignal = signal<boolean>(false);
   canEdit = computed(() => this.canEditSignal());
   taskSignal = signal<IWork | null>(null);
   task = computed(() => this.taskSignal());
+
+  readonly groupTypes = [DefaultWorkTypesEnum.EPIC as number, DefaultWorkTypesEnum.STORY as number];
+  isGroupStatus = signal<boolean>(false);
 
   errorSignal = signal<string>('');
   error = computed(() => this.errorSignal());
@@ -127,38 +132,40 @@ export class TaskViewComponent {
   constructor() {
     this.route.paramMap
       .pipe(
-        take(1),
         filter((params) => !!params.get('slug')),
         tap((params) => {
-          this.taskSlug = params.get('slug')!;
+          const newSlug = params.get('slug')!;
+          if (this.taskSlug === newSlug) {
+            return;
+          }
+          this.taskSlug = newSlug;
+          this.loadTaskData();
         }),
       )
       .subscribe();
-
-    effect(() => {
-      this.reloadTaskTrigger();
-
-      if (!this.taskSlug) return;
-
-      merge(
-        this.workService
-          .getCanEdit(this.taskSlug)
-          .pipe(tap((canEdit) => this.canEditSignal.set(canEdit))),
-        this.workCommentService
-          .getCanCreate()
-          .pipe(tap((canCreate) => this.canCreateCommentSignal.set(canCreate))),
-        this.workService.getWork(this.taskSlug).pipe(
-          tap((work) => {
-            this.applyWorkData(work);
-          }),
-        ),
-      ).subscribe();
-      this.commentsCurrentPage.set(1);
-    });
   }
 
+  private loadTaskData(): void {
+    merge(
+      this.workService
+        .getCanCreateTask()
+        .pipe(tap((canCreate) => this.canCreateTaskSignal.set(canCreate))),
+      this.workService
+        .getCanEdit(this.taskSlug)
+        .pipe(tap((canEdit) => this.canEditSignal.set(canEdit))),
+      this.workCommentService
+        .getCanCreate()
+        .pipe(tap((canCreate) => this.canCreateCommentSignal.set(canCreate))),
+      this.workService.getWork(this.taskSlug).pipe(
+        tap((work) => {
+          this.applyWorkData(work);
+        }),
+      ),
+    ).subscribe();
+  }
   private applyWorkData(work: IWork): void {
     this.taskSignal.set(work);
+    this.isGroupStatus.set(this.groupTypes.includes(work.type?.id ?? -1));
     this.selectedWorkStatus.set((work.status as IProjectStatus) ?? null);
     this.workProjectStatuses.set((work.project.statuses as IProjectStatus[]) ?? []);
     this.selectedChangeType.set((work.type as IWorkType) ?? null);
@@ -166,6 +173,11 @@ export class TaskViewComponent {
     this.selectedChangeEpic.set((work.epic as IWork) ?? null);
     this.workEpicTypeFilter.set({
       type: DefaultWorkTypesEnum.EPIC as number,
+      project: work.project.id,
+    });
+    this.connectionWorkTypeFilter.set({
+      without_types: this.groupTypes,
+      without_rows: [this.taskSlug],
       project: work.project.id,
     });
     this.selectedChangeSprint.set((work.sprint as ISprint) ?? null);
@@ -269,9 +281,7 @@ export class TaskViewComponent {
       return;
     }
     const button = (event.target as HTMLButtonElement).closest('button');
-    if (button) {
-      button.disabled = true;
-    }
+    if (button) button.disabled = true;
     const dialogData: ICreateUpdateWorkDialogData = {
       mode: 'edit',
       title: 'Редактирование задачи',
@@ -356,9 +366,33 @@ export class TaskViewComponent {
       String(!this.commentsBlockIsView),
     );
   }
+  setViewCommentsBlock = (): void =>
+    localStorage.setItem(this.storageCommentsBlockViewKey(), String(true));
+
+  storageGroupTasksBlockViewKey = (): string => `task.opened.groupTasksBlock`;
+  get groupTasksBlockIsView(): boolean {
+    return localStorage.getItem(this.storageGroupTasksBlockViewKey()) === 'true';
+  }
+  viewGroupTasksBlock(): void {
+    return localStorage.setItem(
+      this.storageGroupTasksBlockViewKey(),
+      String(!this.groupTasksBlockIsView),
+    );
+  }
+
+  storageConnectionsBlockViewKey = (): string => `task.opened.connectionsBlock`;
+  get connectionsBlockIsView(): boolean {
+    return localStorage.getItem(this.storageConnectionsBlockViewKey()) === 'true';
+  }
+  viewConnectionsBlock(): void {
+    return localStorage.setItem(
+      this.storageConnectionsBlockViewKey(),
+      String(!this.connectionsBlockIsView),
+    );
+  }
 
   private reloadCommentsTrigger = signal(0);
-  commentsCurrentPage = signal(0);
+  commentsCurrentPage = signal(1);
   commentsPageSize = signal(10);
   private getCommentsParams = computed<ISelectStrictPageQuery & { reload: number }>(() => ({
     reload: this.reloadCommentsTrigger(),
@@ -372,7 +406,7 @@ export class TaskViewComponent {
         this.workCommentService.getCommentsPage(this.taskSlug, params).pipe(
           tap((commentsPage) => {
             const comments = commentsPage.results.map((comment) => {
-              comment.changeChangeContent = comment.description;
+              comment.changeInputContent = comment.description;
               comment.changeMode = false;
               return comment;
             });
@@ -404,7 +438,7 @@ export class TaskViewComponent {
     this.commentsCurrentPage.update((v) => v + 1);
   }
   canViewChangedComment(comment: IWorkComment): boolean {
-    const created = new Date(comment.created)
+    const created = new Date(comment.created);
     const updated = new Date(comment.updated);
     if (created && updated) {
       return (
@@ -415,8 +449,8 @@ export class TaskViewComponent {
         created.getMinutes() !== updated.getMinutes()
       );
     }
-    return false
-  };
+    return false;
+  }
   createNewCommentMode = signal<boolean>(false);
   newCommentContent = signal<string>('');
   createComment(event: PointerEvent): void {
@@ -426,9 +460,7 @@ export class TaskViewComponent {
       return;
     }
     const button = (event.target as HTMLButtonElement).closest('button');
-    if (button) {
-      button.disabled = true;
-    }
+    if (button) button.disabled = true;
     this.workCommentService
       .create({
         description: this.newCommentContent(),
@@ -448,7 +480,7 @@ export class TaskViewComponent {
   }
   editComment(comment: IWorkComment) {
     if (
-      !comment.changeChangeContent ||
+      !comment.changeInputContent ||
       !comment.changeMode ||
       !this.canCreateComment() ||
       !this.canEditComment(comment)
@@ -456,12 +488,12 @@ export class TaskViewComponent {
       return;
     }
     this.workCommentService
-      .patch(comment.slug, { description: comment.changeChangeContent })
+      .patch(comment.slug, { description: comment.changeInputContent })
       .pipe(
         take(1),
         tap((changedComment) => {
           comment.updated = changedComment.updated;
-          comment.description = comment.changeChangeContent!;
+          comment.description = comment.changeInputContent!;
           comment.changeMode = false;
         }),
       )
@@ -482,10 +514,183 @@ export class TaskViewComponent {
       .subscribe();
   }
 
+  private reloadGroupTasksTrigger = signal(0);
+  groupTasksCurrentPage = signal(1);
+  groupTasksPageSize = signal(10);
+  hasNextGroupTasksPage = signal<boolean>(false);
+  groupTasks = signal<IWork[]>([]);
+  private groupTasksResponse = toSignal(
+    toObservable(
+      computed(() => {
+        const task = this.task();
+        return {
+          reload: this.reloadGroupTasksTrigger(),
+          workSlug: this.taskSlug,
+          isGroup: this.groupTypes.includes(task?.type?.id ?? -1),
+          page: this.groupTasksCurrentPage(),
+          pageSize: this.groupTasksPageSize(),
+          epic: task?.slug,
+          project: task?.project?.id,
+        };
+      }),
+    ).pipe(
+      filter((v) => !!v.workSlug && v.isGroup),
+      switchMap((params) =>
+        this.workService
+          .getWorkPage({
+            page: params.page,
+            pageSize: params.pageSize,
+            filters: {
+              epic: params.epic,
+              project: params.project,
+            },
+          })
+          .pipe(
+            tap((groupTasks) => {
+              this.hasNextGroupTasksPage.set(!!groupTasks.next);
+              if (params.page === 1) {
+                this.groupTasks.set(groupTasks.results);
+              } else {
+                this.groupTasks.update((prev) => [...prev, ...groupTasks.results]);
+              }
+            }),
+          ),
+      ),
+    ),
+    { initialValue: defaultEmptyPage },
+  );
+  loadNextGroupTasksPage(): void {
+    if (!this.hasNextGroupTasksPage()) return;
+    this.groupTasksCurrentPage.update((v) => v + 1);
+  }
+  reloadGroupTasks(): void {
+    this.groupTasksCurrentPage.set(1);
+    this.reloadGroupTasksTrigger.update((v) => v + 1);
+  }
+  createGroupTask(event: PointerEvent): void {
+    if (!this.canCreateTask()) return;
+    const button = (event.target as HTMLButtonElement).closest('button');
+    if (button) button.disabled = true;
+    const user = this.userService.user();
+    const dialogData: ICreateUpdateWorkDialogData = {
+      mode: 'create',
+      title: 'Создание задачи',
+      defaultData: {
+        epic: this.task(),
+        project: this.task()?.project,
+      },
+      filters: {
+        types: { without: [DefaultWorkTypesEnum.EPIC, DefaultWorkTypesEnum.STORY] },
+      },
+      work: undefined,
+    };
+    this.dialog
+      .open(CreateUpdateWorkDialogComponent, {
+        width: '700px',
+        data: dialogData,
+        disableClose: true,
+      })
+      .afterClosed()
+      .pipe(
+        take(1),
+        tap(() => {
+          if (button) button.disabled = false;
+        }),
+        filter((result) => !!result),
+        switchMap((result) =>
+          this.workService.createWork({
+            ...result,
+            created_by_id: user?.id,
+          } as IWorkCreateOrUpdate),
+        ),
+        tap(() => {
+          if (button) button.disabled = false;
+          this.reloadGroupTasks();
+        }),
+        finalize(() => {
+          if (button) button.disabled = false;
+        }),
+      )
+      .subscribe();
+  }
+
+  private reloadConnectionsTrigger = signal(0);
+  connections = signal<IWorkConnection[]>([]);
+  private connectionsResponse = toSignal(
+    toObservable(
+      computed(() => {
+        const task = this.task();
+        return {
+          reload: this.reloadConnectionsTrigger(),
+          workSlug: this.taskSlug,
+          isGroup: this.groupTypes.includes(task?.type?.id ?? -1),
+        };
+      }),
+    ).pipe(
+      filter((v) => !!v.workSlug && !v.isGroup),
+      switchMap((params) => this.workConnectionService.getList({ workSlug: params.workSlug! })),
+      tap((connections) => this.connections.set(connections)),
+    ),
+    { initialValue: [] },
+  );
+  reloadConnections(): void {
+    this.reloadConnectionsTrigger.update((v) => v + 1);
+  }
+  getConnectionsByType(connectionType: IWorkConnectionTypeItem): IWorkConnection[] {
+    return this.connections()
+      .filter((connection) => !!connection.type_id)
+      .filter((connection) => connection.type_id === connectionType.id);
+  }
+  viewCreateConnectionFields = signal<boolean>(false);
+  selectedConnectionTask = signal<IWork | null>(null);
+  selectedConnectionTaskType = signal<IWorkConnectionTypeItem | null>(null);
+  connectionWorkTypeFilter = signal<Record<string, string | number | string[] | number[]>>({});
+  readonly loadConnectionTaskPage = this.workService.getWorkPage.bind(this.workService);
+  createTaskConnection(event: PointerEvent): void {
+    const connectionTaskType = this.selectedConnectionTaskType();
+    const connectionTask = this.selectedConnectionTask();
+    if (!this.canEdit() || !connectionTaskType || !connectionTask) return;
+    const button = (event.target as HTMLButtonElement).closest('button');
+    if (button) button.disabled = true;
+    this.workConnectionService
+      .create({
+        type: connectionTaskType.id,
+        work_from_id: connectionTask.slug,
+        work_to_id: this.taskSlug,
+      })
+      .pipe(
+        take(1),
+        tap(() => {
+          if (button) button.disabled = false;
+          this.viewCreateConnectionFields.set(false);
+          this.selectedConnectionTaskType.set(null);
+          this.selectedConnectionTask.set(null);
+          this.reloadConnections();
+        }),
+      )
+      .subscribe();
+  }
+  deleteTaskConnection(event: PointerEvent, connection: IWorkConnection): void {
+    if (!this.canEdit()) return;
+    const button = (event.target as HTMLButtonElement).closest('button');
+    if (button) button.disabled = true;
+    this.workConnectionService
+      .delete(connection.id)
+      .pipe(
+        take(1),
+        tap(() => {
+          if (button) button.disabled = false;
+          this.reloadConnections();
+        }),
+      )
+      .subscribe();
+  }
+
   protected readonly ckeditorConfig = ckeditorConfig;
   protected readonly ckeditorCommentConfig = {
     ...ckeditorConfig,
     placeholder: 'Введите комментарий...',
   };
   protected readonly DefaultWorkTypesEnum = DefaultWorkTypesEnum;
+  protected readonly WorkConnectionTypes = WorkConnectionTypes;
 }

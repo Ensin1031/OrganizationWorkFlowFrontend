@@ -62,7 +62,7 @@
           [loadFn]="loadWorkTypesPage"
           [filters]="data.filters?.types"
         ></app-entity-select>
-        @if (canCreateWorkType()) {
+        @if (canCreateWorkType() && !(isGroupStatus() && data.mode === 'edit')) {
           <button
             mat-icon-button
             [matTooltip]="'Добавить тип работы'"
@@ -122,27 +122,31 @@
     </div>
 
     <!-- Эпик -->
-    <div class="d-flex full-width">
-      <app-entity-select
-        #epicSelect
-        formControlName="epic"
-        label="Эпик"
-        [clearable]="true"
-        [loadFn]="loadEpicPage"
-        [filters]="workEpicTypeFilter()"
-        [nameKey]="'full_name'"
-      ></app-entity-select>
-    </div>
+    @if (!isGroupStatus()) {
+      <div class="d-flex full-width">
+        <app-entity-select
+          #epicSelect
+          formControlName="epic"
+          label="Эпик"
+          [clearable]="true"
+          [loadFn]="loadEpicPage"
+          [filters]="workEpicTypeFilter()"
+          [nameKey]="'full_name'"
+        ></app-entity-select>
+      </div>
+    }
 
     <!-- Спринт -->
-    <div class="full-width">
-      <app-entity-select
-        formControlName="sprint"
-        label="Спринт"
-        [clearable]="true"
-        [loadFn]="loadSprintsPage"
-      ></app-entity-select>
-    </div>
+    @if (!isGroupStatus()) {
+      <div class="full-width">
+        <app-entity-select
+          formControlName="sprint"
+          label="Спринт"
+          [clearable]="true"
+          [loadFn]="loadSprintsPage"
+        ></app-entity-select>
+      </div>
+    }
 
     <!-- Проект -->
     <mat-form-field appearance="outline" class="full-width">

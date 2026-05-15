@@ -12,7 +12,7 @@ import { forkJoin } from 'rxjs';
 import { SprintService } from '../../../services/sprint';
 import { WorkService } from '../../../services/work';
 import { TasksBySprintsComponent } from './by-sprints/by-sprints';
-import { MatFormField } from '@angular/material/input';
+import { MatFormField, MatInput, MatLabel, MatSuffix } from '@angular/material/input';
 import { MatOption, MatSelect } from '@angular/material/select';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDivider } from '@angular/material/list';
@@ -54,6 +54,9 @@ type TasksComponentQueryParams = {
     MatCheckbox,
     EntitySelectComponent,
     ReactiveFormsModule,
+    MatInput,
+    MatLabel,
+    MatSuffix,
   ],
   templateUrl: './tasks.html',
   styleUrl: './tasks.scss',
@@ -82,6 +85,9 @@ export class TasksComponent {
       string,
       string | number | boolean | string[] | number[] | null | undefined
     > = {};
+    if (this.searchText()) {
+      resultFilters = { ...resultFilters, search: this.searchText() };
+    }
     if (this.onlyMyTasks() && !!this.userService.user()?.id) {
       resultFilters = { ...resultFilters, execute_by: [this.userService.user()?.id!] };
     }

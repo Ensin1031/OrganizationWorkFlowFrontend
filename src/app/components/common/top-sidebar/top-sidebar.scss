@@ -20,6 +20,12 @@
       position: static !important;
     }
   }
+  & .top-sidebar-create-task-btn {
+    --mat-button-filled-container-height: 1.725rem;
+    --mat-button-filled-horizontal-padding: 1rem;
+    --mat-button-filled-touch-target-size: 1.5rem;
+    --mat-button-filled-container-shape: .825rem;
+  }
   &--main-icon {
     display: flex;
     align-items: center;

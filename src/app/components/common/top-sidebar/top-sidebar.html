@@ -1,5 +1,5 @@
 <div class="top-sidebar__content d-flex align-items-center justify-content-between">
-  <div class="d-flex flex-row align-items-center">
+  <div class="d-flex flex-row align-items-center gap-3">
     <div class="top-sidebar__content--main-icon">
       <a href="/public" [matTooltip]="'Главная'" [matTooltipShowDelay]="500"><mat-icon class="d-flex" svgIcon="mainSmallLightLogo"></mat-icon></a>
     </div>
@@ -46,6 +46,18 @@
         Перейти на страницу проектов
       </button>
     </mat-menu>
+    @if (canCreateTask()) {
+      <button
+        mat-flat-button
+        class="top-sidebar-create-task-btn"
+        (click)="createTask($event)"
+      >
+        <div class="d-flex flex-row align-items-center gap-1">
+          <div>Создать задачу</div>
+          <mat-icon svgIcon="addObjectIcon" class="d-flex projects-list__manage-bar--add-icon-btn"></mat-icon>
+        </div>
+      </button>
+    }
   </div>
 
   <!-- Данные пользователя -->
@@ -76,3 +88,21 @@
     </mat-menu>
   </div>
 </div>
+@if (error()) {
+  <div class="toast-error">
+    <div class="toast-error--content">
+      @for (line of error().split('\n'); track line) {
+        <div class="d-flex flex-row align-items-center justify-content-center">{{ line }}</div>
+      }
+    </div>
+
+    <button
+      mat-icon-button
+      type="button"
+      class="toast-error--close"
+      (click)="errorSignal.set('')"
+    >
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+}
