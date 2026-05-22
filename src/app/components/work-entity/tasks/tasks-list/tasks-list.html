@@ -67,3 +67,21 @@
     <button class="show-more-btn" (click)="loadMore()">Показать еще</button>
   }
 </div>
+@if (error()) {
+  <div class="toast-error">
+    <div class="toast-error--content">
+      @for (line of error().split('\n'); track line) {
+        <div class="d-flex flex-row align-items-center justify-content-center">{{ line }}</div>
+      }
+    </div>
+
+    <button
+      mat-icon-button
+      type="button"
+      class="toast-error--close"
+      (click)="errorSignal.set('')"
+    >
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+}

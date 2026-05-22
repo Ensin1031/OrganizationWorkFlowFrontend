@@ -56,18 +56,21 @@ export function buildHTTPParams(data: ISelectPageQuery): HttpParams {
   let params = new HttpParams();
   if (data.page) params = params.set('page', data.page);
   if (data.pageSize) params = params.set('page_size', data.pageSize);
-  if (data.search) params = params.set('search', data.search);
   if (data.ordering) params = params.set('ordering', data.ordering);
+  let searchParams = '';
   if (data.filters) {
     Object.entries(data.filters).forEach(([key, value]) => {
       if (
-        ['page', 'pageSize', 'search', 'ordering'].includes(key) ||
+        ['page', 'pageSize', 'ordering'].includes(key) ||
         value === undefined ||
         value === null
       ) {
         return;
       }
-
+      if (key === 'search') {
+        searchParams = String(value);
+        return;
+      }
       if (Array.isArray(value)) {
         value.forEach((v) => {
           params = params.append(key, String(v));
@@ -76,6 +79,11 @@ export function buildHTTPParams(data: ISelectPageQuery): HttpParams {
         params = params.set(key, String(value));
       }
     });
+  }
+  if (data.search) {
+    params = params.set('search', data.search);
+  } else if (searchParams) {
+    params = params.set('search', searchParams);
   }
   return params;
 }

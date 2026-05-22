@@ -24,7 +24,7 @@ import { MatIconButton } from '@angular/material/button';
 import { MatTooltip } from '@angular/material/tooltip';
 import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 import { CreateUpdateWorkDialogComponent, ICreateUpdateWorkDialogData } from '../../../dialogs/create-update-work/create-update-work';
-import { filter, switchMap, take, tap } from 'rxjs';
+import { catchError, EMPTY, filter, switchMap, take, tap } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmationDialogComponent, ISetDialogData } from '../../../dialogs/confirmation/confirmation';
 import { ChangeTaskSprintDialogComponent, IChangeTaskSprintDialogData } from '../../../dialogs/change-task-sprint/change-task-sprint';
@@ -33,6 +33,7 @@ import { StatusesService } from '../../../../services/work-references';
 import { DurationHumanizePipe } from '../../../../pipes/duration-humanize-pipe';
 import { UserPhotoViewComponent } from '../../../common/user-photo-view/user-photo-view';
 import { SafeSvgComponent } from '../../../common/safe-svg/safe-svg';
+import { HttpErrorResponse } from '@angular/common/http';
 
 
 @Component({
@@ -78,6 +79,9 @@ export class TasksListComponent {
 
   private prevFiltersHash: string | undefined;
   private prevPageSize: number | undefined;
+
+  errorSignal = signal<string>('');
+  error = computed(() => this.errorSignal());
 
   constructor() {
     effect(() => {
@@ -176,6 +180,24 @@ export class TasksListComponent {
         switchMap((result) =>
           this.workService.updateWork(task.slug, result as IWorkCreateOrUpdate),
         ),
+        catchError((error: HttpErrorResponse) => {
+          const backendError = error.error;
+          if (backendError && typeof backendError === 'object') {
+            const messages: string[] = [];
+            Object.values(backendError).forEach((value) => {
+              if (Array.isArray(value)) {
+                messages.push(...value.map(String));
+              } else if (value) {
+                messages.push(String(value));
+              }
+            });
+            this.errorSignal.set(messages.join('\n'));
+          } else {
+            this.errorSignal.set('Произошла ошибка');
+          }
+          return EMPTY;
+        }),
+        filter((response) => !!response),
         tap(() => {
           this.resetAndLoad();
         }),
@@ -203,6 +225,24 @@ export class TasksListComponent {
         take(1),
         filter((result) => !!result),
         switchMap(() => this.workService.patchWork(task.slug, { sprint_id: null } as IWorkPatch)),
+        catchError((error: HttpErrorResponse) => {
+          const backendError = error.error;
+          if (backendError && typeof backendError === 'object') {
+            const messages: string[] = [];
+            Object.values(backendError).forEach((value) => {
+              if (Array.isArray(value)) {
+                messages.push(...value.map(String));
+              } else if (value) {
+                messages.push(String(value));
+              }
+            });
+            this.errorSignal.set(messages.join('\n'));
+          } else {
+            this.errorSignal.set('Произошла ошибка');
+          }
+          return EMPTY;
+        }),
+        filter((response) => !!response),
         tap(() => this.updateTaskSignal.emit()),
       )
       .subscribe();
@@ -229,6 +269,24 @@ export class TasksListComponent {
         switchMap((result: { sprint_id: number | null }) =>
           this.workService.patchWork(task.slug, { sprint_id: result.sprint_id } as IWorkPatch),
         ),
+        catchError((error: HttpErrorResponse) => {
+          const backendError = error.error;
+          if (backendError && typeof backendError === 'object') {
+            const messages: string[] = [];
+            Object.values(backendError).forEach((value) => {
+              if (Array.isArray(value)) {
+                messages.push(...value.map(String));
+              } else if (value) {
+                messages.push(String(value));
+              }
+            });
+            this.errorSignal.set(messages.join('\n'));
+          } else {
+            this.errorSignal.set('Произошла ошибка');
+          }
+          return EMPTY;
+        }),
+        filter((response) => !!response),
         tap(() => this.updateTaskSignal.emit()),
       )
       .subscribe();

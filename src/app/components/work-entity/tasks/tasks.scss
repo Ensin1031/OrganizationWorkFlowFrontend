@@ -11,6 +11,19 @@
       display: none;
     }
   }
+  & .search-field {
+    width: 100%;
+    font-size: 14px;
+    & .mat-mdc-form-field-subscript-wrapper {
+      display: none !important;
+    }
+    & .mat-mdc-text-field-wrapper {
+      background: white;
+    }
+    & button {
+      margin-right: .15rem;
+    }
+  }
 }
 .tasks-vertical-divider {
   padding-right: 1rem;

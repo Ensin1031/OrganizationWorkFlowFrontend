@@ -27,7 +27,7 @@
           />
           @if (search()) {
             <button matSuffix type="button" mat-icon-button (click)="onSearch(''); entitySearchInput.value = ''" [disabled]="isDisabled()">
-              <mat-icon>close</mat-icon>
+              <mat-icon class="d-flex">close</mat-icon>
             </button>
           }
         </mat-form-field>
@@ -41,8 +41,16 @@
         </mat-option>
       } @else {
         @for (item of displayItems(); track getItemId(item)) {
-          <mat-option [value]="item">
-            <span class="hide-text-overflow-1">{{ getItemName(item) }}</span>
+          <mat-option [value]="item" class="text-nowrap">
+            <div class="d-flex flex-row align-items-center gap-1">
+              @if (getItemImgUrl(item); as imgUrl) {
+                <app-user-photo-view [photoUrl]="imgUrl" class="empty-items-option--icon-img position-relative"></app-user-photo-view>
+              }
+              @if (getItemSVGIcon(item); as icon) {
+                <app-safe-svg [svgString]="icon" class="empty-items-option--icon"></app-safe-svg>
+              }
+              <span class="hide-text-overflow-1">{{ getItemName(item) }}</span>
+            </div>
           </mat-option>
         }
         @if (displayItems().length === 0) {
@@ -67,6 +75,6 @@
     class="select-clear-button"
     (click)="clear($event)"
   >
-    <mat-icon>close</mat-icon>
+    <mat-icon class="d-flex">close</mat-icon>
   </button>
 }

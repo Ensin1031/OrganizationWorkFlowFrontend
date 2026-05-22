@@ -1,0 +1,178 @@
+:host ::ng-deep .task-view {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  position: relative;
+  & .disabled-ckeditor-form {
+    & .ck-reset_all :not(.ck-reset_all-excluded *), .ck.ck-reset_all {
+      display: none;
+    }
+  }
+  & .mat-mdc-form-field-subscript-wrapper, .mat-mdc-form-field-bottom-align::before {
+    display: none;
+  }
+  &--manage-view-row {
+    display: flex;
+    flex-direction: row;
+    gap: .5rem;
+    align-items: center;
+    &--btn {
+      margin-bottom: .1rem;
+    }
+  }
+  &--comment-items-list {
+    &--comment-item {
+      display: flex;
+      padding: .3rem;
+      border: 1px solid var(--gray-dark-background-color);
+      border-radius: .25rem;
+      background: #eeeeee;
+      & .ck-rounded-corners .ck.ck-editor__main>.ck-editor__editable,
+      .ck.ck-editor__main>.ck-editor__editable.ck-rounded-corners {
+        max-height: 15rem;
+      }
+      & .ckeditor-form-header {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+      }
+      & .ckeditor-form-footer {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+      }
+    }
+  }
+  &--connections {
+    &--create-row {
+      display: flex;
+      padding: .3rem;
+      border: 1px solid var(--gray-dark-background-color);
+      border-radius: .25rem;
+      background: #eeeeee;
+    }
+    &--list-item-by-type {
+      display: flex;
+      padding: .3rem;
+      border: 1px solid var(--gray-dark-background-color);
+      border-radius: .25rem;
+      background: #eeeeee;
+      &--connection-items {
+        display: flex;
+        padding: .3rem;
+        border: 1px solid var(--gray-dark-background-color);
+        border-radius: .25rem;
+        background: var(--bs-white);
+      }
+    }
+  }
+  &--edit-btn {
+    --mat-button-text-container-shape: .5rem !important;
+    background: var(--gray-dark-background-color);
+    height: 1.8rem;
+  }
+  & .card-block {
+    background: var(--bs-white);
+    border-radius: .5rem;
+    border: 1px solid var(--gray-dark-background-color);
+    padding: .5rem;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.02);
+    &--small-icon {
+      width: 1.1rem;
+      min-width: 1.1rem;
+      height: 1.1rem;
+    }
+    &--profile_photo {
+      width: 1.5rem !important;
+      min-width: 1.5rem !important;
+      height: 1.5rem !important;
+    }
+    &--field-label {
+      border-radius: .45rem;
+      padding: 0 .5rem;
+    }
+    &--grid-table {
+      display: grid;
+      grid-template-columns: 9rem 1fr;
+      gap: 1px;
+      border-radius: .1rem;
+      border: 1px solid var(--gray-dark-background-color);
+      cursor: default;
+      padding: .25rem;
+      &--vertical {
+        grid-template-columns: 8rem 1fr;
+        border: unset;
+        border-radius: unset;
+        height: fit-content;
+      }
+      &--grid-cell {
+        padding: .325rem;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+        max-width: 40rem;
+        min-height: 2.4rem;
+        &--border-right-cell {
+          border-bottom: 1px solid gray;
+          padding: 0 .3rem .15rem;
+          max-width: 17.725rem;
+          min-width: 5rem;
+        }
+      }
+    }
+  }
+  &--name-block {
+    display: flex;
+    flex-direction: row;
+    gap: .5rem;
+    font-size: 1.5rem;
+    align-items: center;
+    &--icon-project>button, app-safe-svg {
+      width: 3.725rem;
+      height: 3.725rem;
+    }
+    &--name {
+      display: flex;
+      flex-direction: row;
+      gap: .5rem;
+      font-size: 1.5rem;
+      align-items: center;
+    }
+  }
+  &--content-block {
+    display: flex;
+    flex-direction: row;
+    gap: .5rem;
+    font-size: 14px;
+    height: 100%;
+    &--deck {
+      display: flex;
+      width: 100%;
+      overflow: auto;
+      flex-direction: column;
+      gap: .5rem;
+      &--description-field {
+        width: 100%;
+        height: fit-content;
+        display: flex;
+        flex-direction: row;
+        gap: .5rem;
+      }
+    }
+    &--manage {
+      display: flex;
+      width: 30rem;
+      min-width: 30rem;
+      overflow: auto;
+      flex-direction: column;
+      gap: .5rem;
+    }
+  }
+}
+
+.view-opened {
+  transform: rotate(180deg);
+}

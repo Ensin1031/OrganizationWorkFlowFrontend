@@ -3,7 +3,9 @@ import { MatDivider } from '@angular/material/list';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProjectContextService } from '../../../services/project-context';
 import {
+  catchError,
   debounceTime,
+  EMPTY,
   filter,
   finalize,
   forkJoin,
@@ -50,8 +52,7 @@ import {
   CreateUpdateProjectDialogComponent,
   IProjectCreateUpdateDialogData,
 } from '../../dialogs/create-update-project/create-update-project';
-import { StatusesService } from '../../../services/work-references';
-import { UserService } from '../../../services/user';
+import { HttpErrorResponse } from '@angular/common/http';
 
 type ProjectComponentQueryParams = {
   projectCategoryId?: string;
@@ -102,6 +103,9 @@ export class ProjectsComponent {
   private router = inject(Router);
   protected projectService = inject(ProjectContextService);
   private dialog = inject(MatDialog);
+
+  errorSignal = signal<string>('');
+  error = computed(() => this.errorSignal());
 
   private reloadProjectsTrigger = signal(0);
   private reloadProjectTypesTrigger = signal(0);
@@ -313,6 +317,25 @@ export class ProjectsComponent {
         switchMap((result: IProject) =>
           this.projectService.createProject(result as IProjectCreateOrUpdate),
         ),
+        catchError((error: HttpErrorResponse) => {
+          const backendError = error.error;
+          if (backendError && typeof backendError === 'object') {
+            const messages: string[] = [];
+            Object.values(backendError).forEach((value) => {
+              if (Array.isArray(value)) {
+                messages.push(...value.map(String));
+              } else if (value) {
+                messages.push(String(value));
+              }
+            });
+            this.errorSignal.set(messages.join('\n'));
+          } else {
+            this.errorSignal.set('Произошла ошибка');
+          }
+          if (button) button.disabled = false;
+          return EMPTY;
+        }),
+        filter((response) => !!response),
         tap(() => this.reloadPageData()),
         finalize(() => {
           if (button) button.disabled = false;
@@ -331,7 +354,6 @@ export class ProjectsComponent {
     const dialogData: IProjectCreateUpdateDialogData = {
       mode: 'edit',
       project: project,
-      // availableStatuses: [],
       availableVersions: project.versions,
       availableCategories: this.projectCategories()(),
       availableTypes: this.projectTypes()(),
@@ -352,6 +374,25 @@ export class ProjectsComponent {
         switchMap((result: IProject) =>
           this.projectService.updateProject(project.id, result as IProjectCreateOrUpdate),
         ),
+        catchError((error: HttpErrorResponse) => {
+          const backendError = error.error;
+          if (backendError && typeof backendError === 'object') {
+            const messages: string[] = [];
+            Object.values(backendError).forEach((value) => {
+              if (Array.isArray(value)) {
+                messages.push(...value.map(String));
+              } else if (value) {
+                messages.push(String(value));
+              }
+            });
+            this.errorSignal.set(messages.join('\n'));
+          } else {
+            this.errorSignal.set('Произошла ошибка');
+          }
+          if (button) button.disabled = false;
+          return EMPTY;
+        }),
+        filter((response) => !!response),
         tap(() => this.reloadPageData()),
         finalize(() => {
           if (button) button.disabled = false;
@@ -423,6 +464,25 @@ export class ProjectsComponent {
         }),
         filter((result) => !!result),
         switchMap((result: IProjectType) => this.projectService.createProjectType(result)),
+        catchError((error: HttpErrorResponse) => {
+          const backendError = error.error;
+          if (backendError && typeof backendError === 'object') {
+            const messages: string[] = [];
+            Object.values(backendError).forEach((value) => {
+              if (Array.isArray(value)) {
+                messages.push(...value.map(String));
+              } else if (value) {
+                messages.push(String(value));
+              }
+            });
+            this.errorSignal.set(messages.join('\n'));
+          } else {
+            this.errorSignal.set('Произошла ошибка');
+          }
+          if (button) button.disabled = false;
+          return EMPTY;
+        }),
+        filter((response) => !!response),
         tap(() => this.reloadProjectTypesTrigger.update((v) => v + 1)),
         finalize(() => {
           if (button) button.disabled = false;
@@ -458,6 +518,25 @@ export class ProjectsComponent {
         switchMap((result: IProjectType) =>
           this.projectService.updateProjectType(projectType.id, result),
         ),
+        catchError((error: HttpErrorResponse) => {
+          const backendError = error.error;
+          if (backendError && typeof backendError === 'object') {
+            const messages: string[] = [];
+            Object.values(backendError).forEach((value) => {
+              if (Array.isArray(value)) {
+                messages.push(...value.map(String));
+              } else if (value) {
+                messages.push(String(value));
+              }
+            });
+            this.errorSignal.set(messages.join('\n'));
+          } else {
+            this.errorSignal.set('Произошла ошибка');
+          }
+          if (button) button.disabled = false;
+          return EMPTY;
+        }),
+        filter((response) => !!response),
         tap(() => {
           this.reloadProjectTypesTrigger.update((v) => v + 1);
           this.reloadProjectsTrigger.update((v) => v + 1);
@@ -521,6 +600,25 @@ export class ProjectsComponent {
         }),
         filter((result) => !!result),
         switchMap(() => this.projectService.deleteProjectType(projectType.id)),
+        catchError((error: HttpErrorResponse) => {
+          const backendError = error.error;
+          if (backendError && typeof backendError === 'object') {
+            const messages: string[] = [];
+            Object.values(backendError).forEach((value) => {
+              if (Array.isArray(value)) {
+                messages.push(...value.map(String));
+              } else if (value) {
+                messages.push(String(value));
+              }
+            });
+            this.errorSignal.set(messages.join('\n'));
+          } else {
+            this.errorSignal.set('Произошла ошибка');
+          }
+          if (button) button.disabled = false;
+          return EMPTY;
+        }),
+        filter((response) => !!response),
         tap(() => this.reloadProjectTypesTrigger.update((v) => v + 1)),
         finalize(() => {
           if (button) button.disabled = false;
@@ -582,6 +680,25 @@ export class ProjectsComponent {
         }),
         filter((result) => !!result),
         switchMap((result: IProjectCategory) => this.projectService.createProjectCategory(result)),
+        catchError((error: HttpErrorResponse) => {
+          const backendError = error.error;
+          if (backendError && typeof backendError === 'object') {
+            const messages: string[] = [];
+            Object.values(backendError).forEach((value) => {
+              if (Array.isArray(value)) {
+                messages.push(...value.map(String));
+              } else if (value) {
+                messages.push(String(value));
+              }
+            });
+            this.errorSignal.set(messages.join('\n'));
+          } else {
+            this.errorSignal.set('Произошла ошибка');
+          }
+          if (button) button.disabled = false;
+          return EMPTY;
+        }),
+        filter((response) => !!response),
         tap(() => this.reloadProjectCategoriesTrigger.update((v) => v + 1)),
         finalize(() => {
           if (button) button.disabled = false;
@@ -617,6 +734,25 @@ export class ProjectsComponent {
         switchMap((result: IProjectCategory) =>
           this.projectService.updateProjectCategory(projectCategory.id, result),
         ),
+        catchError((error: HttpErrorResponse) => {
+          const backendError = error.error;
+          if (backendError && typeof backendError === 'object') {
+            const messages: string[] = [];
+            Object.values(backendError).forEach((value) => {
+              if (Array.isArray(value)) {
+                messages.push(...value.map(String));
+              } else if (value) {
+                messages.push(String(value));
+              }
+            });
+            this.errorSignal.set(messages.join('\n'));
+          } else {
+            this.errorSignal.set('Произошла ошибка');
+          }
+          if (button) button.disabled = false;
+          return EMPTY;
+        }),
+        filter((response) => !!response),
         tap(() => {
           this.reloadProjectCategoriesTrigger.update((v) => v + 1);
           this.reloadProjectsTrigger.update((v) => v + 1);
@@ -680,6 +816,25 @@ export class ProjectsComponent {
         }),
         filter((result) => !!result),
         switchMap(() => this.projectService.deleteProjectCategory(projectCategory.id)),
+        catchError((error: HttpErrorResponse) => {
+          const backendError = error.error;
+          if (backendError && typeof backendError === 'object') {
+            const messages: string[] = [];
+            Object.values(backendError).forEach((value) => {
+              if (Array.isArray(value)) {
+                messages.push(...value.map(String));
+              } else if (value) {
+                messages.push(String(value));
+              }
+            });
+            this.errorSignal.set(messages.join('\n'));
+          } else {
+            this.errorSignal.set('Произошла ошибка');
+          }
+          if (button) button.disabled = false;
+          return EMPTY;
+        }),
+        filter((response) => !!response),
         tap(() => this.reloadProjectCategoriesTrigger.update((v) => v + 1)),
         finalize(() => {
           if (button) button.disabled = false;

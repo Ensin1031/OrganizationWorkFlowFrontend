@@ -18,6 +18,9 @@ import {
 import { MatDatepicker, MatDatepickerInput, MatDatepickerToggle } from '@angular/material/datepicker';
 import { ISprint, ISprintCreateOrUpdate } from '../../../interfaces/sprints';
 import moment from 'moment';
+import { ClassicEditor } from 'ckeditor5';
+import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
+import { ckeditorConfig } from '../../../tokens/ckeditor-5-default-config';
 
 export interface ISprintCreateUpdateDialogData {
   mode: 'create' | 'edit' | 'view';
@@ -43,6 +46,7 @@ export interface ISprintCreateUpdateDialogData {
     MatDatepickerInput,
     MatDatepickerToggle,
     MatDatepicker,
+    CKEditorModule,
   ],
   templateUrl: './create-update-sprint.html',
   styleUrl: './create-update-sprint.scss',
@@ -56,6 +60,8 @@ export class CreateUpdateSprintDialogComponent implements OnInit {
   isSaving = false;
   title = signal(this.data.title);
 
+  public Editor = ClassicEditor;
+
   ngOnInit(): void {
     const sprint = this.data.sprint;
     this.form = this.fb.group({
@@ -68,7 +74,7 @@ export class CreateUpdateSprintDialogComponent implements OnInit {
       description: [sprint?.description || ''],
     });
     if (this.data.mode === 'view') {
-      this.form.disable()
+      this.form.disable();
     }
   }
 
@@ -95,4 +101,6 @@ export class CreateUpdateSprintDialogComponent implements OnInit {
   onCancel(): void {
     this.dialogRef.close();
   }
+
+  protected readonly ckeditorConfig = ckeditorConfig;
 }

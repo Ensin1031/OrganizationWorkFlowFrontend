@@ -50,6 +50,9 @@ import {
 import moment from 'moment';
 import { UserService } from '../../../services/user';
 import { EntitySelectComponent } from '../../common/entity-select/entity-select';
+import { ClassicEditor } from 'ckeditor5';
+import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
+import { ckeditorConfig } from '../../../tokens/ckeditor-5-default-config';
 
 export interface IProjectCreateUpdateDialogData {
   mode: 'create' | 'edit';
@@ -84,6 +87,7 @@ export interface IProjectCreateUpdateDialogData {
     MatOption,
     MatTooltip,
     EntitySelectComponent,
+    CKEditorModule,
   ],
   templateUrl: './create-update-project.html',
   styleUrl: './create-update-project.scss',
@@ -102,6 +106,8 @@ export class CreateUpdateProjectDialogComponent implements OnInit {
   form!: FormGroup;
   isSaving = false;
   title = signal(this.data.mode === 'create' ? 'Создание проекта' : 'Редактирование проекта');
+
+  public Editor = ClassicEditor;
 
   get urls() {
     return this.form.get('urls') as FormArray;
@@ -327,7 +333,7 @@ export class CreateUpdateProjectDialogComponent implements OnInit {
       )
       .subscribe();
   }
-  statusesOnLoad(data: {value: IStatus | IStatus[] | null, items: IStatus[]}): void {
+  statusesOnLoad(data: { value: IStatus | IStatus[] | null; items: IStatus[] }): void {
     const value = data.value;
     const selectedStatuses = () => {
       const result: IStatus[] = [];
@@ -355,7 +361,9 @@ export class CreateUpdateProjectDialogComponent implements OnInit {
         }
       }
       return result;
-    }
+    };
     this.statusesMapSelect()?.select(selectedStatuses());
-  };
+  }
+
+  protected readonly ckeditorConfig = ckeditorConfig;
 }

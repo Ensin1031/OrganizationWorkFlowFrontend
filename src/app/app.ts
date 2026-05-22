@@ -58,6 +58,10 @@ export class AppComponent implements OnInit {
         this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/icons/del-object.svg'),
       )
       .addSvgIcon(
+        'shapeOnIcon',
+        this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/icons/shape-on-green-icon.svg'),
+      )
+      .addSvgIcon(
         'settingsIcon',
         this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/icons/settings.svg'),
       );

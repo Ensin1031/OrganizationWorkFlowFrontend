@@ -171,10 +171,15 @@
     }
 
     <!-- Описание -->
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Описание</mat-label>
-      <textarea matInput formControlName="description" rows="3"></textarea>
-    </mat-form-field>
+    <div class="ckeditor-field full-width">
+      <label class="ckeditor-label">Описание</label>
+      <ckeditor
+        [editor]="Editor"
+        [config]="ckeditorConfig"
+        formControlName="description"
+        class="w-100 ckeditor-form"
+      ></ckeditor>
+    </div>
 
     <!-- URLs (динамический список) -->
     <div class="urls-section">

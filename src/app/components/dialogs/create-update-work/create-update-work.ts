@@ -18,7 +18,7 @@ import {
 } from '@angular/forms';
 import { MatDatepicker, MatDatepickerInput, MatDatepickerToggle } from '@angular/material/datepicker';
 import { MatOption, MatSelect } from '@angular/material/select';
-import { DefaultWorkTypesEnum, IWork } from '../../../interfaces/works';
+import { DefaultWorkTypesEnum, IWork, IWorkShort } from '../../../interfaces/works';
 import {
   IReferenceCreateOrUpdate,
   IWorkDifficulty,
@@ -53,12 +53,16 @@ import { CreateUpdateReferenceDialogComponent, IReferenceCreateUpdateDialogConfi
 import { WorkService } from '../../../services/work';
 import { durationToMinutes, minutesToDuration } from '../../../utils/minutes-to-duration';
 import { DurationMinutesDirective } from '../../../directives/duration-minutes';
+import { ClassicEditor } from 'ckeditor5';
+import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
+import { ckeditorConfig } from '../../../tokens/ckeditor-5-default-config';
 
 export interface ICreateUpdateWorkDialogData {
   mode: 'create' | 'edit';
   title: string;
   work?: IWork;
   defaultData?: {
+    epic?: IWork | IWorkShort | null;
     sprint?: ISprint | ISprintShort | null;
     project?: IProject | IProjectShort | null;
   };
@@ -95,6 +99,7 @@ export interface ICreateUpdateWorkDialogData {
     MatIconButton,
     MatTooltip,
     DurationMinutesDirective,
+    CKEditorModule,
   ],
   templateUrl: './create-update-work.html',
   styleUrl: './create-update-work.scss',
@@ -147,6 +152,11 @@ export class CreateUpdateWorkDialogComponent implements OnInit {
   isSaving = false;
   title = signal(this.data.title);
 
+  readonly groupTypes = [DefaultWorkTypesEnum.EPIC as number, DefaultWorkTypesEnum.STORY as number];
+  isGroupStatus = signal<boolean>(false);
+
+  public Editor = ClassicEditor;
+
   compareById(obj1: any, obj2: any): boolean {
     return obj1 && obj2 ? obj1.id === obj2.id : obj1 === obj2;
   }
@@ -190,7 +200,7 @@ export class CreateUpdateWorkDialogComponent implements OnInit {
       target_end_date: [work?.target_end_date ? new Date(work.target_end_date) : null],
       lead_time: [durationToMinutes(work?.lead_time) || ''],
       wasted_time: [durationToMinutes(work?.wasted_time) || ''],
-      epic: [work?.epic || null],
+      epic: [work?.epic || this.data.defaultData?.epic || null],
       type: [work?.type || null, Validators.required],
       priority: [work?.priority || null],
       tags: [work?.tags || []],
@@ -209,10 +219,19 @@ export class CreateUpdateWorkDialogComponent implements OnInit {
       description: [work?.description || ''],
     });
 
-    if (this.data.mode === 'edit') {
-      ['project', 'epic', 'created_by'].forEach((field) => {
+    if (this.data.mode === 'edit' && !!this.data.work && this.groupTypes.includes(this.data.work.type?.id ?? -1)) {
+      this.isGroupStatus.set(true);
+      ['type', 'epic', 'sprint'].forEach((field) => {
         this.form.get(field)?.disable();
       });
+    }
+    if (this.data.mode === 'edit') {
+      ['project', 'created_by'].forEach((field) => {
+        this.form.get(field)?.disable();
+      });
+    }
+    if (this.data.defaultData?.epic) {
+      this.form.get('epic')?.disable();
     }
     if (this.data.defaultData?.sprint) {
       this.form.get('sprint')?.disable();
@@ -237,6 +256,24 @@ export class CreateUpdateWorkDialogComponent implements OnInit {
         }),
         tap(() => {
           this.epicSelect()?.reload(null, this.workEpicTypeFilter());
+        }),
+      )
+      .subscribe();
+
+    this.form
+      .get('type')
+      ?.valueChanges.pipe(
+        tap((type: IWorkType) => {
+          this.isGroupStatus.set(this.groupTypes.includes(type.id));
+          if (this.isGroupStatus()) {
+            this.form.patchValue(
+              {
+                epic: null,
+                sprint: null,
+              },
+              { emitEvent: false },
+            );
+          }
         }),
       )
       .subscribe();
@@ -511,4 +548,6 @@ export class CreateUpdateWorkDialogComponent implements OnInit {
       )
       .subscribe();
   }
+
+  protected readonly ckeditorConfig = ckeditorConfig;
 }
