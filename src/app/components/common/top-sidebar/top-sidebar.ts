@@ -1,7 +1,7 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { MatTooltip } from '@angular/material/tooltip';
 import { MatIcon } from '@angular/material/icon';
-import { MatFormField, MatLabel } from '@angular/material/select';
+import { MatFormField, MatLabel, MatSuffix } from '@angular/material/select';
 import { ProjectContextService } from '../../../services/project-context';
 import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 import { MatDivider } from '@angular/material/list';
@@ -40,6 +40,7 @@ import { HttpErrorResponse } from '@angular/common/http';
     SafeSvgComponent,
     NgOptimizedImage,
     MatButton,
+    MatSuffix,
   ],
   templateUrl: './top-sidebar.html',
   styleUrl: './top-sidebar.scss',
@@ -56,6 +57,14 @@ export class TopSidebarComponent {
 
   errorSignal = signal<string>('');
   error = computed(() => this.errorSignal());
+
+  searchTextPage = signal('');
+  goToSearchPage(): void {
+    const urlTree = this.router.createUrlTree(['/home/search'], {
+      queryParams: { search: this.searchTextPage() || undefined, },
+    });
+    window.open(this.router.serializeUrl(urlTree), '_blank');
+  };
 
   constructor() {
     effect(() => {
@@ -87,7 +96,7 @@ export class TopSidebarComponent {
   selectProjectAndClearSearch(project: IProject): void {
     this.projectService.selectProject(project);
     this.searchText.set('');
-    this.router.navigate(['/home/tasks'], { queryParams: { projectId: project.id } });
+    this.router.navigate(['/home/projects', project.slug]);
   }
 
   onImgError(event: Event) {

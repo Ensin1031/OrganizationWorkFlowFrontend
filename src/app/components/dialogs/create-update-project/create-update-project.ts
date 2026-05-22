@@ -29,7 +29,6 @@ import {
   IProjectVersion,
   IProjectVersionCreateOrUpdate,
 } from '../../../interfaces/project';
-import { IUserExtended } from '../../../interfaces/user';
 import { MatTooltip } from '@angular/material/tooltip';
 import {
   CreateUpdateProjectVersionDialogComponent,
@@ -55,7 +54,7 @@ import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
 import { ckeditorConfig } from '../../../tokens/ckeditor-5-default-config';
 
 export interface IProjectCreateUpdateDialogData {
-  mode: 'create' | 'edit';
+  mode: 'create' | 'edit' | 'view';
   project?: IProject; // для редактирования
   availableVersions: IProjectVersion[];
   availableCategories?: IProjectCategory[];
@@ -105,7 +104,7 @@ export class CreateUpdateProjectDialogComponent implements OnInit {
 
   form!: FormGroup;
   isSaving = false;
-  title = signal(this.data.mode === 'create' ? 'Создание проекта' : 'Редактирование проекта');
+  title = signal(this.data.mode === 'create' ? 'Создание проекта' : (this.data.mode === 'edit' ? 'Редактирование проекта' : 'Просмотр проекта'));
 
   public Editor = ClassicEditor;
 
@@ -146,6 +145,9 @@ export class CreateUpdateProjectDialogComponent implements OnInit {
       description: [project?.description || ''],
       urls: this.fb.array(project?.urls?.map((u) => this.fb.control(u)) || []),
     });
+    if (this.data.mode === 'view') {
+      this.form.disable();
+    }
   }
 
   addUrlField() {

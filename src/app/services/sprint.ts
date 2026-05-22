@@ -25,10 +25,10 @@ export class SprintService {
       .get<PaginatedResponse<ISprint>>(url, { params: buildHTTPParams(data) })
       .pipe(catchError(() => of(defaultEmptyPage)));
   }
-  getSprint(sprintSlug: string): Observable<ISprint[]> {
+  getSprint(sprintSlug: string): Observable<ISprint> {
     const url = `${this.apiUrl}/sprints/${sprintSlug}/`;
     let params = new HttpParams();
-    return this.http.get<ISprint[]>(url, { params });
+    return this.http.get<ISprint>(url, { params });
   }
   createSprint(data: ISprintCreateOrUpdate): Observable<ISprint> {
     return this.http.post<ISprint>(`${this.apiUrl}/sprints/`, data);

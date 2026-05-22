@@ -189,7 +189,7 @@ export class CreateUpdateWorkDialogComponent implements OnInit {
       return work?.project || this.data.defaultData?.project || this.defaultProject() || null;
     };
     this.projectsVersionsSignal.set(defaultProject()?.versions ?? []);
-    this.selectedProjectIDSignal.set(defaultProject()?.id ?? null);
+    this.selectedProjectIDSignal.set(defaultProject()?.slug ?? null);
     this.form = this.fb.group({
       name: [work?.name || '', [Validators.required, Validators.maxLength(250)]],
       color: [work?.color || '#4ECDC4'],
@@ -244,7 +244,7 @@ export class CreateUpdateWorkDialogComponent implements OnInit {
       ?.valueChanges.pipe(
         tap((project: IProject) => {
           this.projectsVersionsSignal.set(project.versions);
-          this.selectedProjectIDSignal.set(project.id);
+          this.selectedProjectIDSignal.set(project.slug);
           this.form.patchValue(
             {
               epic: null,
@@ -287,7 +287,7 @@ export class CreateUpdateWorkDialogComponent implements OnInit {
     return [];
   }
   projectsVersionsSignal = signal<IProjectVersion[]>([]);
-  selectedProjectIDSignal = signal<number | null>(null);
+  selectedProjectIDSignal = signal<string | null>(null);
   onSubmit(): void {
     if (this.form.invalid) return;
     this.isSaving = true;

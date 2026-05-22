@@ -285,7 +285,7 @@ export class ProjectsComponent {
   goToProjectTacks(project: IProject): void {
     this.projectService.selectProject(project);
     this.searchText.set('');
-    this.router.navigate(['/home/tasks'], { queryParams: { projectId: project.id } });
+    this.router.navigate(['/home/projects', project.slug]);
   }
   createProject(event: PointerEvent): void {
     if (!this.canCreateProject()) {
@@ -372,7 +372,7 @@ export class ProjectsComponent {
         }),
         filter((result) => !!result),
         switchMap((result: IProject) =>
-          this.projectService.updateProject(project.id, result as IProjectCreateOrUpdate),
+          this.projectService.updateProject(project.slug, result as IProjectCreateOrUpdate),
         ),
         catchError((error: HttpErrorResponse) => {
           const backendError = error.error;

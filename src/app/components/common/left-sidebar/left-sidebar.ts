@@ -42,15 +42,6 @@ export class LeftSidebarComponent {
 
   linkItems: ILinkItems[] = [
     {
-      routerLink: '/home/user-table',
-      queryParams: {},
-      children: [],
-      routerLinkActive: 'active',
-      svgIcon: 'mainSmallLightLogo',
-      title: 'Главная',
-      tooltip: 'Главная',
-    },
-    {
       routerLink: '/home/dashboard',
       queryParams: {},
       children: [],

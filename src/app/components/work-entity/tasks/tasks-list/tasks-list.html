@@ -1,6 +1,6 @@
 <div class="tasks-list__content">
   @if (tasks().length === 0 && !loading()) {
-    <div class="empty-state">Нет задач в спринте</div>
+    <div class="empty-state">{{ emptyListMessage() }}</div>
   } @else {
     <div class="tasks-list">
       @for (task of tasks(); track task.id) {
@@ -63,8 +63,8 @@
     <div class="loading-indicator">Загрузка...</div>
   }
 
-  @if (hasMore() && !loading() && tasks().length > 0) {
-    <button class="show-more-btn" (click)="loadMore()">Показать еще</button>
+  @if ((hasMore() && !loading() && tasks().length > 0) && !externalHasMoreBTN()) {
+    <button mat-button class="show-more-btn" (click)="loadMore()">Показать еще</button>
   }
 </div>
 @if (error()) {

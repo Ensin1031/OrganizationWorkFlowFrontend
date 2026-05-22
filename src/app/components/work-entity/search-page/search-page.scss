@@ -1,0 +1,32 @@
+:host ::ng-deep .search-page__content {
+  display: flex;
+  flex-direction: column;
+  & .search-field {
+    width: 100%;
+    font-size: 14px;
+    & .mat-mdc-form-field-subscript-wrapper {
+      display: none !important;
+    }
+    & .mat-mdc-text-field-wrapper {
+      background: white;
+      border-radius: .25rem;
+    }
+    & button {
+      margin-right: .15rem;
+    }
+  }
+  & .search-result-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: .425rem;
+    border: 1px solid var(--gray-dark-background-color);
+    border-radius: .425rem;
+    background: var(--bs-white);
+  }
+}
+
+.block-view-opened {
+  transform: rotate(180deg);
+}
+

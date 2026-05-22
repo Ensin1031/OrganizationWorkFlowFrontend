@@ -1,7 +1,7 @@
 <div class="top-sidebar__content d-flex align-items-center justify-content-between">
   <div class="d-flex flex-row align-items-center gap-3">
     <div class="top-sidebar__content--main-icon">
-      <a href="/public" [matTooltip]="'Главная'" [matTooltipShowDelay]="500"><mat-icon class="d-flex" svgIcon="mainSmallLightLogo"></mat-icon></a>
+      <a href="/home/dashboard" [matTooltip]="'Главная'" [matTooltipShowDelay]="500"><mat-icon class="d-flex" svgIcon="mainSmallLightLogo"></mat-icon></a>
     </div>
     <div class="project-menu-trigger" [matMenuTriggerFor]="projectMenu" (menuOpened)="onProjectMenuOpened()" (menuClosed)="onProjectMenuClosed()">
       <span class="project-label">Проекты</span>
@@ -61,7 +61,24 @@
   </div>
 
   <!-- Данные пользователя -->
-  <div class="d-flex flex-row align-items-center me-2">
+  <div class="d-flex flex-row align-items-center gap-2 me-2">
+    <div class="d-flex" style="min-width: 17rem;">
+      <mat-form-field appearance="outline" class="search-field-page">
+        <input
+          matInput
+          [(ngModel)]="searchTextPage"
+          placeholder="Введите название или код"
+        />
+        @if (searchTextPage()) {
+          <button matSuffix mat-icon-button (click)="searchTextPage.set('')">
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+        <button matSuffix mat-icon-button (click)="goToSearchPage()">
+          <mat-icon>search</mat-icon>
+        </button>
+      </mat-form-field>
+    </div>
     <button mat-icon-button [matMenuTriggerFor]="userMenu" class="user-menu-btn">
       @if (userService.user()) {
         @if (userService.user()?.profile_photo) {
