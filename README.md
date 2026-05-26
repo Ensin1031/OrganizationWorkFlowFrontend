@@ -1,16 +1,55 @@
 # OrganizationWorkflowFrontend
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.9.
+Клиентская часть системы **Organization Workflow**, построенная на [Angular 21](https://angular.io/).  
+Адаптивное веб-приложение для управления организационными процессами.
 
-## Development server
+## Разворачивание проекта
 
-To start a local development server, run:
-
-```bash
-ng serve
-```
-
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+1.  Клонируем репозиторий
+    ```shell
+    git clone https://github.com/Ensin1031/OrganizationWorkFlowFrontend.git
+    ```
+2.  Переходим в папку проекта
+    ```shell
+    cd ./OrganizationWorkFlowFrontend
+    ```
+3.  Устанавливаем (при необходимости) минимально необходимую версию ноды:
+    ```shell
+    # Установка nvm:
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+    # Или через wget:
+    wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+    # После установки перезагрузите терминал или выполните:
+    source ~/.bashrc
+    ```
+    Установка нужной версии Node.js:
+    ```shell
+    nvm install 22.11.0
+    nvm use 22.11.0
+    # Сделать эту версию используемой по умолчанию:
+    nvm alias default 22.11.0
+    # Проверьте:
+    node --version   # ➜ v22.11.0
+    npm --version    # ➜ 10.x или новее
+    ```
+4.  Установка (глобально, при необходимости) Angular CLI v21:
+    ```shell
+    npm install -g @angular/cli@21
+    # Убедитесь, что установка прошла без ошибок:
+    ng version  # Должны увидеть строку Angular CLI: 21.x.x
+    ```
+5.  Установка зависимостей. В корне проекта выполните:
+    ```shell
+    npm install
+    # либо
+    npm ci  # предпочтительнее, т.к. эта команда поставит зависимости точно по package-lock.json
+    ```
+6.  Запуск сервера
+    ```shell
+    ng serve
+    # если требуется со сменой дефолтного (4200) порта:
+    ng serve --port 4300
+    ```
 
 ## Code scaffolding
 
