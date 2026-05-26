@@ -1,11 +1,18 @@
 @if (project(); as projectData) {
   <div class="d-flex flex-column h-100 position-relative">
-    <h3 class="d-flex flex-row flex-wrap align-items-center gap-2">
-      [{{ projectData.code_prefix }}] {{ projectData.name }}
-      <button mat-icon-button (click)="update(projectData)">
-        <mat-icon svgIcon="editObjectIcon" class="d-flex"></mat-icon>
-      </button>
-    </h3>
+    <div class="d-flex flex-row align-items-center mb-2 gap-2">
+      @if (projectData.icon) {
+        <div class="d-flex flex-row align-items-center" style="width: 2.25rem; height: 2.25rem;">
+          <app-safe-svg class="w-100 h-100" [svgString]="projectData.icon"></app-safe-svg>
+        </div>
+      }
+      <h3 class="d-flex flex-row flex-wrap align-items-center m-0 p-0 gap-2">
+        [{{ projectData.code_prefix }}] {{ projectData.name }}
+        <button mat-icon-button (click)="update(projectData)">
+          <mat-icon svgIcon="editObjectIcon" class="d-flex"></mat-icon>
+        </button>
+      </h3>
+    </div>
     <mat-divider class="projects-list__divider" style="margin: 0.125rem;"></mat-divider>
     <div class="d-flex flex-column gap-2" style="max-height: 100%; overflow: auto;">
       <div class="sprint-card mt-2">
@@ -72,18 +79,18 @@
         </div>
         <div class="flex-column gap-1" [ngStyle]="{ 'display': isTaskListOpen ? 'flex' : 'none', 'max-height': '100%', 'overflow-y': 'auto' }">
           <div class="d-flex flex-column gap-2">
-            <div class="d-flex flex-row flex-wrap align-items-center gap-3 border" style="background: var(--gray-background-color);border-radius: 3px;">
-              <div class="d-flex flex-row align-items-center tasks-vertical-divider text-nowrap">
+            <div class="d-flex flex-row flex-wrap align-items-center border" style="background: var(--gray-background-color);border-radius: 3px;">
+              <div class="d-flex flex-row align-items-center tasks-vertical-divider text-nowrap me-3">
                 <mat-checkbox [checked]="onlyMyTasks()" (change)="toggleOnlyMyTasks($event.checked)">
                   Мои задачи
                 </mat-checkbox>
               </div>
-              <div class="d-flex flex-row align-items-center tasks-vertical-divider text-nowrap">
+              <div class="d-flex flex-row align-items-center tasks-vertical-divider text-nowrap me-3">
                 <mat-checkbox [checked]="tasksWithoutExecutor()" (change)="toggleTasksWithoutExecutor($event.checked)">
                   Без исполнителя
                 </mat-checkbox>
               </div>
-              <div class="d-flex flex-row align-items-center tasks-entity-selector tasks-vertical-divider">
+              <div class="d-flex flex-row align-items-center tasks-entity-selector m-2 tasks-vertical-divider">
                 <app-entity-select
                   [value]="selectedUsers()"
                   (selectedChange)="selectedChangeUsers($event)"
@@ -95,7 +102,7 @@
                 ></app-entity-select>
               </div>
               <mat-divider class="projects-list__divider" style="margin: 0.125rem;"></mat-divider>
-              <div class="d-flex flex-row align-items-center tasks-entity-selector">
+              <div class="d-flex flex-row align-items-center m-2 tasks-entity-selector">
                 <app-entity-select
                   [value]="selectedTasksStatuses()"
                   (selectedChange)="selectedChangeTasksStatuses($event)"

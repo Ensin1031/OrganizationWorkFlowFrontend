@@ -29,6 +29,7 @@ import { IUserExtended } from '../../../interfaces/user';
 import { StatusesService } from '../../../services/work-references';
 import { MatFormField, MatInput, MatLabel, MatSuffix } from '@angular/material/input';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { SafeSvgComponent } from '../../common/safe-svg/safe-svg';
 
 
 @Component({
@@ -53,6 +54,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     MatSuffix,
     ReactiveFormsModule,
     FormsModule,
+    SafeSvgComponent,
   ],
   templateUrl: './project-page.html',
   styleUrls: ['./project-page.scss', '../tasks/sprint-card/sprint-card.scss'],
