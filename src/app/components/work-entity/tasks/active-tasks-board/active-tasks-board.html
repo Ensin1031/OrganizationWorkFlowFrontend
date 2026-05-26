@@ -1,0 +1,23 @@
+<p>active-tasks-board works!</p>
+
+@for (sprint of activeSprints(); track sprint.slug) {
+
+  <button
+    (click)="toggleSprintSelection(sprint.slug)"
+  >
+    {{ sprint.name }}
+
+    @if (isSprintSelected(sprint.slug)) {
+      ✓
+    }
+  </button>
+
+}
+
+<button (click)="selectAllSprints()">
+  Все sprint'ы
+</button>
+
+<button (click)="clearSprintSelection()">
+  Очистить
+</button>

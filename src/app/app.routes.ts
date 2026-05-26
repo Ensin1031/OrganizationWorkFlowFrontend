@@ -13,6 +13,7 @@ import { TaskViewComponent } from './components/work-entity/tasks/task-view/task
 import { SearchPageComponent } from './components/work-entity/search-page/search-page';
 import { SprintPageComponent } from './components/work-entity/sprint-page/sprint-page';
 import { ProjectPageComponent } from './components/work-entity/project-page/project-page';
+import { ActiveTasksBoardComponent } from './components/work-entity/tasks/active-tasks-board/active-tasks-board';
 
 
 export const routes: Routes = [
@@ -42,6 +43,7 @@ export const routes: Routes = [
       },
       { path: 'projects/:slug', component: ProjectPageComponent },
       { path: 'sprints/:slug', component: SprintPageComponent },
+      { path: 'active-tasks-board', component: ActiveTasksBoardComponent },
       {
         path: 'tasks',
         children: [

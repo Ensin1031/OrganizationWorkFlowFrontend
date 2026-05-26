@@ -51,6 +51,15 @@ export class LeftSidebarComponent {
       tooltip: 'Дашборд',
     },
     {
+      routerLink: '/home/active-tasks-board',
+      queryParams: {},
+      children: [],
+      routerLinkActive: 'active',
+      svgIcon: 'tasksIcon',
+      title: 'Задачи по активным спринтам',
+      tooltip: 'Задачи по активным спринтам',
+    },
+    {
       routerLink: '/home/tasks',
       queryParams: {},
       children: [
