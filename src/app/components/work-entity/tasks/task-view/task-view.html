@@ -5,8 +5,7 @@
         <div class="task-view--name-block--icon-project d-flex text-nowrap">
           <button
             mat-icon-button
-            [routerLink]="'/home/tasks'"
-            [queryParams]="{ projectId: work.project.id }"
+            [routerLink]="['/home/projects', work.project.slug]"
             [matTooltip]="'[' + work.project.code_prefix + '] ' + work.project.name "
             [matTooltipShowDelay]="500"
           >

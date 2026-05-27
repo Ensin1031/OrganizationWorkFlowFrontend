@@ -1,23 +1,122 @@
-<p>active-tasks-board works!</p>
+<div class="d-flex flex-column h-100 w-100 position-relative">
 
-@for (sprint of activeSprints(); track sprint.slug) {
+  <h3>Доска задач по активным спринтам</h3>
 
-  <button
-    (click)="toggleSprintSelection(sprint.slug)"
-  >
-    {{ sprint.name }}
+  <mat-divider style="margin: 0.125rem;"></mat-divider>
 
-    @if (isSprintSelected(sprint.slug)) {
-      ✓
+  <div class="d-flex flex-row w-100 mt-2 mb-2">
+    <div class="selected-sprints">
+      @for (sprint of selectedSprints(); track sprint.slug) {
+        <a href="javascript:void(0)" class="selected-sprints__link" (click)="goToSprint(sprint)">
+          {{ sprint.name | slice: 0:50 }}{{ sprint.name.length > 50 ? '...' : '' }}
+        </a>
+        @if (!$last) {<span>,&nbsp;</span>}
+      }
+      <mat-form-field appearance="outline" class="active-sprints-select" subscriptSizing="dynamic">
+        <mat-select multiple [value]="selectedSprintSlugs()" (valueChange)="selectedSprintSlugs.set($event)" panelWidth="600px">
+          <mat-select-trigger></mat-select-trigger>
+          @for (sprint of activeSprints(); track sprint.slug) {
+            <mat-option [value]="sprint.slug"><span class="hide-text-overflow-1">{{ sprint.name }}</span></mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </div>
+
+  <mat-divider style="margin: 0.125rem;"></mat-divider>
+
+  <div class="d-flex flex-column mt-2 pb-4 gap-1">
+    @for (user of taskUsers(); track user.id) {
+      <ng-container *ngTemplateOutlet="userBoardBlock; context: { user: user }" />
     }
-  </button>
+    @if (selectedSprintSlugs()?.length) {
+      <ng-container *ngTemplateOutlet="userBoardBlock; context: { user: null }" />
+    }
+  </div>
+</div>
 
+<ng-template #userBoardBlock let-user="user" let-tasks="tasks">
+  <div class="sprint-card">
+    <div class="sprint-card--header">
+      <div class="sprint-card--header--title-block gap-1">
+        <button mat-icon-button class="sprint-card--header--btn" (click)="viewTasks(user)">
+          <mat-icon class="d-flex" [class.tasks-view-opened]="isTaskListOpen(user)">arrow_drop_down</mat-icon>
+        </button>
+        <div class="d-flex flex-row align-items-center gap-2" style="font-size: 14px;">
+          @if (user?.profile_photo) {
+            <app-user-photo-view
+              [tooltip]="user?.full_name ?? ''"
+              [photoUrl]="user!.profile_photo!"
+              class="photo-view"
+            ></app-user-photo-view>
+          }
+          <div class="hide-text-overflow-1">{{ user?.full_name ?? 'Задачи, не распределенные по исполнителям' }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tasks-board" [style.display]="isTaskListOpen(user) ? 'grid' : 'none'" cdkDropListGroup>
+      @for (status of statuses(); track status.id) {
+        <div class="tasks-board__column">
+          <div class="tasks-board__column-header" [style.border-left]="'4px solid ' + status.color">
+            <div class="d-flex align-items-center gap-1">
+              @if (status.icon) {
+                <app-safe-svg [svgString]="status.icon" class="tasks-board__status-icon"></app-safe-svg>
+              }
+              <span>{{ status.name }}</span>
+            </div>
+          </div>
+          <div
+            class="tasks-board__column-body"
+            cdkDropList
+            [id]="dropListId(user?.id, status.status)"
+            [cdkDropListData]="tasksByUserAndStatus(status.status, user?.id)"
+            [cdkDropListConnectedTo]="connectedDropLists(user?.id)"
+            [cdkDropListEnterPredicate]="canDropTask"
+            (cdkDropListDropped)="dropTask($event, user?.id, status)"
+          >
+            @for (task of tasksByUserAndStatus(status.status, user?.id);track task.id) {
+              <div class="task-card" cdkDrag [cdkDragData]="task" [style.border-left]="'4px solid ' + (task.epic?.color ?? task.project.color)">
+                <div class="task-name-block p-2">
+                  <div class="hide-text-overflow-3" style="overflow-wrap: anywhere;">
+                    <span class="me-1 text-nowrap">[<a [routerLink]="['/home/tasks', task.slug]" [matTooltip]="'Перейти к задаче'" [matTooltipShowDelay]="500">{{ task.slug }}</a>]</span>
+                    <span>{{ task.name }}</span>
+                  </div>
+                  <div class="d-flex flex-row align-items-center gap-2 mt-2" style="margin-left: .1rem;">
+                    @if (task.type?.icon) {
+                      <span class="me-1 task-name-block--with-icon-label">
+                        <app-safe-svg [svgString]="task.type?.icon!" style="width: 1rem; height: 1rem;"></app-safe-svg>
+                      </span>
+                    } @else if (task.type?.name) {
+                      <span [ngStyle]="{background: task.type?.color, 'font-size': '12px'}" class="me-1 task-name-block--without-icon-label">{{ task.type!.name!.slice(0, 1) }}</span>
+                    }
+                    <div class="task-name-block--lead-time">{{ task.lead_time | durationHumanize }}</div>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</ng-template>
+
+@if (error()) {
+  <div class="toast-error">
+    <div class="toast-error--content">
+      @for (line of error().split('\n'); track line) {
+        <div class="d-flex flex-row align-items-center justify-content-center">{{ line }}</div>
+      }
+    </div>
+
+    <button
+      mat-icon-button
+      type="button"
+      class="toast-error--close"
+      (click)="errorSignal.set('')"
+    >
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
 }
-
-<button (click)="selectAllSprints()">
-  Все sprint'ы
-</button>
-
-<button (click)="clearSprintSelection()">
-  Очистить
-</button>

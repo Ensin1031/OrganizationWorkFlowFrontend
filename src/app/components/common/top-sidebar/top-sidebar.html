@@ -68,6 +68,7 @@
           matInput
           [(ngModel)]="searchTextPage"
           placeholder="Введите название или код"
+          (keydown.enter)="searchTextPage() && goToSearchPage()"
         />
         @if (searchTextPage()) {
           <button matSuffix mat-icon-button (click)="searchTextPage.set('')">

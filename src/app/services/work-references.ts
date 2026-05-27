@@ -14,6 +14,7 @@ import {
 } from '../interfaces/references';
 import { buildHTTPFiltersParams, buildHTTPParams, defaultEmptyPage, FiltersType, ISelectPageQuery, PaginatedResponse } from '../interfaces/common';
 import { IStatusChoices } from '../components/common/status-view/status-view';
+import { IProjectStatusShort } from '../interfaces/project';
 
 
 @Injectable()
@@ -85,11 +86,11 @@ export abstract class BaseReferenceService<T extends IReferenceMixin> {
 export class StatusesService extends BaseReferenceService<IStatus> {
   protected override endpoint = 'statuses';
 
-  getByFilters(filters: FiltersType): Observable<IStatus[]> {
-    return this.http.get<IStatus[]>(`${this.apiUrl}/${this.endpoint}/by-rows/`, {
+  getBySprints(filters: FiltersType): Observable<IProjectStatusShort[]> {
+    return this.http.get<IProjectStatusShort[]>(`${this.apiUrl}/${this.endpoint}/by-sprints/`, {
       params: buildHTTPFiltersParams(filters),
     });
-  };
+  }
 
   private readonly statusesChoicesSignal = signal<IStatusChoices[] | null>(null);
 
