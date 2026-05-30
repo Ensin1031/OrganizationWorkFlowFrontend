@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { DomSanitizer } from '@angular/platform-browser';
 import { MatIconRegistry } from '@angular/material/icon';
+import { NotificationsService } from './services/notifications';
 
 
 @Component({
@@ -21,9 +22,13 @@ import { MatIconRegistry } from '@angular/material/icon';
 })
 export class AppComponent implements OnInit {
   protected readonly title = signal('organization-workflow-frontend');
+
+  notificationService = inject(NotificationsService);
+
   private matIconRegistry = inject(MatIconRegistry);
   private domSanitizer = inject(DomSanitizer);
   ngOnInit(): void {
+    this.notificationService.connect();
     this.matIconRegistry
       .addSvgIcon(
         'mainSmallLogo',
@@ -32,6 +37,14 @@ export class AppComponent implements OnInit {
       .addSvgIcon(
         'mainSmallLightLogo',
         this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/icons/small-logo-light.svg'),
+      )
+      .addSvgIcon(
+        'notificationIcon',
+        this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/icons/notification.svg'),
+      )
+      .addSvgIcon(
+        'notificationRingIcon',
+        this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/icons/notification-ring.svg'),
       )
       .addSvgIcon(
         'dashboardIcon',
