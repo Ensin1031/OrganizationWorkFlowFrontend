@@ -1,0 +1,159 @@
+@if (sprint(); as sprintData) {
+  <div class="d-flex flex-column h-100 position-relative">
+    <h3 class="p-0 m-0">Спринт: {{ sprintData.name }} <span class="ps-1">{{ getSprintDates(sprintData) }}</span></h3>
+    <mat-divider class="projects-list__divider" style="margin: 0.125rem;"></mat-divider>
+    <div class="d-flex flex-column gap-2" style="max-height: 100%; overflow: auto;">
+      <div class="sprint-card mt-2" style="">
+        <div class="sprint-card--header">
+          <div class="sprint-card--header--title-block gap-1">
+            <button mat-icon-button class="sprint-card--header--btn" (click)="viewSprintDescription()">
+              <mat-icon class="d-flex" [class.tasks-view-opened]="isDescriptionOpen">arrow_drop_down</mat-icon>
+            </button>
+            <div style="font-size: 14px;">Описание</div>
+          </div>
+        </div>
+        <div [ngStyle]="{ 'display': isDescriptionOpen ? 'flex' : 'none', 'max-height': '30rem', 'overflow-y': 'auto' }">
+          <div class="d-flex flex-column w-100">
+            <ckeditor
+              [editor]="Editor"
+              [config]="ckeditorConfig"
+              [data]="sprintData.description"
+              [disabled]="true"
+              class="w-100 ckeditor-form disabled-ckeditor-form"
+            ></ckeditor>
+          </div>
+        </div>
+      </div>
+      <div class="sprint-card mb-2" style="">
+        <div class="sprint-card--header">
+          <div class="sprint-card--header--title-block">
+            <button mat-icon-button class="sprint-card--header--btn" (click)="viewSprintTasks()">
+              <mat-icon class="d-flex" [class.tasks-view-opened]="isTaskListOpen">arrow_drop_down</mat-icon>
+            </button>
+
+            <div class="">
+              <div class="d-flex flex-wrap align-items-center gap-2">
+                <app-status-view [statusChoices]="sprintStatusChoices()" [statusValue]="sprintStatus(sprintData)"></app-status-view>
+                <div class="dates">{{ sprintData.works_ids.length }} проблем(ы)</div>
+                <button mat-icon-button class="sprint-card--header--btn-view-users-load" [matTooltip]="'Нагрузка на пользователей'" (click)="viewUsersLoad($event, sprintData)">
+                  <mat-icon class="d-flex">more_horiz</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="sprint-card--header--end-block">
+            @if (canEditSprint()) {
+              @if (!(sprintStatus(sprintData) === SprintStatus.CLOSED)) {
+                <button
+                  mat-flat-button
+                  (click)="changeSprintStatus($event, sprintData)"
+                  class="change-sprint-status-btn"
+                  [ngStyle]="{
+            '--mat-button-filled-container-color': changeSprintStatusBTNBackground(sprintData)
+          }"
+                >
+                  <span class="text-nowrap">{{ changeSprintStatusBTNName(sprintData) }}</span>
+                </button>
+              }
+            }
+
+            <button mat-icon-button class="sprint-card--header--btn" [matMenuTriggerFor]="changeSprintMenu">
+              <mat-icon class="d-flex">more_horiz</mat-icon>
+            </button>
+            <mat-menu #changeSprintMenu="matMenu" class="left-sidebar-mat-menu">
+              <button mat-menu-item (click)="viewSprint(sprintData)">
+                Детали
+              </button>
+              @if (canEditSprint()) {
+                <button mat-menu-item (click)="updateSprint(sprintData)">
+                  Редактировать
+                </button>
+                @if (sprintStatus(sprintData) === SprintStatus.NOT_ACTIVE) {
+                  <button mat-menu-item (click)="deleteSprint(sprintData)">
+                    Удалить
+                  </button>
+                }
+              }
+              @if (canCreateTask() && sprintStatus(sprintData) !== SprintStatus.CLOSED) {
+                <mat-divider class="projects-list__divider" style="margin: 0.125rem;"></mat-divider>
+                <button mat-menu-item (click)="createSprintTask(sprintData)">
+                  Создать задачу в спринте
+                </button>
+              }
+              <mat-divider class="projects-list__divider" style="margin: 0.125rem;"></mat-divider>
+              <div>
+                <div class="menu-header">Показать задач</div>
+                <mat-radio-group [value]="tasksPageSize()" (change)="setTasksPageSize($event.value)">
+                  @for (size of tasksPageSizeOptions; track size) {
+                    <mat-radio-button [value]="size" class="menu-radio">
+                      {{ size }}
+                    </mat-radio-button>
+                  }
+                </mat-radio-group>
+              </div>
+            </mat-menu>
+          </div>
+        </div>
+        <div class="flex-column gap-1" [ngStyle]="{ 'display': isTaskListOpen ? 'flex' : 'none', 'max-height': '100%', 'overflow-y': 'auto' }">
+          <div class="d-flex flex-column gap-2">
+            <div class="d-flex flex-row flex-wrap align-items-center border" style="background: var(--gray-background-color);border-radius: 3px;">
+              <div class="d-flex flex-row align-items-center me-2 tasks-vertical-divider text-nowrap">
+                <mat-checkbox [checked]="onlyMyTasks()" (change)="toggleOnlyMyTasks($event.checked)">
+                  Мои задачи
+                </mat-checkbox>
+              </div>
+              <div class="d-flex flex-row align-items-center me-2 tasks-vertical-divider text-nowrap">
+                <mat-checkbox [checked]="tasksWithoutExecutor()" (change)="toggleTasksWithoutExecutor($event.checked)">
+                  Без исполнителя
+                </mat-checkbox>
+              </div>
+              <div class="d-flex flex-row align-items-center m-2 tasks-entity-selector tasks-vertical-divider">
+                <app-entity-select
+                  [value]="selectedUsers()"
+                  (selectedChange)="selectedChangeUsers($event)"
+                  label="Исполнители"
+                  [clearable]="true"
+                  [loadFn]="loadUsersPage"
+                  [multiple]="true"
+                  [nameKey]="'full_name'"
+                ></app-entity-select>
+              </div>
+              <mat-divider class="projects-list__divider" style="margin: 0.125rem;"></mat-divider>
+              <div class="d-flex flex-row align-items-center m-2 tasks-entity-selector">
+                <app-entity-select
+                  [value]="selectedTasksStatuses()"
+                  (selectedChange)="selectedChangeTasksStatuses($event)"
+                  label="Статусы задач"
+                  [clearable]="true"
+                  [loadFn]="loadTasksStatusesPage"
+                  [multiple]="true"
+                ></app-entity-select>
+              </div>
+            </div>
+            <div class="d-flex flex-row align-items-center justify-content-between gap-2 p-2 mb-1 border tasks-entity-selector" style="background: var(--gray-background-color);border-radius: 3px;">
+              <mat-form-field appearance="outline" class="search-field">
+                <mat-label style="font-size: 14px;">Поиск...</mat-label>
+                <input
+                  matInput
+                  [(ngModel)]="searchText"
+                  placeholder="Введите название или код"
+                />
+                @if (searchText()) {
+                  <button matSuffix mat-icon-button (click)="searchText.set('')">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                }
+              </mat-form-field>
+            </div>
+          </div>
+          <app-tasks-list
+            [sprint]="sprintData"
+            [canCreate]="canCreateTask()"
+            [filters]="getTasksFilters()"
+            [pageSize]="tasksPageSize()"
+          ></app-tasks-list>
+        </div>
+      </div>
+    </div>
+  </div>
+}

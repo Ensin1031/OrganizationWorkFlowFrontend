@@ -42,6 +42,18 @@ export class AppComponent implements OnInit {
         this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/icons/tasks.svg'),
       )
       .addSvgIcon(
+        'activeTasksIcon',
+        this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/icons/active_tasks.svg'),
+      )
+      .addSvgIcon(
+        'userTasksIcon',
+        this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/icons/user_tasks.svg'),
+      )
+      .addSvgIcon(
+        'projectsListIcon',
+        this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/icons/projects_list.svg'),
+      )
+      .addSvgIcon(
         'projectsIcon',
         this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/icons/projects.svg'),
       )

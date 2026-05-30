@@ -1,0 +1,160 @@
+@if (project(); as projectData) {
+  <div class="d-flex flex-column h-100 position-relative">
+    <div class="d-flex flex-row align-items-center mb-2 gap-2">
+      @if (projectData.icon) {
+        <div class="d-flex flex-row align-items-center" style="width: 2.25rem; height: 2.25rem;">
+          <app-safe-svg class="w-100 h-100" [svgString]="projectData.icon"></app-safe-svg>
+        </div>
+      }
+      <h3 class="d-flex flex-row flex-wrap align-items-center m-0 p-0 gap-2">
+        [{{ projectData.code_prefix }}] {{ projectData.name }}
+        <button mat-icon-button (click)="update(projectData)">
+          <mat-icon svgIcon="editObjectIcon" class="d-flex"></mat-icon>
+        </button>
+      </h3>
+    </div>
+    <mat-divider class="projects-list__divider" style="margin: 0.125rem;"></mat-divider>
+    <div class="d-flex flex-column gap-2" style="max-height: 100%; overflow: auto;">
+      <div class="sprint-card mt-2">
+        <div class="sprint-card--header">
+          <div class="sprint-card--header--title-block gap-1">
+            <button mat-icon-button class="sprint-card--header--btn" (click)="viewDescription()">
+              <mat-icon class="d-flex" [class.tasks-view-opened]="isDescriptionOpen">arrow_drop_down</mat-icon>
+            </button>
+            <div style="font-size: 14px;">Описание</div>
+          </div>
+        </div>
+        <div [ngStyle]="{ 'display': isDescriptionOpen ? 'flex' : 'none', 'max-height': '30rem', 'overflow-y': 'auto' }">
+          <div class="d-flex flex-column w-100">
+            <ckeditor
+              [editor]="Editor"
+              [config]="ckeditorConfig"
+              [data]="projectData.description"
+              [disabled]="true"
+              class="w-100 ckeditor-form disabled-ckeditor-form"
+            ></ckeditor>
+          </div>
+        </div>
+      </div>
+      <div class="sprint-card mb-2">
+        <div class="sprint-card--header">
+          <div class="sprint-card--header--title-block">
+            <button mat-icon-button class="sprint-card--header--btn" (click)="viewTasks()">
+              <mat-icon class="d-flex" [class.tasks-view-opened]="isTaskListOpen">arrow_drop_down</mat-icon>
+            </button>
+            <div style="font-size: 14px;">Задачи по проекту</div>
+          </div>
+          <div class="sprint-card--header--end-block">
+            <button mat-icon-button class="sprint-card--header--btn" [matMenuTriggerFor]="changeMenu">
+              <mat-icon class="d-flex">more_horiz</mat-icon>
+            </button>
+            <mat-menu #changeMenu="matMenu" class="left-sidebar-mat-menu">
+              <button mat-menu-item (click)="view(projectData)">
+                Детали
+              </button>
+              @if (canEditProject()) {
+                <button mat-menu-item (click)="update(projectData)">
+                  Редактировать
+                </button>
+              }
+              @if (canCreateTask()) {
+                <mat-divider class="projects-list__divider" style="margin: 0.125rem;"></mat-divider>
+                <button mat-menu-item (click)="createTask(projectData)">
+                  Создать задачу в проекте
+                </button>
+              }
+              <mat-divider class="projects-list__divider" style="margin: 0.125rem;"></mat-divider>
+              <div>
+                <div class="menu-header">Показать задач</div>
+                <mat-radio-group [value]="tasksPageSize()" (change)="setTasksPageSize($event.value)">
+                  @for (size of tasksPageSizeOptions; track size) {
+                    <mat-radio-button [value]="size" class="menu-radio">
+                      {{ size }}
+                    </mat-radio-button>
+                  }
+                </mat-radio-group>
+              </div>
+            </mat-menu>
+          </div>
+        </div>
+        <div class="flex-column gap-1" [ngStyle]="{ 'display': isTaskListOpen ? 'flex' : 'none', 'max-height': '100%', 'overflow-y': 'auto' }">
+          <div class="d-flex flex-column gap-2">
+            <div class="d-flex flex-row flex-wrap align-items-center border" style="background: var(--gray-background-color);border-radius: 3px;">
+              <div class="d-flex flex-row align-items-center tasks-vertical-divider text-nowrap me-3">
+                <mat-checkbox [checked]="onlyMyTasks()" (change)="toggleOnlyMyTasks($event.checked)">
+                  Мои задачи
+                </mat-checkbox>
+              </div>
+              <div class="d-flex flex-row align-items-center tasks-vertical-divider text-nowrap me-3">
+                <mat-checkbox [checked]="tasksWithoutExecutor()" (change)="toggleTasksWithoutExecutor($event.checked)">
+                  Без исполнителя
+                </mat-checkbox>
+              </div>
+              <div class="d-flex flex-row align-items-center tasks-entity-selector m-2 tasks-vertical-divider">
+                <app-entity-select
+                  [value]="selectedUsers()"
+                  (selectedChange)="selectedChangeUsers($event)"
+                  label="Исполнители"
+                  [clearable]="true"
+                  [loadFn]="loadUsersPage"
+                  [multiple]="true"
+                  [nameKey]="'full_name'"
+                ></app-entity-select>
+              </div>
+              <mat-divider class="projects-list__divider" style="margin: 0.125rem;"></mat-divider>
+              <div class="d-flex flex-row align-items-center m-2 tasks-entity-selector">
+                <app-entity-select
+                  [value]="selectedTasksStatuses()"
+                  (selectedChange)="selectedChangeTasksStatuses($event)"
+                  label="Статусы задач"
+                  [clearable]="true"
+                  [loadFn]="loadTasksStatusesPage"
+                  [multiple]="true"
+                ></app-entity-select>
+              </div>
+            </div>
+            <div class="d-flex flex-row align-items-center justify-content-between gap-2 p-2 mb-1 border tasks-entity-selector" style="background: var(--gray-background-color);border-radius: 3px;">
+              <mat-form-field appearance="outline" class="search-field">
+                <mat-label style="font-size: 14px;">Поиск...</mat-label>
+                <input
+                  matInput
+                  [(ngModel)]="searchText"
+                  placeholder="Введите название или код"
+                />
+                @if (searchText()) {
+                  <button matSuffix mat-icon-button (click)="searchText.set('')">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                }
+              </mat-form-field>
+            </div>
+          </div>
+          <app-tasks-list
+            [project]="projectData"
+            [canCreate]="canCreateTask()"
+            [filters]="getTasksFilters()"
+            [pageSize]="tasksPageSize()"
+          ></app-tasks-list>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+@if (error()) {
+  <div class="toast-error">
+    <div class="toast-error--content">
+      @for (line of error().split('\n'); track line) {
+        <div class="d-flex flex-row align-items-center justify-content-center">{{ line }}</div>
+      }
+    </div>
+
+    <button
+      mat-icon-button
+      type="button"
+      class="toast-error--close"
+      (click)="errorSignal.set('')"
+    >
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+}

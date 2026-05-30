@@ -1,0 +1,90 @@
+<div class="h-100 position-relative search-page__content">
+  <h2>Поиск</h2>
+  <mat-divider style="margin: 0.125rem;"></mat-divider>
+  <div class="d-flex flex-row align-items-center gap-2 mt-2 mb-2">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label style="font-size: 14px;">Поиск...</mat-label>
+      <input
+        matInput
+        [(ngModel)]="searchText"
+        placeholder="Введите название или код"
+      />
+      @if (searchText()) {
+        <button matSuffix mat-icon-button (click)="searchText.set('')">
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+    </mat-form-field>
+    <button mat-icon-button class="sprint-card--header--btn" [matMenuTriggerFor]="tasksPageSizeMenu">
+      <mat-icon class="d-flex">more_horiz</mat-icon>
+    </button>
+    <mat-menu #tasksPageSizeMenu="matMenu">
+      <div class="menu-header">Показать</div>
+      <mat-radio-group [value]="pageSize()" (change)="setTasksPageSize($event.value)">
+        @for (size of tasksPageSizeOptions; track size) {
+          <mat-radio-button [value]="size" class="menu-radio">
+            {{ size }}
+          </mat-radio-button>
+        }
+      </mat-radio-group>
+    </mat-menu>
+  </div>
+  <mat-divider style="margin: 0.125rem;"></mat-divider>
+  @if (searchResource.isLoading()) {
+    <h3 class="h-100 w-100 take-full-page-height d-flex flex-column align-items-center justify-content-center mt-2">
+      Загрузка...
+    </h3>
+  } @else if (!searchText()) {
+    <h3 class="h-100 w-100 take-full-page-height d-flex flex-column align-items-center justify-content-center mt-2">
+      Введите значение для поиска
+    </h3>
+  } @else if (hasSearchResults()) {
+    <div class="h-100 w-100 take-full-page-height d-flex flex-column overflow-y-auto gap-2 position-relative mt-2">
+      @if (projects(); as projectsData) {
+        <ng-container *ngTemplateOutlet="resultsBlock; context: { title: 'Проекты', data: projectsData, type: 'project', openedSignal: projectsView }" />
+      }
+      @if (sprints(); as sprintsData) {
+        <ng-container *ngTemplateOutlet="resultsBlock; context: { title: 'Спринты', data: sprintsData, type: 'sprint', openedSignal: sprintsView }" />
+      }
+      @if (epiks(); as epiksData) {
+        <ng-container *ngTemplateOutlet="resultsBlock; context: { title: 'Эпики', data: epiksData, type: 'epik', openedSignal: epiksView }" />
+      }
+      @if (histories(); as historiesData) {
+        <ng-container *ngTemplateOutlet="resultsBlock; context: { title: 'История', data: historiesData, type: 'history', openedSignal: historiesView }" />
+      }
+      @if (tasks(); as tasksData) {
+        <ng-container *ngTemplateOutlet=" resultsBlock; context: { title: 'Задачи', data: tasksData, type: 'task', openedSignal: tasksView }" />
+      }
+    </div>
+  } @else {
+    <h3 class="h-100 w-100 take-full-page-height d-flex flex-column align-items-center justify-content-center mt-2">
+      Результат поиска пуст
+    </h3>
+  }
+</div>
+
+<ng-template #resultsBlock let-title="title" let-data="data" let-openedSignal="openedSignal" let-type="type">
+  <div class="search-result-card">
+    <div class="d-flex flex-row align-items-center justify-content-between">
+      <div class="d-flex flex-row align-items-center gap-2">
+        <button mat-icon-button class="d-flex" (click)="openedSignal.set(!openedSignal())">
+          <mat-icon class="d-flex" [class.block-view-opened]="openedSignal()">arrow_drop_down</mat-icon>
+        </button>
+        <div>
+          {{ title }}
+        </div>
+      </div>
+      <div class="d-flex flex-row align-items-center gap-2">
+        <div>Найдено:</div>
+        <div>{{ data.count }}</div>
+      </div>
+    </div>
+    <div [ngStyle]="{'display': openedSignal() ? 'flex' : 'none'}" class="border rounded flex-column" style="background: var(--light-gray-background-color);gap: .125rem;">
+      @for (item of getDataResults(data); track item.id) {
+        <div class="border rounded d-flex flex-row align-items-center gap-2 p-1 ps-2" style="background: var(--bs-white)">
+          <a class="hide-text-overflow-1" [routerLink]="getItemPageUrl(item, type)" [queryParams]="getItemPageUrlQueryParams(item, type)" style="cursor: pointer;">{{ getSearchItemLinkName(item, type) }}</a>
+        </div>
+      }
+    </div>
+  </div>
+</ng-template>

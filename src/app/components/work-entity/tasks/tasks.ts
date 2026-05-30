@@ -70,7 +70,7 @@ export class TasksComponent {
   protected userService = inject(UserService);
   protected statusesService = inject(StatusesService);
 
-  projectId = signal<number | null>(null);
+  projectId = signal<string | null>(null);
   byEpics = signal<boolean>(false);
   bySprints = signal<boolean>(false);
   searchText = signal('');
@@ -113,7 +113,7 @@ export class TasksComponent {
   private syncFromUrl = effect(() => {
     const params = this.queryParams();
     this.searchText.set(params.search ?? '');
-    this.projectId.set(params.projectId ? +params.projectId : null);
+    this.projectId.set(params.projectId ? params.projectId : null);
     this.byEpics.set(!!params.byEpics);
     this.bySprints.set(!!params.bySprints);
   });

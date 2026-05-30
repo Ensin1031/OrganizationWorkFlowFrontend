@@ -68,11 +68,11 @@ export class ProjectContextService {
   getCanCreateProject(): Observable<boolean> {
     return this.fetchCanCreate(`${this.apiUrl}/projects/`);
   }
-  getCanEditProject(projectId: number): Observable<boolean> {
-    return this.fetchCanEdit(`${this.apiUrl}/projects/${projectId}/`);
+  getCanEditProject(slug: number): Observable<boolean> {
+    return this.fetchCanEdit(`${this.apiUrl}/projects/${slug}/`);
   }
-  getCanViewProject(projectId: number): Observable<boolean> {
-    return this.fetchCanView(`${this.apiUrl}/projects/${projectId}/`);
+  getCanViewProject(slug: number): Observable<boolean> {
+    return this.fetchCanView(`${this.apiUrl}/projects/${slug}/`);
   }
   getProjectsPage(data: IProjectsQueryParams): Observable<PaginatedResponse<IProject>> {
     const url = `${this.apiUrl}/projects/`;
@@ -83,6 +83,9 @@ export class ProjectContextService {
     if (data.typeId) params = params.set('type', data.typeId);
     if (data.managerId) params = params.set('manager', data.managerId);
     return this.http.get<PaginatedResponse<IProject>>(url, { params });
+  }
+  getProject(slug: string): Observable<IProject> {
+    return this.http.get<IProject>(`${this.apiUrl}/projects/${slug}/`);
   }
 
   getAllProjects(): Observable<IProject[]> {
@@ -100,41 +103,41 @@ export class ProjectContextService {
     if (numStorageProjectId) {
       return numStorageProjectId;
     }
-    return undefined
+    return undefined;
   }
   selectProject(project: IProject): void {
-    localStorage.setItem(this.storageSelectProjectKey(), String(project.id));
+    localStorage.setItem(this.storageSelectProjectKey(), String(project.slug));
     const current = this.projectsSignal();
-    if (current[0]?.id !== project.id) {
-      const others = current.filter((p) => p.id !== project.id);
+    if (current[0]?.slug !== project.slug) {
+      const others = current.filter((p) => p.slug !== project.slug);
       this.projectsSignal.set([project, ...others]);
     }
   }
   createProject(data: IProjectCreateOrUpdate): Observable<IProject> {
     return this.http.post<IProject>(`${this.apiUrl}/projects/`, data).pipe(
-      tap(project => {
+      tap((project) => {
         this.projectsSignal.update((projects) => [project, ...projects]);
       }),
     );
   }
-  updateProject(projectId: number, data: IProjectCreateOrUpdate): Observable<IProject> {
-    return this.http.patch<IProject>(`${this.apiUrl}/projects/${projectId}/`, data).pipe(
+  updateProject(slug: string, data: IProjectCreateOrUpdate): Observable<IProject> {
+    return this.http.patch<IProject>(`${this.apiUrl}/projects/${slug}/`, data).pipe(
       tap((project: IProject) => {
         this.projectsSignal.update((projects) => {
-          const existingProject = projects.find((p) => p.id === project.id);
+          const existingProject = projects.find((p) => p.slug === project.slug);
           if (existingProject) {
-            const updatedProject = { ...existingProject, ...project, };
-            return [updatedProject, ...projects.filter((p) => p.id !== project.id)];
+            const updatedProject = { ...existingProject, ...project };
+            return [updatedProject, ...projects.filter((p) => p.slug !== project.slug)];
           }
           return [project, ...projects];
         });
       }),
     );
   }
-  deleteProject(projectId: number): Observable<never> {
-    return this.http.delete<never>(`${this.apiUrl}/projects/${projectId}/`).pipe(
+  deleteProject(slug: string): Observable<never> {
+    return this.http.delete<never>(`${this.apiUrl}/projects/${slug}/`).pipe(
       tap(() => {
-        this.projectsSignal.update((projects) => projects.filter((p) => p.id !== projectId));
+        this.projectsSignal.update((projects) => projects.filter((p) => p.slug !== slug));
       }),
     );
   }

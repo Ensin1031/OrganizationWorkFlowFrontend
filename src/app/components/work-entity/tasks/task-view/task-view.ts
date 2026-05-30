@@ -173,12 +173,12 @@ export class TaskViewComponent {
     this.selectedChangeEpic.set((work.epic as IWork) ?? null);
     this.workEpicTypeFilter.set({
       type: DefaultWorkTypesEnum.EPIC as number,
-      project: work.project.id,
+      project: work.project.slug,
     });
     this.connectionWorkTypeFilter.set({
       without_types: this.groupTypes,
       without_rows: [this.taskSlug],
-      project: work.project.id,
+      project: work.project.slug,
     });
     this.selectedChangeSprint.set((work.sprint as ISprint) ?? null);
     this.selectedChangeTags.set((work.tags as IWorkTag[]) ?? []);
@@ -530,7 +530,7 @@ export class TaskViewComponent {
           page: this.groupTasksCurrentPage(),
           pageSize: this.groupTasksPageSize(),
           epic: task?.slug,
-          project: task?.project?.id,
+          project: task?.project?.slug,
         };
       }),
     ).pipe(

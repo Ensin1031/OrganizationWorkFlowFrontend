@@ -20,7 +20,7 @@ import {
 import { ISelectStrictPageQuery, PaginatedResponse } from '../../../../interfaces/common';
 import { Router, RouterLink } from '@angular/router';
 import { MatIcon } from '@angular/material/icon';
-import { MatIconButton } from '@angular/material/button';
+import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatTooltip } from '@angular/material/tooltip';
 import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 import { CreateUpdateWorkDialogComponent, ICreateUpdateWorkDialogData } from '../../../dialogs/create-update-work/create-update-work';
@@ -34,6 +34,7 @@ import { DurationHumanizePipe } from '../../../../pipes/duration-humanize-pipe';
 import { UserPhotoViewComponent } from '../../../common/user-photo-view/user-photo-view';
 import { SafeSvgComponent } from '../../../common/safe-svg/safe-svg';
 import { HttpErrorResponse } from '@angular/common/http';
+import { IProject } from '../../../../interfaces/project';
 
 
 @Component({
@@ -51,6 +52,7 @@ import { HttpErrorResponse } from '@angular/common/http';
     DurationHumanizePipe,
     UserPhotoViewComponent,
     SafeSvgComponent,
+    MatButton,
   ],
   templateUrl: './tasks-list.html',
   styleUrl: './tasks-list.scss',
@@ -61,12 +63,18 @@ export class TasksListComponent {
   private router = inject(Router);
 
   sprint = input<ISprint | null>(null);
+  project = input<IProject | null>(null);
   canMoveToSprint = input<boolean>(false);
   canCreate = input.required<boolean>();
   pageSize = input.required<number>();
   filters = input.required<Record<string, any> | null | undefined>();
 
+  externalHasMoreBTN = input<boolean>(false);
+  loadHasMoreTasks = input<number>();
+  emptyListMessage = input<string>('Нет задач в спринте');
+
   updateTaskSignal = output();
+  needHasMore = output<boolean>();
 
   protected workService = inject(WorkService);
   protected statusesService = inject(StatusesService);
@@ -79,6 +87,8 @@ export class TasksListComponent {
 
   private prevFiltersHash: string | undefined;
   private prevPageSize: number | undefined;
+
+  private prevLoadMoreValue: number | undefined;
 
   errorSignal = signal<string>('');
   error = computed(() => this.errorSignal());
@@ -97,12 +107,30 @@ export class TasksListComponent {
 
       this.resetAndLoad();
     });
+    effect(() => {
+      const loadMoreValue = this.loadHasMoreTasks();
+
+      if (loadMoreValue == null) {
+        return;
+      }
+
+      if (this.prevLoadMoreValue === undefined) {
+        this.prevLoadMoreValue = loadMoreValue;
+        return;
+      }
+
+      if (loadMoreValue !== this.prevLoadMoreValue) {
+        this.prevLoadMoreValue = loadMoreValue;
+        this.loadMore();
+      }
+    });
   }
 
   private resetAndLoad(): void {
     this.currentPage = 1;
     this.tasks.set([]);
     this.hasMore.set(true);
+    this.needHasMore.emit(false);
     this.loadTasks(true);
   }
 
@@ -131,6 +159,7 @@ export class TasksListComponent {
           this.currentPage++;
         }
         this.hasMore.set(!!response.next);
+        this.needHasMore.emit(!!response.next);
         this.loading.set(false);
       },
       error: () => {
@@ -161,6 +190,7 @@ export class TasksListComponent {
       title: 'Редактирование задачи',
       defaultData: {
         sprint: this.sprint(),
+        project: this.project() ?? undefined,
       },
       filters: {
         types: { without: [DefaultWorkTypesEnum.EPIC, DefaultWorkTypesEnum.STORY] },

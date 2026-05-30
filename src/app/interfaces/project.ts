@@ -31,6 +31,8 @@ export interface IProjectStatusShort {
   slug: string;
   icon: string;
   priority: number;
+  project_id: number;
+  project_ids?: number[];
 }
 export interface IProjectStatus extends IProjectStatusShort {
   description: string;
@@ -40,7 +42,7 @@ export interface IProjectStatus extends IProjectStatusShort {
 }
 export type IProjectStatusCreateOrUpdate = Omit<
   IProjectStatus,
-  'id' | 'created' | 'updated' | 'selected' | 'slug' | 'status'
+  'id' | 'created' | 'updated' | 'selected' | 'slug' | 'status' | 'project_id'
 > & {
   status?: number;
 };

@@ -25,10 +25,13 @@ export class SprintService {
       .get<PaginatedResponse<ISprint>>(url, { params: buildHTTPParams(data) })
       .pipe(catchError(() => of(defaultEmptyPage)));
   }
-  getSprint(sprintSlug: string): Observable<ISprint[]> {
+  getActiveSprints(): Observable<ISprint[]> {
+    return this.http.get<ISprint[]>(`${this.apiUrl}/sprints/active/`);
+  }
+  getSprint(sprintSlug: string): Observable<ISprint> {
     const url = `${this.apiUrl}/sprints/${sprintSlug}/`;
     let params = new HttpParams();
-    return this.http.get<ISprint[]>(url, { params });
+    return this.http.get<ISprint>(url, { params });
   }
   createSprint(data: ISprintCreateOrUpdate): Observable<ISprint> {
     return this.http.post<ISprint>(`${this.apiUrl}/sprints/`, data);
@@ -80,12 +83,12 @@ export class SprintService {
             without_users: null,
           });
         }),
-        map(result => {
+        map((result) => {
           if (!result.users || !Array.isArray(result.users)) {
-            result.users = []
+            result.users = [];
           }
-          return result
-        })
+          return result;
+        }),
       );
   }
 }

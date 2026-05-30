@@ -130,6 +130,29 @@
     }
     & .mat-mdc-text-field-wrapper {
       background: white;
+      border-radius: .25rem;
     }
+  }
+}
+
+:host ::ng-deep .search-field-page {
+  width: 100%;
+  font-size: 12px;
+  --mat-form-field-container-height: 1.5rem;
+  --mat-form-field-container-text-line-height: 1.5rem;
+  --mat-form-field-container-vertical-padding: .025rem;
+  --mat-form-field-outlined-label-text-populated-size: 14px;
+  & .mat-mdc-form-field-subscript-wrapper {
+    display: none !important;
+  }
+  & .mat-mdc-text-field-wrapper {
+    background: white;
+    border-radius: .25rem;
+  }
+  & .mdc-text-field--outlined .mdc-notched-outline--upgraded .mdc-floating-label--float-above, mat-label {
+    font-size: .725rem !important;
+  }
+  & .mat-mdc-form-field-icon-suffix {
+    padding: 0 .25rem !important;
   }
 }

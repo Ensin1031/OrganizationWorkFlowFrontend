@@ -2,8 +2,15 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { catchError, map, Observable, of } from 'rxjs';
-import { IWork, IWorkCreateOrUpdate, IWorkPatch } from '../interfaces/works';
-import { buildHTTPParams, defaultEmptyPage, ISelectStrictPageQuery, PaginatedResponse } from '../interfaces/common';
+import { IWork, IWorkCreateOrUpdate, IWorkPatch, IWorkShort } from '../interfaces/works';
+import {
+  buildHTTPFiltersParams,
+  buildHTTPParams,
+  defaultEmptyPage,
+  FiltersType,
+  ISelectStrictPageQuery,
+  PaginatedResponse,
+} from '../interfaces/common';
 
 @Injectable({
   providedIn: 'root',
@@ -18,6 +25,13 @@ export class WorkService {
       .get<PaginatedResponse<IWork>>(url, { params: buildHTTPParams(data) })
       .pipe(catchError(() => of(defaultEmptyPage)));
   }
+
+  getBySprints(filters: FiltersType): Observable<IWork[]> {
+    return this.http.get<IWork[]>(`${this.apiUrl}/works/by-sprints/`, {
+      params: buildHTTPFiltersParams(filters),
+    });
+  }
+
   getWork(workSlug: string): Observable<IWork> {
     const url = `${this.apiUrl}/works/${workSlug}/`;
     let params = new HttpParams();

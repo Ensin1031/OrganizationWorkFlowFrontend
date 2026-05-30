@@ -65,7 +65,7 @@ export class SprintCardComponent {
   getTasksFilters = computed(() => {
     return {
       ...(this.tasksFilters() ?? {}),
-      sprint: this.sprint().id,
+      sprint: this.sprint().slug,
       without_types: [DefaultWorkTypesEnum.EPIC, DefaultWorkTypesEnum.STORY],
     };
   });

@@ -1,12 +1,41 @@
-.user-table__content {
+:host ::ng-deep .user-table__content {
   display: flex;
   flex-direction: column;
-  button {
-    padding: 8px 16px;
-    background: #dc3545;
-    color: white;
-    border: none;
-    cursor: pointer;
+  &--filters {
+    display: flex;
+    flex-direction: row;
+    gap: .5rem;
+  }
+  &--tasks {
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    padding: .425rem;
+    border: 1px solid var(--gray-dark-background-color);
+    border-radius: .425rem;
+    background: var(--bs-white);
+  }
+  & .mat-mdc-text-field-wrapper {
+    background-color: var(--bs-white);
+  }
+  & .mat-mdc-form-field-subscript-wrapper {
+    display: none;
+  }
+  & .search-field {
+    width: 100%;
+    font-size: 14px;
+    & .mat-mdc-form-field-subscript-wrapper {
+      display: none !important;
+    }
+    & .mat-mdc-text-field-wrapper {
+      background: white;
+      border-radius: .25rem;
+    }
+    & button {
+      margin-right: .15rem;
+    }
   }
 }
-
+.tasks-view-opened {
+  transform: rotate(180deg);
+}
