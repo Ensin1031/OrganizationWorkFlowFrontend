@@ -68,6 +68,16 @@
       <mat-datepicker #picker></mat-datepicker>
     </mat-form-field>
 
+    <div class="form-row align-items-center justify-content-around">
+      <mat-checkbox formControlName="need_send_email_notification">
+        <span class="text-nowrap">Получать письма - уведомления</span>
+      </mat-checkbox>
+
+      <mat-checkbox formControlName="need_send_push_notification">
+        <span class="text-nowrap">Получать пуш уведомления</span>
+      </mat-checkbox>
+    </div>
+
     <div class="form-actions">
       <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || isLoading()">
         Сохранить изменения

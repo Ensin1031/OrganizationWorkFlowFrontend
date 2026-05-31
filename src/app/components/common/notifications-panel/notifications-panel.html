@@ -1,0 +1,38 @@
+<div class="notifications-panel">
+  <div class="notifications-panel__header">
+    <span>Уведомления</span>
+    <div class="d-flex flex-row align-items-center gap-2">
+      <button mat-icon-button (click)="clearAll()" matTooltip="Отметить все прочитанными">
+        <mat-icon>done_all</mat-icon>
+      </button>
+      <button mat-icon-button (click)="deleteAll()" matTooltip="Удалить всё" class="mt-1 d-flex">
+        <mat-icon [svgIcon]="'delObjectIcon'" class="d-flex"></mat-icon>
+      </button>
+      <button mat-icon-button (click)="close()" matTooltip="Закрыть">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  </div>
+  <div class="notifications-panel__body" (scroll)="onScroll($event)">
+    @for (notification of notifications(); track notification.id) {
+      <div class="notification-card" [class.notification-card--unread]="!notification.is_read">
+        <div class="notification-card__title" [innerHTML]="notification.title"></div>
+        <div class="notification-card__description" [innerHTML]="notification.description"></div>
+        <div class="notification-card__footer">
+          <span>{{ notification.created | date:'dd.MM.yyyy HH:mm' }}</span>
+          <div class="d-flex flex-row align-items-center gap-2">
+            @if (!notification.is_read) {
+              <button mat-button (click)="markAsRead(notification.id)">Прочитано</button>
+            }
+            <button mat-icon-button (click)="delete(notification.id)" matTooltip="Удалить">
+              <mat-icon svgIcon="delObjectIcon" class="d-flex"></mat-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+    @if (loading()) {
+      <div class="p-3 text-center">Загрузка...</div>
+    }
+  </div>
+</div>

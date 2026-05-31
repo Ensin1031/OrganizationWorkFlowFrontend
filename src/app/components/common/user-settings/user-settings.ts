@@ -9,6 +9,7 @@ import { MatError, MatFormField, MatInput, MatLabel, MatSuffix } from '@angular/
 import { MatDatepicker, MatDatepickerInput, MatDatepickerToggle } from '@angular/material/datepicker';
 import moment from 'moment';
 import { NgOptimizedImage, NgStyle } from '@angular/common';
+import { MatCheckbox } from '@angular/material/checkbox';
 
 @Component({
   selector: 'app-user-settings',
@@ -27,6 +28,7 @@ import { NgOptimizedImage, NgStyle } from '@angular/common';
     MatDatepicker,
     NgOptimizedImage,
     NgStyle,
+    MatCheckbox,
   ],
   templateUrl: './user-settings.html',
   styleUrl: './user-settings.scss',
@@ -69,6 +71,8 @@ export class UserSettingsComponent implements OnInit {
       last_name: [user.last_name],
       second_name: [user.second_name],
       birth_date: [user.birth_date ? new Date(user.birth_date) : null],
+      need_send_email_notification: [user.need_send_email_notification],
+      need_send_push_notification: [user.need_send_push_notification],
     });
     if (user.profile_photo) {
       this.photoPreviewUrl.set(user.profile_photo);

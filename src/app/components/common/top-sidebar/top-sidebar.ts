@@ -20,6 +20,8 @@ import { CreateUpdateWorkDialogComponent, ICreateUpdateWorkDialogData } from '..
 import { IWorkCreateOrUpdate } from '../../../interfaces/works';
 import { MatDialog } from '@angular/material/dialog';
 import { HttpErrorResponse } from '@angular/common/http';
+import { NotificationsService } from '../../../services/notifications';
+import { NotificationsPanelService } from '../../../services/notifications-panel';
 
 
 @Component({
@@ -47,6 +49,9 @@ import { HttpErrorResponse } from '@angular/common/http';
 })
 export class TopSidebarComponent {
   private dialog = inject(MatDialog);
+
+  protected notificationsService = inject(NotificationsService);
+  protected notificationsPanelService = inject(NotificationsPanelService);
   protected projectService = inject(ProjectContextService);
   protected workService = inject(WorkService);
   protected authService = inject(AuthService);
@@ -61,10 +66,10 @@ export class TopSidebarComponent {
   searchTextPage = signal('');
   goToSearchPage(): void {
     const urlTree = this.router.createUrlTree(['/home/search'], {
-      queryParams: { search: this.searchTextPage() || undefined, },
+      queryParams: { search: this.searchTextPage() || undefined },
     });
     window.open(this.router.serializeUrl(urlTree), '_blank');
-  };
+  }
 
   constructor() {
     effect(() => {
@@ -100,12 +105,13 @@ export class TopSidebarComponent {
   }
 
   onImgError(event: Event) {
-    (event.target as HTMLImageElement).src = 'assets/default-avatar.png';
+    (event.target as HTMLImageElement).src = 'assets/icons/small-logo-light.svg';
   }
   openSettings(): void {
     this.router.navigate(['/home/user-profile']);
   }
   logout(): void {
+    this.notificationsService.disconnect();
     this.userService.clear();
     this.authService.logout();
   }
@@ -173,5 +179,9 @@ export class TopSidebarComponent {
         }),
       )
       .subscribe();
+  }
+
+  notificationsView(): void {
+    this.notificationsPanelService.toggle();
   }
 }

@@ -6,6 +6,30 @@
   box-shadow: 2px 4px 4px rgba(0, 0, 0, 0.5), -2px -4px 4px rgba(255, 255, 255, 0.1);
   overflow: hidden;
   position: fixed;
+  & .notifications-btn {
+    --mat-icon-button-touch-target-size: 2rem;
+    --mat-icon-button-state-layer-size: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    & .notifications-badge {
+      position: absolute;
+      bottom: .025rem;
+      right: .025rem;
+      color: var(--font-color);
+      z-index: 11;
+      font-size: 11px;
+      background: var(--bs-white);
+      border-radius: 1rem;
+      width: 1rem;
+      height: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: .25rem 0 0 0;
+    }
+  }
   & .user-menu-btn {
     --mat-icon-button-touch-target-size: 2rem;
     --mat-icon-button-state-layer-size: 2rem;
