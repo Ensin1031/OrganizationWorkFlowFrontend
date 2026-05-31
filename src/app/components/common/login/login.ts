@@ -4,6 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../services/auth';
 import { CommonModule } from '@angular/common';
 import { catchError, finalize, tap, throwError } from 'rxjs';
+import { NotificationsService } from '../../../services/notifications';
 
 
 @Component({
@@ -163,6 +164,8 @@ export class LoginComponent {
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
 
+  notificationService = inject(NotificationsService);
+
   email = '';
   password = '';
   isLoading = false;
@@ -177,6 +180,7 @@ export class LoginComponent {
       .pipe(
         tap(() => {
           // Успешный вход
+          this.notificationService.connect();
           this.router.navigate(['/home/']);
         }),
         catchError((err) => {

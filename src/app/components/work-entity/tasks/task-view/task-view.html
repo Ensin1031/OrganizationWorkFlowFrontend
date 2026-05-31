@@ -56,7 +56,7 @@
       <div class="task-view--content-block--deck">
 
         <!-- Хэдер -->
-        <div class="card-block d-flex flex-row gap-2 align-items-center">
+        <div class="card-block d-flex flex-row gap-2 align-items-center flex-wrap" style="min-width: 15rem;">
 
           <!-- Кнопка модалки редактирования -->
           <button mat-button color="primary" class="task-view--edit-btn" [disabled]="!canEdit()" (click)="editTask($event)">
@@ -75,7 +75,7 @@
               [disabled]="createNewCommentMode()"
             >
               <div class="d-flex flex-row align-items-center gap-1">
-                <div>Добавить комментарий</div>
+                <div class="text-nowrap">Добавить комментарий</div>
                 <mat-icon svgIcon="addObjectIcon" class="d-flex projects-list__manage-bar--add-icon-btn"></mat-icon>
               </div>
             </button>
@@ -565,7 +565,7 @@
                   @if (canEdit()) {
                     <button mat-button (click)="createGroupTask($event)">
                       <div class="d-flex flex-row align-items-center gap-1">
-                        <div>Добавить задачу</div>
+                        <div class="text-nowrap">Добавить задачу</div>
                         <mat-icon svgIcon="addObjectIcon" class="d-flex projects-list__manage-bar--add-icon-btn"></mat-icon>
                       </div>
                     </button>
@@ -588,7 +588,7 @@
                   <div class="w-100 d-flex gap-2 align-items-center justify-content-end">
                     <button mat-button (click)="loadNextGroupTasksPage()">
                       <div class="d-flex flex-row align-items-center gap-1">
-                        <div>Показать еще</div>
+                        <div class="text-nowrap">Показать еще</div>
                       </div>
                     </button>
                   </div>
@@ -610,7 +610,7 @@
                 @if (canEdit()) {
                   <button mat-button (click)="viewCreateConnectionFields.set(true)" [disabled]="viewCreateConnectionFields()">
                     <div class="d-flex flex-row align-items-center gap-1">
-                      <div>Добавить связь</div>
+                      <div class="text-nowrap">Добавить связь</div>
                       <mat-icon svgIcon="addObjectIcon" class="d-flex projects-list__manage-bar--add-icon-btn"></mat-icon>
                     </div>
                   </button>
@@ -702,7 +702,7 @@
               @if (canCreateComment()) {
                 <button mat-button (click)="newCommentContent.set(''); createNewCommentMode.set(true)" [disabled]="createNewCommentMode()">
                   <div class="d-flex flex-row align-items-center gap-1">
-                    <div>Добавить комментарий</div>
+                    <div class="text-nowrap">Добавить комментарий</div>
                     <mat-icon svgIcon="addObjectIcon" class="d-flex projects-list__manage-bar--add-icon-btn"></mat-icon>
                   </div>
                 </button>

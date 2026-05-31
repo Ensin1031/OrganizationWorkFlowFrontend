@@ -21,6 +21,7 @@ import { IWorkCreateOrUpdate } from '../../../interfaces/works';
 import { MatDialog } from '@angular/material/dialog';
 import { HttpErrorResponse } from '@angular/common/http';
 import { NotificationsService } from '../../../services/notifications';
+import { NotificationsPanelService } from '../../../services/notifications-panel';
 
 
 @Component({
@@ -50,6 +51,7 @@ export class TopSidebarComponent {
   private dialog = inject(MatDialog);
 
   protected notificationsService = inject(NotificationsService);
+  protected notificationsPanelService = inject(NotificationsPanelService);
   protected projectService = inject(ProjectContextService);
   protected workService = inject(WorkService);
   protected authService = inject(AuthService);
@@ -109,6 +111,7 @@ export class TopSidebarComponent {
     this.router.navigate(['/home/user-profile']);
   }
   logout(): void {
+    this.notificationsService.disconnect();
     this.userService.clear();
     this.authService.logout();
   }
@@ -179,6 +182,6 @@ export class TopSidebarComponent {
   }
 
   notificationsView(): void {
-    console.log('notificationsView ===', this.notificationsService.data());
-  };
+    this.notificationsPanelService.toggle();
+  }
 }

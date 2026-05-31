@@ -81,9 +81,9 @@
       </mat-form-field>
     </div>
     <button mat-icon-button class="notifications-btn" (click)="notificationsView()" [matTooltip]="'Уведомления'" [matTooltipShowDelay]="500">
-      @if (notificationsService.data().length; as notifications) {
+      @if (notificationsService.unreadCount(); as unreadCount) {
         <mat-icon class="d-flex notifications-icon" [svgIcon]="'notificationRingIcon'"></mat-icon>
-        <span class="notifications-badge">{{ notifications }}</span>
+        <span class="notifications-badge">{{ unreadCount }}</span>
       } @else {
         <mat-icon class="d-flex notifications-icon" [svgIcon]="'notificationIcon'"></mat-icon>
       }
