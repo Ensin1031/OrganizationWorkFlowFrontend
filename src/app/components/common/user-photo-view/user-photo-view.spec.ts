@@ -13,6 +13,11 @@ describe('UserPhotoViewComponent', () => {
 
     fixture = TestBed.createComponent(UserPhotoViewComponent);
     component = fixture.componentInstance;
+
+    fixture.componentRef.setInput('photoUrl', 'https://example.com/avatar.png');
+    fixture.componentRef.setInput('tooltip', 'test tooltip');
+
+    fixture.detectChanges();
     await fixture.whenStable();
   });
 
