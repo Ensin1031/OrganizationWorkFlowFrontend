@@ -12,6 +12,13 @@ describe('TasksListComponent', () => {
     }).compileComponents();
 
     fixture = TestBed.createComponent(TasksListComponent);
+
+    fixture.componentRef.setInput('filters', {});
+    fixture.componentRef.setInput('pageSize', 20);
+    fixture.componentRef.setInput('loadHasMoreTasks', null);
+
+    fixture.detectChanges();
+
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

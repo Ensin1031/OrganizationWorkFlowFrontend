@@ -12,6 +12,13 @@ describe('TasksBySprintsComponent', () => {
     }).compileComponents();
 
     fixture = TestBed.createComponent(TasksBySprintsComponent);
+
+    fixture.componentRef.setInput('filters', {});
+    fixture.componentRef.setInput('tasksFilters', {});
+    fixture.componentRef.setInput('sprintTasksPageSize', 1);
+    fixture.componentRef.setInput('canCreateTask', false);
+    fixture.componentRef.setInput('canCreateSprint', false);
+
     component = fixture.componentInstance;
     await fixture.whenStable();
   });
