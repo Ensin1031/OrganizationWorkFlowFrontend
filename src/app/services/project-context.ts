@@ -98,12 +98,8 @@ export class ProjectContextService {
     );
   }
   storageSelectProjectKey = (): string => 'selectedProjectId';
-  get storageSelectedProjectId(): number | undefined {
-    const numStorageProjectId = Number(localStorage.getItem(this.storageSelectProjectKey()));
-    if (numStorageProjectId) {
-      return numStorageProjectId;
-    }
-    return undefined;
+  get storageSelectedProjectId(): string | undefined {
+    return localStorage.getItem(this.storageSelectProjectKey()) || undefined;
   }
   selectProject(project: IProject): void {
     localStorage.setItem(this.storageSelectProjectKey(), String(project.slug));
