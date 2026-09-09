@@ -135,7 +135,7 @@ export class CreateUpdateWorkDialogComponent implements OnInit {
   defaultProject = computed(() => {
     const storageProjectId = this.projectService.storageSelectedProjectId;
     if (storageProjectId) {
-      return this.projectService.projects().find((pr) => pr.id === storageProjectId) || null;
+      return this.projectService.projects().find((pr) => pr.slug == storageProjectId) || null;
     }
     return null;
   });
